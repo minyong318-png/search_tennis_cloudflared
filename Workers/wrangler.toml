@@ -24,7 +24,7 @@ VAPID_PUBLIC_KEY = "BJMHlXTjGlkAKLYuzldktlSsgX-sleCNic66FfM0AjAmmlSZGu1l7hkzpM6v
 VAPID_SUBJECT = "mailto:ccoo2000@naver.com"
 [triggers]
 # KST 23:50~24:00 = UTC 14:50~15:00
-crons = ["/2 * * * *"]
+crons = ["*/2 * * * *"]
 
 [observability]
 [observability.logs]
