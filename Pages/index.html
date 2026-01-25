@@ -396,19 +396,15 @@ async function loadData() {
   try {
     const res = await fetch("/api/data?_=" + Date.now(), {
       cache: "no-store",
-      headers: {
-        "Cache-Control": "no-cache"
-      }
+      headers: { "Cache-Control": "no-cache" }
     });
 
     const data = await res.json();
-
     DATA = data;
 
     renderUpdatedTime(data.updated_at);
     buildCourtGroups();
     renderCourts();
-    loadMyAlarms();
 
   } catch (e) {
     console.error("[loadData error]", e);
@@ -416,6 +412,7 @@ async function loadData() {
       "⏳ 서버에서 예약 정보를 불러오지 못했습니다.<br>잠시 후 새로고침 해주세요.";
   }
 }
+
 let pullStartY = null;
 let isRefreshing = false;
 
@@ -794,29 +791,25 @@ if (isDesktop()) {
 }
 
 async function init() {
-  try {
-    // 🔕 init에서는 push 실패해도 무시
-    try {
-      await enablePushIfNeeded({ silent: true });
-    } catch (e) {
-      console.warn("Push not ready yet:", e.message);
-    }
+  // 🔕 push는 실패해도 무시
+  enablePushIfNeeded({ silent: true }).catch(e =>
+    console.warn("push skipped:", e.message)
+  );
 
-    await loadData();
-    await loadMyAlarms();
+  // ⭐ 데이터는 무조건 먼저
+  await loadData();
 
-  } catch (e) {
-    alert("init fatal error: " + e.message);
-  }
+  // 🔔 알람은 그 다음 (데이터랑 독립)
+  await loadMyAlarms();
 }
+
 
 
 filterGu.onchange=renderCourts;
 filterCourt.onchange=renderCourts;
 
-window.addEventListener("load", () => {
-  init();
-});
+document.addEventListener("DOMContentLoaded", init);
+
 
 document.getElementById("noticeBtn").onclick = () => {
   document.getElementById("noticeModal").style.display = "block";
