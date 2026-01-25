@@ -648,7 +648,7 @@ async function loadMyAlarms() {
   }
 
   const res = await fetch(
-    API_BASE + "/alarm/list?subscription_id=" + encodeURIComponent(subscriptionId)
+    API_BASE + "/api/alarm/list?subscription_id=" + encodeURIComponent(subscriptionId)
   );
 
   if (!res.ok) {
@@ -705,7 +705,7 @@ async function deleteAlarm(date, courtGroup) {
     return;
   }
 
-  const res = await fetch(API_BASE + "/alarm/delete", {
+  const res = await fetch(API_BASE + "/api/alarm/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -732,7 +732,7 @@ alarmBtn.onclick = async () => {
     }
 
     // 🔥 3️⃣ 알람 등록
-    const res = await fetch(API_BASE + "/alarm/add", {
+    const res = await fetch(API_BASE + "/api/alarm/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
