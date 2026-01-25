@@ -333,7 +333,7 @@ async function enablePushIfNeeded({ silent = false } = {}) {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
 
-    const res = await fetch("/api/push/subscribe", {
+    const res = await ("https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(sub)
@@ -397,7 +397,7 @@ let retryCount = 0;
 
 async function loadData() {
   try {
-    const res = await fetch("/data", {
+    const res = await fetch("/api/data", {
       credentials: "same-origin"
     });
 

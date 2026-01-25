@@ -25,3 +25,8 @@ VAPID_SUBJECT = "mailto:ccoo2000@naver.com"
 [triggers]
 # KST 23:50~24:00 = UTC 14:50~15:00
 crons = ["* * * * *"]
+
+[observability]
+[observability.logs]
+enabled = false
+invocation_logs = true

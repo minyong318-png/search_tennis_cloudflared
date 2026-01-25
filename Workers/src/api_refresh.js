@@ -4,6 +4,7 @@ import { runCrawl } from "./crawler";
 import { sendWebPush } from "./webpush";
 
 
+
 async function cleanupOld(env) {
   const today = yyyymmddKST(new Date());
   await dbRun(env, `DELETE FROM alarms WHERE date < ?`, [today]);
@@ -35,14 +36,22 @@ async function sendPush(env, subscription, title, body) {
 
 
 export async function handleRefresh(req, env, ctx, opts = {}) {
-  const url = new URL(req.url);
-  const fromCron = opts.fromCron === true;
+  const fromCron = opts.fromCron === true || !req;
 
-  // 수동 호출 보호
+  let url = null;
+  if (req) {
+    url = new URL(req.url);
+  }
+
+  // 🔐 수동 호출만 토큰 검사
   if (!fromCron) {
     const token = url.searchParams.get("token");
-    if (!token || token !== env.REFRESH_TOKEN) return new Response("forbidden", { status: 403 });
+    if (!token || token !== env.REFRESH_TOKEN) {
+      return new Response("forbidden", { status: 403 });
+    }
   }
+
+  console.log("[REFRESH] start", fromCron ? "cron" : "manual");
 
   // 0) 오래된 데이터 정리
   await cleanupOld(env);
@@ -52,11 +61,23 @@ export async function handleRefresh(req, env, ctx, opts = {}) {
   const concurrency = parseInt(env.CONCURRENCY || "15", 10);
 
   const { facilities, availability } = await runCrawl({ daysAhead, concurrency });
+
+  console.log(
+    "[REFRESH] crawl result",
+    Object.keys(facilities).length,
+    Object.keys(availability).length
+  );
+
   const updated_at = kstNowISOString();
 
-  // 2) KV 저장 (/api/data가 이거 반환)
+  // 2) KV 저장
   const payload = JSON.stringify({ facilities, availability, updated_at });
-  await env.CACHE.put("DATA_JSON", payload, { expirationTtl: 120 }); // 2분 캐시(원하면 늘려도 됨)
+  await env.CACHE.put("DATA_JSON", payload, { expirationTtl: 120 });
+
+  console.log("[REFRESH] cache updated");
+
+  // ⬇️⬇️⬇️ 여기서부터 알람 로직 ⬇️⬇️⬇️
+
 
   // 3) 알람 처리
   const alarms = await dbAll(env, `SELECT subscription_id, court_group, date FROM alarms`);
@@ -145,6 +166,17 @@ export async function handleRefresh(req, env, ctx, opts = {}) {
       `, [subscription_id, slot_key]);
 
       baseline.add(slot.time);
+
+      console.log("[REFRESH] start", new Date().toISOString());
+      console.log(
+        "[REFRESH] crawl result",
+        Object.keys(facilities).length,
+        Object.keys(availability).length
+      );
+      await env.CACHE.put("DATA_JSON", payload, { expirationTtl: 120 });
+      console.log("[REFRESH] cache updated");
+
+
     }
   }
 

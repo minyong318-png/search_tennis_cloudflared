@@ -7,8 +7,9 @@ export async function handleData(_req, env) {
   }
   return new Response(raw, {
     headers: {
-    "Content-Type": "application/json",
-    "Cache-Control": "no-store"
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+    "Pragma": "no-cache"
     }
   });
 }

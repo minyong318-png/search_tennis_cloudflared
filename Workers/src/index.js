@@ -44,8 +44,9 @@ export default {
     return new Response("Not Found", { status: 404 });
   },
 
-  // ⏱ cron 트리거
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(handleRefresh(null, env, ctx));
+  ctx.waitUntil(
+    handleRefresh(null, env, ctx, { fromCron: true })
+    );
   }
 };
