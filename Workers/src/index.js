@@ -20,8 +20,12 @@ export default {
 
     // 🔹 푸시 구독
     if (path === "/api/push/subscribe") {
+      if (req.method !== "POST") {
+        return new Response("Method Not Allowed", { status: 405 });
+      }
       return handlePushSubscribe(req, env);
     }
+
 
     // 🔹 수동 refresh (보안 토큰)
     if (path === "/api/refresh") {

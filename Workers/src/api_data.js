@@ -6,6 +6,9 @@ export async function handleData(_req, env) {
     return json({ facilities: {}, availability: {}, updated_at: null });
   }
   return new Response(raw, {
-    headers: { "Content-Type": "application/json; charset=utf-8" }
+    headers: {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store"
+    }
   });
 }
