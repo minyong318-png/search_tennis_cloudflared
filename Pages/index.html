@@ -396,7 +396,6 @@ async function loadData() {
   try {
     const res = await fetch("https://yongin-tennis-worker.ccoo2000.workers.dev/api/data?_=" + Date.now(), {
       cache: "no-store",
-      headers: { "Cache-Control": "no-cache" }
     });
 
     const data = await res.json();
