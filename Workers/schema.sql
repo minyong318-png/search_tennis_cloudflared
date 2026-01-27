@@ -35,3 +35,11 @@ CREATE TABLE IF NOT EXISTS baseline_slots (
   created_at TEXT DEFAULT (datetime('now')),
   UNIQUE(subscription_id, court_group, date, time_content)
 );
+
+CREATE TABLE IF NOT EXISTS availability_cache (
+  rid TEXT NOT NULL,
+  date TEXT NOT NULL,              -- YYYYMMDD
+  slots_json TEXT NOT NULL,        -- JSON 문자열
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (rid, date)
+);

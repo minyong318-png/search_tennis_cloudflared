@@ -2,28 +2,25 @@ name = "yongin-tennis-worker"
 main = "src/index.js"
 compatibility_date = "2026-01-25"
 
-# ✅ KV: 크롤링 결과 캐시 저장
+# KV
 kv_namespaces = [
   { binding = "CACHE", id = "64f7e91517344e6fa23d95ae042f94df" }
 ]
 
-# ✅ D1: alarms/push_subscriptions/baseline/sent 저장
+# D1
 d1_databases = [
   { binding = "yongin_tennis_db", database_name = "yongin-tennis-db", database_id = "5e305821-e677-49e9-a582-4e72ecf46d20" }
 ]
 
 [vars]
-# /api/refresh 보호 토큰
 REFRESH_TOKEN = "CHANGE_ME"
-# 크롤링 범위(일) - 너무 크게 하면 worker 제한에 걸릴 수 있음
-DAYS_AHEAD = "60"
-# 동시 요청 제한
-CONCURRENCY = "10"
+
 VAPID_PRIVATE_KEY = "roai0L2t_DhxnhgjiRKWJ9yjf6eEH87Fysogn1Z8vxw"
 VAPID_PUBLIC_KEY = "BJMHlXTjGlkAKLYuzldktlSsgX-sleCNic66FfM0AjAmmlSZGu1l7hkzpM6vnvnBjbDEqwA4dDd8V2C5u8S2f7I"
 VAPID_SUBJECT = "mailto:ccoo2000@naver.com"
+
 [triggers]
-# KST 23:50~24:00 = UTC 14:50~15:00
+# */2분 일반 크론 + 23시 priority는 코드에서 분기
 crons = ["*/2 * * * *"]
 
 [observability]
