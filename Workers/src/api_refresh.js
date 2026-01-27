@@ -38,6 +38,23 @@ async function sendPush(env, subscription, title, body) {
 export async function handleRefresh(req, env, ctx, opts = {}) {
   const fromCron = opts.fromCron === true || !req;
 
+  let force = false;
+  if (!fromCron && req) {
+    const url = new URL(req.url);
+    force = url.searchParams.get("force") === "1";
+  }
+
+  const last = await env.CACHE.get("LAST_REFRESH_TS");
+  if (!force && last && Date.now() - Number(last) < 2 * 60 * 1000) {
+    console.log("[REFRESH] skip (too soon)");
+    return fromCron ? undefined : new Response("skip");
+  }
+
+  await env.CACHE.put("LAST_REFRESH_TS", Date.now().toString());
+
+  console.log("[REFRESH] start", fromCron ? "cron" : "manual");
+
+
   let url = null;
   if (req) {
     url = new URL(req.url);
@@ -51,16 +68,16 @@ export async function handleRefresh(req, env, ctx, opts = {}) {
     }
   }
 
-  console.log("[REFRESH] start", fromCron ? "cron" : "manual");
-
   // 0) 오래된 데이터 정리
   await cleanupOld(env);
 
   // 1) 크롤링
-  const daysAhead = parseInt(env.DAYS_AHEAD || "45", 10);
-  const concurrency = parseInt(env.CONCURRENCY || "15", 10);
+  let crawlOptions = {
+    daysAhead: 60,        // 이번 달 + 다음 달 커버
+    concurrency: 10       // CPU 안정 우선
+  };
 
-  const { facilities, availability } = await runCrawl({ daysAhead, concurrency });
+  const { facilities, availability } = await runCrawl(crawlOptions);
 
   console.log(
     "[REFRESH] crawl result",
@@ -166,17 +183,6 @@ export async function handleRefresh(req, env, ctx, opts = {}) {
       `, [subscription_id, slot_key]);
 
       baseline.add(slot.time);
-
-      console.log("[REFRESH] start", new Date().toISOString());
-      console.log(
-        "[REFRESH] crawl result",
-        Object.keys(facilities).length,
-        Object.keys(availability).length
-      );
-      await env.CACHE.put("DATA_JSON", payload, { expirationTtl: 120 });
-      console.log("[REFRESH] cache updated");
-
-
     }
   }
 

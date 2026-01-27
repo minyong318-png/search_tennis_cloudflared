@@ -8,6 +8,25 @@ const HEADERS = {
   "Referer": BASE_URL
 };
 
+
+function getMonthFromFacilityTitle(title) {
+  const m = title.match(/_(\d{2})월/);
+  if (!m) return null;
+  return m[1]; // "01", "02"
+}
+
+function filterDatesByRid(rid, facilities, allDates) {
+  const title = facilities[rid]?.title;
+  if (!title) return [];
+
+  const month = getMonthFromFacilityTitle(title);
+  if (!month) return [];
+
+  // dateVal: YYYYMMDD
+  return allDates.filter(d => d.slice(4, 6) === month);
+}
+
+
 async function fetchText(url, init = {}) {
   const res = await fetch(url, { ...init, headers: { ...(init.headers || {}), ...HEADERS } });
   return await res.text();
@@ -58,17 +77,20 @@ function parseFacilities(html) {
 
 function listDatesAhead(daysAhead) {
   const dates = [];
-  const now = new Date(Date.now() + 9*60*60*1000); // KST
-  // "내일부터" 시작(기존 python)
-  for (let i = 1; i <= daysAhead; i++) {
-    const d = new Date(now.getTime() + i * 24*60*60*1000);
-    const y = d.getUTCFullYear();
-    const m = String(d.getUTCMonth()+1).padStart(2, "0");
-    const dd = String(d.getUTCDate()).padStart(2, "0");
+  const nowKST = new Date(Date.now() + 9 * 60 * 60 * 1000);
+
+  // 오늘 포함
+  for (let i = 0; i <= daysAhead; i++) {
+    const d = new Date(nowKST.getTime() + i * 24 * 60 * 60 * 1000);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
     dates.push(`${y}${m}${dd}`);
   }
+
   return dates;
 }
+
 
 async function fetchTimesForDate(rid, dateVal) {
   const body = new URLSearchParams({ dateVal, resveId: rid });
@@ -85,7 +107,8 @@ async function fetchTimesForDate(rid, dateVal) {
   }
 }
 
-export async function runCrawl({ daysAhead = 45, concurrency = 15 } = {}) {
+
+export async function runCrawl({ daysAhead = 60, concurrency = 10 } = {}) {
   // 1) 시설 목록 페이지 1 로드
   const baseParams = new URLSearchParams({
     searchFcltyFieldNm: "ITEM_01",
@@ -113,22 +136,31 @@ export async function runCrawl({ daysAhead = 45, concurrency = 15 } = {}) {
   // 3) 각 시설 rid × datesAhead 조회 (동시성 제한)
   const rids = Object.keys(facilities);
   const dates = listDatesAhead(daysAhead);
-
   const availability = {};
 
   // 시설 단위로 순회하되, 내부 날짜는 제한 concurrency로
   for (const rid of rids) {
-    const results = await pMap(dates, concurrency, async (dateVal) => {
-      const slots = await fetchTimesForDate(rid, dateVal);
-      return { dateVal, slots };
-    });
+  const ridDates = filterDatesByRid(rid, facilities, dates);
+  if (ridDates.length === 0) continue;
 
-    for (const { dateVal, slots } of results) {
-      if (!slots || slots.length === 0) continue;
-      availability[rid] ??= {};
-      availability[rid][dateVal] = slots;
+  const results = await pMap(ridDates, concurrency, async (dateVal) => {
+    const slots = await fetchTimesForDate(rid, dateVal);
+    return { dateVal, slots };
+  });
+
+  for (const { dateVal, slots } of results) {
+    if (!slots || slots.length === 0) continue;
+
+    availability[rid] ??= {};
+    availability[rid][dateVal] ??= [];
+    availability[rid][dateVal].push(...slots);
     }
+  console.log(
+    `[CRAWL] rid=${rid} month=${getMonthFromFacilityTitle(facilities[rid]?.title)} dates=${ridDates.length}`
+    );
   }
+
 
   return { facilities, availability };
 }
+
