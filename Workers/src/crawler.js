@@ -92,17 +92,20 @@ function listDatesAhead(daysAhead) {
 }
 
 
-async function fetchTimesForDate(rid, dateVal) {
+async function fetchTimesForDate(rid, dateVal, retry = 2) {
   const body = new URLSearchParams({ dateVal, resveId: rid });
   try {
     const j = await fetchJson(TIME_URL, { method: "POST", body });
     const list = j?.resveTmList || [];
-    // slot 형태를 프론트에 맞춰 통일
     return list.map(x => ({
       timeContent: x.timeContent || x.resveTmNm || x.tmNm || "",
       resveId: rid
     })).filter(x => x.timeContent);
-  } catch {
+  } catch (e) {
+    if (retry > 0) {
+      await new Promise(res => setTimeout(res, 500)); // 0.5초 대기 후 재시도
+      return fetchTimesForDate(rid, dateVal, retry - 1);
+    }
     return [];
   }
 }
