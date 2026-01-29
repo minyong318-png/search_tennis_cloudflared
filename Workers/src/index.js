@@ -7,6 +7,7 @@ import {
   getKSTHour,
   listTomorrowOnly,
   pickRidsByFacilityNames,
+  splitDatesAhead,
   splitFacilitiesByPart
 } from "./util";
 import { dbRun } from "./db";
@@ -86,7 +87,7 @@ async function normalCrawl(env) {
 
   // 🔁 2분 크론 기준 → part 자동 순환 (0,1,2)
   const part = Math.floor(Date.now() / (2 * 60 * 1000)) % 3;
-  const myRids = splitFacilitiesByPart(facilities, part, 3);
+  const myRids = splitFacilitiesByPart(facilities, part, 8);
 
   console.log("[NORMAL]", {
     part,
@@ -158,19 +159,190 @@ export default {
       return new Response("pong", { headers: corsHeaders });
     }
 
+    if (path === "/api/debug/state") {
+      const state = await env.CACHE.get("CRAWL_STATE");
+      return new Response(state || "no state");
+    }
+
     return new Response("Not Found", { status: 404, headers: corsHeaders });
   },
-
+  
   async scheduled(event, env, ctx) {
-    const hour = getKSTHour();
+  ctx.waitUntil(runScheduledCrawl(env));
+  }
+};
 
-    // 🔥 23시는 priority만
-    if (hour === 23) {
-      ctx.waitUntil(priorityCrawl(env));
+
+async function runScheduledCrawl(env) {
+  // 1️⃣ 상태 로드 (없으면 초기화)
+  let state = await env.CACHE.get("CRAWL_STATE", { type: "json" });
+  if (!state) {
+    state = {
+      phase: "FULL",
+      facilityPart: 0,
+      datePart: 0,
+      fullDone: false,
+      retry: 0,
+      lastError: null
+    };
+  }
+
+  const hour = getKSTHour();
+
+  // 2️⃣ PHASE 결정
+  if (hour === 23) {
+    state.phase = "NIGHT";
+  } else if (!state.fullDone) {
+    state.phase = "FULL";
+  } else {
+    state.phase = "DELTA";
+  }
+
+  console.log("[CRON] start", {
+    phase: state.phase,
+    facilityPart: state.facilityPart,
+    datePart: state.datePart,
+    retry: state.retry
+  });
+
+  // 3️⃣ 시설 목록 확보
+  const { facilities } = await fetchAllFacilities({ concurrency: 4 });
+  const allRids = Object.keys(facilities).sort();
+
+  let targetRids = [];
+  let targetDates = [];
+
+  // 4️⃣ PHASE별 대상 계산
+  if (state.phase === "FULL") {
+    // 시설 10분할
+    targetRids = splitFacilitiesByPart(
+      facilities,
+      state.facilityPart,
+      10
+    );
+
+    // 날짜 60일 → 10분할
+    const dateParts = splitDatesAhead(60, 10);
+    targetDates = dateParts[state.datePart] || [];
+
+  } else if (state.phase === "DELTA") {
+    // 모든 시설 + 최근 3일
+    targetRids = allRids;
+    targetDates = splitDatesAhead(3, 1)[0];
+
+  } else {
+    // NIGHT: 지정 시설 + 내일
+    const raw = await env.CACHE.get("PRIORITY_FACILITY_NAMES");
+    if (!raw) {
+      console.log("[NIGHT] no priority facilities");
       return;
     }
 
-    // 🔁 그 외 시간: 시설 1/3 분할 크롤
-    ctx.waitUntil(normalCrawl(env));
+    let names = [];
+    try {
+      names = JSON.parse(raw);
+    } catch {
+      console.error("[NIGHT] invalid PRIORITY_FACILITY_NAMES");
+      return;
+    }
+
+    targetRids = allRids.filter(rid =>
+      names.some(name =>
+        facilities[rid]?.title?.includes(name)
+      )
+    );
+
+    targetDates = listTomorrowOnly();
   }
-};
+
+  console.log("[CRAWL] target", {
+    rids: targetRids.length,
+    dates: targetDates.length
+  });
+
+  // 5️⃣ 실제 크롤 + 재시도 제어
+  try {
+    for (const rid of targetRids) {
+      for (const dateVal of targetDates) {
+        const slots = await fetchTimesForRidDate({
+          rid,
+          dateVal
+        });
+
+        if (!Array.isArray(slots)) {
+          throw new Error(`Invalid slots for rid=${rid} date=${dateVal}`);
+        }
+
+        await dbRun(
+          env,
+          `
+          INSERT INTO availability_cache (rid, date, slots_json, updated_at)
+          VALUES (?, ?, ?, datetime('now'))
+          ON CONFLICT(rid, date) DO UPDATE SET
+            slots_json=excluded.slots_json,
+            updated_at=excluded.updated_at
+        `,
+          [rid, dateVal, JSON.stringify(slots)]
+        );
+      }
+    }
+
+    // ✅ 성공 시
+    state.retry = 0;
+    state.lastError = null;
+
+    if (state.phase === "FULL") {
+      advanceIndex(state);
+    }
+
+  } catch (e) {
+    // ❌ 실패 시
+    state.retry = (state.retry || 0) + 1;
+    state.lastError = e.message;
+
+    console.error("[CRAWL] error", {
+      phase: state.phase,
+      facilityPart: state.facilityPart,
+      datePart: state.datePart,
+      retry: state.retry,
+      error: e.message
+    });
+
+    // 3회 실패 시 해당 part 스킵
+    if (state.retry >= 3 && state.phase === "FULL") {
+      console.error("[CRAWL] skip part", {
+        facilityPart: state.facilityPart,
+        datePart: state.datePart
+      });
+
+      state.retry = 0;
+      advanceIndex(state);
+    }
+
+    await env.CACHE.put("CRAWL_STATE", JSON.stringify(state));
+    return; // ⛔ 실패 시 여기서 종료
+  }
+
+  // 6️⃣ 상태 저장
+  await env.CACHE.put("CRAWL_STATE", JSON.stringify(state));
+
+  console.log("[CRON] done", {
+    phase: state.phase,
+    facilityPart: state.facilityPart,
+    datePart: state.datePart,
+    fullDone: state.fullDone
+  });
+}
+
+
+function advanceIndex(state) {
+  state.datePart++;
+  if (state.datePart >= 10) {
+    state.datePart = 0;
+    state.facilityPart++;
+  }
+  if (state.facilityPart >= 10) {
+    state.facilityPart = 0;
+    state.fullDone = true;
+  }
+}

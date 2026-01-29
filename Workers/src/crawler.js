@@ -152,27 +152,31 @@ export async function fetchTimesForRidDate({
  * 기존 export 유지: 전체 크롤
  * ✅ 중요 변경: "월 필터" 제거(모든 시설×모든 날짜 조회)
  */
-export async function runCrawl({ daysAhead = 60, concurrency = 10 } = {}) {
+export async function runCrawl({
+  facilityIds = null,
+  dates = null,
+  daysAhead = 60,
+  concurrency = 10
+} = {}) {
   const { facilities } = await fetchAllFacilities({ concurrency });
 
-  const rids = Object.keys(facilities);
-  const dates = listDatesAhead(daysAhead);
+  const rids = facilityIds ?? Object.keys(facilities);
+  const targetDates = dates ?? listDatesAhead(daysAhead);
+
   const availability = {};
 
   for (const rid of rids) {
-    const results = await pMap(dates, concurrency, async dateVal => {
-      const slots = await fetchTimesForDate(rid, dateVal);
+    const results = await pMap(targetDates, concurrency, async dateVal => {
+      const slots = await fetchTimesForRidDate({ rid, dateVal });
       return { dateVal, slots };
     });
 
     for (const { dateVal, slots } of results) {
-      if (!slots || slots.length === 0) continue;
+      if (!slots?.length) continue;
       availability[rid] ??= {};
       availability[rid][dateVal] ??= [];
       availability[rid][dateVal].push(...slots);
     }
-
-    console.log(`[CRAWL] rid=${rid} dates=${dates.length}`);
   }
 
   return { facilities, availability };

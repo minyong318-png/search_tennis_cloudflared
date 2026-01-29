@@ -21,7 +21,7 @@ VAPID_SUBJECT = "mailto:ccoo2000@naver.com"
 
 [triggers]
 # */2분 일반 크론 + 23시 priority는 코드에서 분기
-crons = ["*/2 * * * *"]
+crons = ["* * * * *"]
 
 [observability]
 [observability.logs]

@@ -45,7 +45,7 @@ export async function handleRefresh(req, env, ctx, opts = {}) {
   }
 
   const last = await env.CACHE.get("LAST_REFRESH_TS");
-  if (!force && last && Date.now() - Number(last) < 2 * 60 * 1000) {
+  if (!force && last && Date.now() - Number(last) < 1 * 60 * 1000) {
     console.log("[REFRESH] skip (too soon)");
     return fromCron ? undefined : new Response("skip");
   }
@@ -73,11 +73,27 @@ export async function handleRefresh(req, env, ctx, opts = {}) {
 
   // 1) 크롤링
   let crawlOptions = {
-    daysAhead: 60,        // 이번 달 + 다음 달 커버
+    daysAhead: 10,        // 이번 달 + 다음 달 커버
     concurrency: 10       // CPU 안정 우선
   };
 
-  const { facilities, availability } = await runCrawl(crawlOptions);
+const facilities = await getFacilities();
+const dates = getDates(10);
+
+let availability = {};
+
+for (const f of facilities) {
+  for (const d of dates) {
+    const slots = await runCrawlByFacilityDate({
+      facilityId: f.id,
+      date: d
+    });
+
+    availability[f.id] ??= {};
+    availability[f.id][d] = slots;
+  }
+}
+
 
   console.log(
     "[REFRESH] crawl result",

@@ -151,3 +151,37 @@ export function yyyymmddKST(date = new Date()) {
   return `${y}${m}${dd}`;
 }
 
+export function pickWorkSlice({ rids, dates, part, totalParts }) {
+  const work = [];
+
+  let idx = 0;
+  for (const rid of rids) {
+    for (const date of dates) {
+      if (idx % totalParts === part) {
+        work.push({ rid, date });
+      }
+      idx++;
+    }
+  }
+
+  return work;
+}
+
+export function splitDatesAhead(days, totalParts = 10) {
+  const dates = [];
+  const now = getKSTNow();
+
+  for (let i = 1; i <= days; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    dates.push(`${y}${m}${dd}`);
+  }
+
+  const size = Math.ceil(dates.length / totalParts);
+  return Array.from({ length: totalParts }, (_, i) =>
+    dates.slice(i * size, (i + 1) * size)
+  );
+}
