@@ -2,6 +2,7 @@
   "name": "용인 테니스 예약",
   "short_name": "테니스예약",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#eef2ff",
   "theme_color": "#4f46e5",

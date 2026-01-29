@@ -1,39 +1,65 @@
-self.addEventListener("push", event => {
-  const data = event.data ? event.data.json() : {};
-  self.registration.showNotification(data.title || "🎾 알림", {
-    body: data.body || "",
-    icon: "/icon.png",
-    vibrate: [200, 100, 200],
-    tag: "tennis-alert"
-  });
+/* =========================
+   Service Worker 기본 수명주기
+   ========================= */
+
+self.addEventListener("install", event => {
+  // 즉시 활성화 (iOS 중요)
+  self.skipWaiting();
 });
 
-self.addEventListener("notificationclick", event => {
-  event.notification.close();
+self.addEventListener("activate", event => {
+  // 모든 클라이언트 즉시 제어
+  event.waitUntil(self.clients.claim());
+});
+
+/* =========================
+   Push 알림 수신
+   ========================= */
+
+self.addEventListener("push", event => {
+  let data = {};
+
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = {};
+  }
+
+  const title = data.title || "🎾 테니스 알림";
+  const body = data.body || "";
+
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
-      if (list && list.length) return list[0].focus();
-      return clients.openWindow("/");
+    self.registration.showNotification(title, {
+      body,
+      icon: "/icon.png",
+      badge: "/icon.png",
+      tag: "tennis-alert",
+      vibrate: [200, 100, 200],
+      renotify: true
     })
   );
 });
 
-// 🔥 API 캐시 방지용 fetch 핸들러
-self.addEventListener("fetch", event => {
-  const url = new URL(event.request.url);
+/* =========================
+   알림 클릭 처리
+   ========================= */
 
-  // API 요청은 Service Worker가 관여하지 않음
-  if (url.pathname.startsWith("/api/")) {
-    return;
-  }
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
 
-  // 나머지 정적 리소스만 캐시 (선택)
-  event.respondWith(
-    caches.open("static-v1").then(cache =>
-      cache.match(event.request).then(res =>
-        res || fetch(event.request)
-      )
-    )
+  event.waitUntil(
+    self.clients.matchAll({
+      type: "window",
+      includeUncontrolled: true
+    }).then(clientList => {
+      // 이미 열린 창이 있으면 포커스
+      for (const client of clientList) {
+        if ("focus" in client) {
+          return client.focus();
+        }
+      }
+      // 없으면 새 창 열기
+      return self.clients.openWindow("/");
+    })
   );
 });
-

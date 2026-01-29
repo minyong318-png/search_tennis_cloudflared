@@ -964,8 +964,22 @@ async function init() {
 filterGu.onchange=renderCourts;
 filterCourt.onchange=renderCourts;
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
 
+  // 1️⃣ Service Worker 먼저 등록
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js")
+      .then(reg => {
+        console.log("SW registered:", reg.scope);
+      })
+      .catch(err => {
+        console.error("SW register failed:", err);
+      });
+  }
+
+  // 2️⃣ 그 다음에 기존 초기화 로직
+  init();
+});
 
 document.getElementById("noticeBtn").onclick = () => {
   document.getElementById("noticeModal").style.display = "block";
