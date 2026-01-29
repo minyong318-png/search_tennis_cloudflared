@@ -185,3 +185,39 @@ export function splitDatesAhead(days, totalParts = 10) {
     dates.slice(i * size, (i + 1) * size)
   );
 }
+
+export function listTomorrowToEndOfNextMonth() {
+  const dates = [];
+
+  // KST 기준
+  const now = getKSTNow();
+
+  // 시작: 내일
+  const start = new Date(now);
+  start.setDate(start.getDate() + 1);
+
+  // 끝: 다음 달 말일
+  const end = new Date(now);
+  end.setMonth(end.getMonth() + 2, 0); // 다음달의 0일 = 다음달 말일
+
+  const cur = new Date(start);
+  while (cur <= end) {
+    const y = cur.getFullYear();
+    const m = String(cur.getMonth() + 1).padStart(2, "0");
+    const d = String(cur.getDate()).padStart(2, "0");
+    dates.push(`${y}${m}${d}`);
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  return dates;
+}
+
+
+export function splitTomorrowToEndOfNextMonth(totalParts = 10) {
+  const all = listTomorrowToEndOfNextMonth();
+  const size = Math.ceil(all.length / totalParts);
+
+  return Array.from({ length: totalParts }, (_, i) =>
+    all.slice(i * size, (i + 1) * size)
+  );
+}

@@ -7,7 +7,8 @@ import {
   getKSTHour,
   listTomorrowOnly,
   pickRidsByFacilityNames,
-  splitDatesAhead,
+  listTomorrowToEndOfNextMonth,
+  splitTomorrowToEndOfNextMonth,
   splitFacilitiesByPart
 } from "./util";
 import { dbRun } from "./db";
@@ -221,14 +222,15 @@ async function runScheduledCrawl(env) {
       10
     );
 
-    // 날짜 60일 → 10분할
-    const dateParts = splitDatesAhead(60, 10);
+    const dateParts = splitTomorrowToEndOfNextMonth(10);
     targetDates = dateParts[state.datePart] || [];
 
   } else if (state.phase === "DELTA") {
     // 모든 시설 + 최근 3일
     targetRids = allRids;
-    targetDates = splitDatesAhead(3, 1)[0];
+    const allDates = listTomorrowToEndOfNextMonth();
+    targetDates = allDates.slice(0, 3); // 내일 기준 3일
+
 
   } else {
     // NIGHT: 지정 시설 + 내일

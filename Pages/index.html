@@ -635,13 +635,17 @@ function renderCourts() {
 
 
 async function loadMyAlarms() {
-  const subscriptionId = localStorage.getItem("subscription_id");
+  let subscriptionId = localStorage.getItem("subscription_id");
   const alarmListEl = document.getElementById("alarmList");
 
   if (!subscriptionId) {
+  try {
+    subscriptionId = await enablePushIfNeeded({ silent: true });
+  } catch {
     alarmListEl.innerHTML = "<li>알람이 없습니다.</li>";
     return;
   }
+}
 
   const res = await fetch(
     API_BASE + "/api/alarm/list?subscription_id=" + encodeURIComponent(subscriptionId)
@@ -790,10 +794,6 @@ if (isDesktop()) {
 }
 
 async function init() {
-  // 🔕 push는 실패해도 무시
-  enablePushIfNeeded({ silent: true }).catch(e =>
-    console.warn("push skipped:", e.message)
-  );
 
   // ⭐ 데이터는 무조건 먼저
   await loadData();
