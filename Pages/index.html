@@ -756,18 +756,34 @@ async function requestNotificationPermission(step) {
   return permission;
 }
 async function waitForServiceWorker(step) {
-  step("STEP 6: serviceWorker.ready 대기");
+  step("STEP 6: serviceWorker.ready 대기 (timeout 적용)");
 
-  const reg = await navigator.serviceWorker.ready;
+  // 1️⃣ ready + timeout 경쟁
+  const readyPromise = navigator.serviceWorker.ready;
 
-  step("STEP 7: serviceWorker.ready 완료");
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("serviceWorker.ready timeout")), 3000)
+  );
 
-  if (!reg) {
-    throw new Error("serviceWorker not ready");
+  let reg;
+  try {
+    reg = await Promise.race([readyPromise, timeoutPromise]);
+    step("STEP 7: serviceWorker.ready 완료");
+    return reg;
+  } catch (e) {
+    step("⚠️ ready timeout → getRegistration fallback");
   }
 
-  return reg;
+  // 2️⃣ fallback: 기존 registration 직접 조회
+  const fallbackReg = await navigator.serviceWorker.getRegistration();
+  if (!fallbackReg) {
+    throw new Error("No service worker registration");
+  }
+
+  step("STEP 7b: serviceWorker.getRegistration 성공");
+  return fallbackReg;
 }
+
 async function subscribePush(reg, step) {
   step("STEP 8: pushManager.subscribe 호출 직전");
 
