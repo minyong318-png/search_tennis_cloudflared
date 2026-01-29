@@ -293,9 +293,12 @@ async function runScheduledCrawl(env) {
     state.retry = 0;
     state.lastError = null;
 
-    if (state.phase === "FULL") {
-      advanceIndex(state);
-    }
+    if(state.phase === "FULL") {
+      advanceIndexFull(state);
+      }
+      else{
+      advanceIndexDelta(state);
+      }
 
   } catch (e) {
     // ❌ 실패 시
@@ -311,14 +314,19 @@ async function runScheduledCrawl(env) {
     });
 
     // 3회 실패 시 해당 part 스킵
-    if (state.retry >= 3 && state.phase === "FULL") {
+    if (state.retry >= 3 && (state.phase === "FULL" || state.phase === "DELTA")) {
       console.error("[CRAWL] skip part", {
         facilityPart: state.facilityPart,
         datePart: state.datePart
       });
 
       state.retry = 0;
-      advanceIndex(state);
+      if(state.phase === "FULL") {
+      advanceIndexFull(state);
+      }
+      else{
+      advanceIndexDelta(state);
+      }
     }
 
     await env.CACHE.put("CRAWL_STATE", JSON.stringify(state));
@@ -337,7 +345,7 @@ async function runScheduledCrawl(env) {
 }
 
 
-function advanceIndex(state) {
+function advanceIndexFull(state) {
   state.datePart++;
   if (state.datePart >= 10) {
     state.datePart = 0;
@@ -346,5 +354,14 @@ function advanceIndex(state) {
   if (state.facilityPart >= 10) {
     state.facilityPart = 0;
     state.fullDone = true;
+  }
+}
+
+function advanceIndexDelta(state) {
+  state.facilityPart++;
+
+  if (state.facilityPart >= 3) {
+    state.facilityPart = 0;
+    state.datePart = (state.datePart + 1) % 3;
   }
 }
