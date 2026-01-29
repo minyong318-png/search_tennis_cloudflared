@@ -308,32 +308,60 @@ function urlBase64ToUint8Array(base64) {
 }
 
 async function enablePushIfNeeded({ silent = false } = {}) {
+  function step(msg) {
+    alert(msg);
+  }
+
   try {
-    // 이미 있으면 재사용
+    step("STEP 0: enablePushIfNeeded 시작");
+
+    // 1️⃣ 기존 subscription_id 확인
     const existing = localStorage.getItem("subscription_id");
+    step("STEP 1: existing subscription_id = " + (existing || "없음"));
     if (existing) return existing;
 
-    // 지원 여부 체크 (중요)
+    // 2️⃣ 지원 여부 체크
+    step("STEP 2: 지원 여부 체크 시작");
+
     if (!("serviceWorker" in navigator)) {
+      step("❌ serviceWorker 미지원");
       throw new Error("serviceWorker not supported");
     }
     if (!("PushManager" in window)) {
+      step("❌ PushManager 미지원");
       throw new Error("PushManager not supported");
     }
 
+    step("STEP 3: API 지원 OK");
+
+    // 3️⃣ 권한 요청
+    step("STEP 4: Notification.requestPermission 호출 직전");
     const permission = await Notification.requestPermission();
+    step("STEP 5: 권한 결과 = " + permission);
+
     if (permission !== "granted") {
       throw new Error("notification permission denied");
     }
 
+    // 4️⃣ Service Worker 준비
+    step("STEP 6: serviceWorker.ready 대기");
     const reg = await navigator.serviceWorker.ready;
+    step("STEP 7: serviceWorker.ready 완료");
 
+    if (!reg) {
+      throw new Error("serviceWorker not ready");
+    }
 
+    // 5️⃣ push subscribe
+    step("STEP 8: pushManager.subscribe 호출 직전");
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
+    step("STEP 9: pushManager.subscribe 성공");
 
+    // 6️⃣ 서버 전송
+    step("STEP 10: 서버로 subscription 전송 시작");
     const res = await fetch(
       "https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/subscribe",
       {
@@ -342,22 +370,27 @@ async function enablePushIfNeeded({ silent = false } = {}) {
         body: JSON.stringify(sub)
       }
     );
-
+    step("STEP 11: 서버 응답 수신 (status=" + res.status + ")");
 
     if (!res.ok) {
       const txt = await res.text().catch(() => "");
       throw new Error("push/subscribe failed: " + res.status + " " + txt);
     }
 
+    // 7️⃣ 응답 파싱
+    step("STEP 12: 서버 응답 JSON 파싱");
     const data = await res.json();
+    step("STEP 13: subscription_id = " + data.subscription_id);
+
     if (!data.subscription_id) {
       throw new Error("server did not return subscription_id");
     }
 
     localStorage.setItem("subscription_id", data.subscription_id);
+    step("STEP 14: localStorage 저장 완료");
 
     if (!silent) {
-      alert("알람 등록 완료!");
+      step("🎉 PUSH 초기화 최종 완료");
     }
 
     return data.subscription_id;
@@ -365,11 +398,12 @@ async function enablePushIfNeeded({ silent = false } = {}) {
   } catch (e) {
     console.error("enablePushIfNeeded error:", e);
     if (!silent) {
-      alert("푸시 초기화 실패: " + e.message);
+      alert("❌ ERROR 발생: " + e.message);
     }
     throw e;
   }
 }
+
 
 
 
