@@ -724,10 +724,70 @@ async function deleteAlarm(date, courtGroup) {
   }
 }
 
+window.enablePushIfNeeded = async function ({ silent = false } = {}) {
+  try {
+    // 0️⃣ 기존 subscription_id 재사용
+    const existing = localStorage.getItem("subscription_id");
+    if (existing) return existing;
+
+    // 1️⃣ 지원 여부
+    if (!("serviceWorker" in navigator)) {
+      throw new Error("serviceWorker not supported");
+    }
+    if (!("PushManager" in window)) {
+      throw new Error("PushManager not supported");
+    }
+
+    // 2️⃣ 알림 권한 요청 (버튼 클릭 안에서만 호출됨)
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      throw new Error("notification permission denied");
+    }
+
+    // 3️⃣ Service Worker 준비
+    const reg = await navigator.serviceWorker.ready;
+
+    // 4️⃣ Push 구독
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+
+    // 5️⃣ 서버에 구독 전송
+    const res = await fetch(
+      "https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/subscribe",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sub)
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("push subscribe failed");
+    }
+
+    const data = await res.json();
+    if (!data.subscription_id) {
+      throw new Error("no subscription_id from server");
+    }
+
+    localStorage.setItem("subscription_id", data.subscription_id);
+
+    return data.subscription_id;
+
+  } catch (e) {
+    if (!silent) {
+      alert("푸시 초기화 실패: " + e.message);
+    }
+    throw e;
+  }
+};
+
 alarmBtn.onclick = async () => {
   try {
     // 🔥 1️⃣ push 구독 확보 (이미 있으면 재사용)
-    const subscriptionId = await enablePushIfNeeded();
+    const subscriptionId = await window.enablePushIfNeeded();
 
     // 2️⃣ 입력값 검증
     if (!alarmCourt.value || !alarmDate.value) {
