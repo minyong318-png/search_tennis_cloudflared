@@ -50,9 +50,14 @@ export async function handleTestAlarm(request, env) {
     endpoint: row.endpoint,
     keys: { p256dh: row.p256dh, auth: row.auth },
   };
+  const debug = {
+  p256dh_len: (row.p256dh || "").length,
+  auth_len: (row.auth || "").length,
+  endpoint_head: (row.endpoint || "").slice(0, 40),
+  };
 
-  const title = "🧪 테스트 알람";
-  const body = `test_alarm ok (sub=${row.id}) @ ${new Date().toISOString()}`;
+  const title = "테스트 알람"; // 앞 공백 제거
+  const body = `TEST PUSH ${Date.now()} (sub=${row.id})`; // 짧고 확실하게
 
   // webpush.js 시그니처에 맞게 호출 :contentReference[oaicite:2]{index=2}
   const res = await sendWebPush({
@@ -71,5 +76,5 @@ export async function handleTestAlarm(request, env) {
     );
   }
 
-  return json({ ok: true, status: res.status, subId: row.id });
+return json({ ok: true, status: res.status, subId: row.id, debug });
 }

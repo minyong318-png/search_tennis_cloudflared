@@ -259,19 +259,39 @@ export async function sendWebPush({ subscription, title, body, ttl = 60, env }) 
   const cryptoKey = `dh=${bytesToB64url(serverPubRaw)}; p256ecdsa=${pubB64url}`;
   console.log("[VAPID pub normalized head]", bytesToB64url(b64urlToBytes(env.VAPID_PUBLIC_KEY.trim())).slice(0, 20));
   const encryption = `salt=${bytesToB64url(salt)}`;
+  async function makeAppleTopic(env, subscription) {
+  // 안정적으로 고정될 문자열(원하는 걸로 바꿔도 됨)
+  const seed = (env.APP_ORIGIN || new URL(subscription.endpoint).origin);
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(seed));
+  // bytesToB64url은 네 코드에 이미 있음 (VAPID에서 쓰는 그 함수)
+  return bytesToB64url(new Uint8Array(hash)).slice(0, 32); // 32자, base64url만
+}
+
+  const url = new URL(subscription.endpoint);
+
+  const headers = {
+    TTL: String(ttl),
+    "Content-Type": "application/octet-stream",
+    "Content-Encoding": "aes128gcm",
+    "Crypto-Key": cryptoKey,
+    "Encryption": encryption,
+    "Authorization": authorization,
+  };
+
+  // ✅ Apple Web Push(APNs) 전용
+  if (url.hostname === "web.push.apple.com") {
+    if (!env.WEB_PUSH_ID) {
+      throw new Error("Missing env var WEB_PUSH_ID for Apple Web Push Topic");
+    }
+      headers["Topic"] = await makeAppleTopic(env, subscription);
+}  }
 
   const res = await fetch(subscription.endpoint, {
     method: "POST",
-    headers: {
-      TTL: String(ttl),
-      "Content-Type": "application/octet-stream",
-      "Content-Encoding": "aes128gcm",
-      "Crypto-Key": cryptoKey,
-      "Encryption": encryption,
-      "Authorization": authorization,
-    },
+    headers,
     body: ciphertext,
   });
+
 
   return res;
 }
