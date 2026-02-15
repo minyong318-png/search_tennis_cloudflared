@@ -14,6 +14,7 @@ import {
 import { runCrawlCycle } from "./api_refresh";
 import { yyyymmddKST, getKSTNow } from "./util";
 import { dbRun } from "./db";
+import { handleTestAlarm } from "./api_test_alarm.js";
 
 
 const corsHeaders = {
@@ -132,6 +133,7 @@ export default {
         headers: { ...Object.fromEntries(res.headers), ...corsHeaders }
       });
     }
+    if (path === "/api/test_alarm") return handleTestAlarm(req, env);
 
     if (path === "/api/push/subscribe") {
       if (req.method !== "POST") {
