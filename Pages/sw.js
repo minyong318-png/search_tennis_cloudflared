@@ -17,26 +17,27 @@ self.addEventListener("activate", event => {
    ========================= */
 
 self.addEventListener("push", event => {
+  console.log("[SW] push fired", event);
   let data = {};
 
   try {
     data = event.data ? event.data.json() : {};
-  } catch (e) {
-    data = {};
-  }
+  } catch (e) {}
+  
 
-  const title = data.title || "🎾 테니스 알림";
-  const body = data.body || "";
+  const title = (data.title || "🎾 테니스 알림").trim();
+  const body = data.body || "(test push)";
 
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      icon: "/icon.png",
-      badge: "/icon.png",
-      tag: "tennis-alert",
-      vibrate: [200, 100, 200],
+      //icon: "/icon.png",
+      //badge: "/icon.png",
+      //tag: "tennis-alert",
+      //vibrate: [200, 100, 200],
+      tag: `tennis-${Date.now()}`,
       renotify: true
-    })
+    }).catch(err => console.error("[SW] showNotification failed", err))
   );
 });
 
