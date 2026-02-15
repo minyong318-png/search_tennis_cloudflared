@@ -22,11 +22,11 @@ self.addEventListener("push", event => {
 
   try {
     data = event.data ? event.data.json() : {};
-  } catch (e) {}
+  } catch (e) {console.log("[SW] payload parse fail", e);}
   
 
   const title = (data.title || "🎾 테니스 알림").trim();
-  const body = data.body || "(test push)";
+  const body = data.body || "(test push: no payload)";
 
   event.waitUntil(
     self.registration.showNotification(title, {
@@ -36,8 +36,10 @@ self.addEventListener("push", event => {
       //tag: "tennis-alert",
       //vibrate: [200, 100, 200],
       tag: `tennis-${Date.now()}`,
-      renotify: true
-    }).catch(err => console.error("[SW] showNotification failed", err))
+      renotify: true,
+      requireInteraction: true,
+    }).then(() => console.log("[SW] showNotification OK"))
+    .catch(err => console.error("[SW] showNotification FAILED", err))
   );
 });
 
