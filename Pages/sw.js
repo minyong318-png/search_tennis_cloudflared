@@ -15,7 +15,7 @@ self.addEventListener("activate", event => {
 /* =========================
    Push 알림 수신
    ========================= */
-
+/*
 self.addEventListener("push", event => {
   console.log("[SW] push fired", event);
   let data = {};
@@ -41,6 +41,39 @@ self.addEventListener("push", event => {
     }).then(() => console.log("[SW] showNotification OK"))
     .catch(err => console.error("[SW] showNotification FAILED", err))
   );
+});
+*/
+self.addEventListener("push", (event) => {
+  console.log("[SW] push fired", event);
+
+  event.waitUntil((async () => {
+    let title = "테스트 알림";
+    let body = "";
+
+    if (event.data) {
+      // 1) JSON이면 JSON으로
+      try {
+        const data = event.data.json();
+        title = (data.title || title).trim();
+        body = data.body || "";
+      } catch (e) {
+        // 2) JSON 아니면 text로
+        body = await event.data.text();
+      }
+    } else {
+      body = "(no payload)";
+    }
+
+    // ✅ 중복 억제 방지: tag를 매번 다르게
+    await self.registration.showNotification(title, {
+      body: body || "(empty)",
+      tag: `debug-${Date.now()}`,
+      renotify: true,
+      requireInteraction: true,
+    });
+
+    console.log("[SW] showNotification OK");
+  })());
 });
 
 /* =========================
