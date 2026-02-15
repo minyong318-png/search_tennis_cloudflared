@@ -154,18 +154,28 @@ async function createVapidAuthorization({ endpoint, env }) {
   const signingInput = `${enc(header)}.${enc(payload)}`;
 
   // Build JWK
-  const pub = b64urlToBytes(env.VAPID_PUBLIC_KEY); // 65 bytes: 0x04 || x(32) || y(32)
-  if (pub.length !== 65 || pub[0] !== 0x04) throw new Error("Invalid VAPID_PUBLIC_KEY format");
-  const x = pub.slice(1, 33);
-  const y = pub.slice(33, 65);
+  // createVapidAuthorization 내부에서 pub 읽는 부분을 이렇게 바꿔
+const pubBytes = b64urlToBytes((env.VAPID_PUBLIC_KEY || "").trim());
+if (pubBytes.length !== 65 || pubBytes[0] !== 0x04) {
+  throw new Error("Invalid VAPID_PUBLIC_KEY format");
+}
 
-  const jwk = {
-    kty: "EC",
-    crv: "P-256",
-    x: bytesToB64url(x),
-    y: bytesToB64url(y),
-    d: env.VAPID_PRIVATE_KEY, // already base64url
-  };
+// ✅ 헤더에 쓸 공개키는 항상 '정규화된 base64url'로
+const pubB64url = bytesToB64url(pubBytes);
+
+// private(d)도 혹시 표준 base64/패딩/공백 섞였을 수 있으니 정규화
+const dB64url = bytesToB64url(b64urlToBytes((env.VAPID_PRIVATE_KEY || "").trim()));
+
+const x = pubBytes.slice(1, 33);
+const y = pubBytes.slice(33, 65);
+
+const jwk = {
+  kty: "EC",
+  crv: "P-256",
+  x: bytesToB64url(x),
+  y: bytesToB64url(y),
+  d: dB64url,
+};
 
   const key = await crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
   const sig = new Uint8Array(
@@ -192,7 +202,8 @@ async function createVapidAuthorization({ endpoint, env }) {
 
   // Authorization: vapid t=..., k=...
   // k is the VAPID public key (base64url, no padding)
-  return `vapid t=${jwt}, k=${env.VAPID_PUBLIC_KEY}`;
+  
+  return `vapid t=${jwt}, k=${pubB64url}`;
 }
 
 // Convert DER ECDSA signature to JOSE (r||s)
@@ -244,7 +255,9 @@ export async function sendWebPush({ subscription, title, body, ttl = 60, env }) 
 
   const authorization = await createVapidAuthorization({ endpoint: subscription.endpoint, env });
 
-  const cryptoKey = `dh=${bytesToB64url(serverPubRaw)}; p256ecdsa=${env.VAPID_PUBLIC_KEY}`;
+  const pubB64url = bytesToB64url(b64urlToBytes((env.VAPID_PUBLIC_KEY || "").trim()));
+  const cryptoKey = `dh=${bytesToB64url(serverPubRaw)}; p256ecdsa=${pubB64url}`;
+  console.log("[VAPID pub normalized head]", bytesToB64url(b64urlToBytes(env.VAPID_PUBLIC_KEY.trim())).slice(0, 20));
   const encryption = `salt=${bytesToB64url(salt)}`;
 
   const res = await fetch(subscription.endpoint, {

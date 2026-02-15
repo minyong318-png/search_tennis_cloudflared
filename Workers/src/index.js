@@ -142,6 +142,7 @@ export default {
           headers: corsHeaders
         });
       }
+
       const res = await handlePushSubscribe(req, env);
       return new Response(res.body, {
         status: res.status,

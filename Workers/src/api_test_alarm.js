@@ -13,6 +13,7 @@ function json(obj, status = 200) {
 // GET /api/test_alarm?token=...           (subscription_id 없으면 최신 구독으로 전송)
 export async function handleTestAlarm(request, env) {
   const url = new URL(request.url);
+    console.log("[WORKER VAPID_PUBLIC_KEY head]", (env.VAPID_PUBLIC_KEY || "").trim().slice(0, 30));
 
   const token = url.searchParams.get("token");
   if (!token || token !== env.REFRESH_TOKEN) {

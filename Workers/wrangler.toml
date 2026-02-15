@@ -16,6 +16,7 @@ d1_databases = [
 REFRESH_TOKEN = "CHANGE_ME"
 
 VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe1RlU-bUgduNWNRa15JcEayDFJzNRo07fM"
+VAPID_PRIVATE_KEY = 't-H3HMaJBDtxCvyB2RCVBBg-dFmCpxjQX9Yv0FPx8o4'
 VAPID_SUBJECT = "mailto:ccoo2000@naver.com"
 
 [triggers]
