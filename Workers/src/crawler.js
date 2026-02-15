@@ -9,6 +9,74 @@ const HEADERS = {
   "User-Agent": "Mozilla/5.0",
   Referer: BASE_URL
 };
+function getKstYearMonth() {
+  // KST 기준 yyyy, mm 계산
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(new Date());
+
+  const y = Number(parts.find(p => p.type === "year")?.value);
+  const m = Number(parts.find(p => p.type === "month")?.value);
+  return { y, m };
+}
+
+function isGarbageFacilityTitle(title) {
+  if (!title) return true;
+
+  // 공백/특수공백/제로폭 등 정리
+  const t = String(title)
+    .replace(/\u00A0/g, " ")          // NBSP -> space
+    .replace(/[\u200B-\u200D\uFEFF]/g, "") // zero-width 제거
+    .trim();
+
+  // ✅ "시설10510", "시설 10510", "시설   10510" 전부 제거
+  if (/^시설\s*\d+$/u.test(t)) return true;
+
+  // 혹시 "시설:10510" 같은 변형도 있으면 아래까지 확장 가능
+  // if (/^시설\s*[:\-]?\s*\d+$/u.test(t)) return true;
+
+  return false;
+}
+
+
+function extractMonthFromTitleKorean(title) {
+  // "xxxx(1월)" 또는 "xxxx 1월" 같은 패턴에서 월 숫자 추출
+  // 필요시 패턴 추가 가능
+  const t = String(title);
+  const m = t.match(/(?:\(|\s)(\d{1,2})월(?:\)|\s|$)/u);
+  if (!m) return null;
+  const mm = Number(m[1]);
+  if (Number.isNaN(mm) || mm < 1 || mm > 12) return null;
+  return mm;
+}
+
+function shouldKeepFacilityByMonth(title) {
+  const { m: curM } = getKstYearMonth();
+  const nextM = curM === 12 ? 1 : curM + 1;
+
+  const mm = extractMonthFromTitleKorean(title);
+  if (mm == null) return true; // 월 표기가 없으면 유지(정상 이름일 가능성)
+
+  // 이번달/다음달만 유지
+  return mm === curM || mm === nextM;
+}
+
+// parseFacilities가 { rid: { title: ... }, ... } 형태라고 가정
+function filterFacilitiesMap(facilities) {
+  for (const [rid, info] of Object.entries(facilities)) {
+    const title = info?.title ?? info?.name ?? info?.fcltyNm ?? "";
+    if (isGarbageFacilityTitle(title)) {
+      delete facilities[rid];
+      continue;
+    }
+    if (!shouldKeepFacilityByMonth(title)) {
+      delete facilities[rid];
+    }
+  }
+  return facilities;
+}
 
 async function fetchText(url, init = {}) {
   const res = await fetch(url, {
@@ -120,7 +188,7 @@ export async function fetchAllFacilities({ concurrency = 10 } = {}) {
   const maxPage = extractMaxPage(firstHtml);
 
   const facilities = { ...parseFacilities(firstHtml) };
-
+  filterFacilitiesMap(facilities);
   const pages = [];
   for (let p = 2; p <= maxPage; p++) {
     const params = new URLSearchParams(baseParams);
@@ -132,6 +200,7 @@ export async function fetchAllFacilities({ concurrency = 10 } = {}) {
     fetchText(u)
   );
   for (const h of htmls) Object.assign(facilities, parseFacilities(h));
+  filterFacilitiesMap(facilities);
 
   return { facilities };
 }

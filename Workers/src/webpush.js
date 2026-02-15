@@ -168,10 +168,25 @@ async function createVapidAuthorization({ endpoint, env }) {
   };
 
   const key = await crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
-  const sigDer = new Uint8Array(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, textBytes(signingInput)));
+  const sig = new Uint8Array(
+  await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, textBytes(signingInput))
+  );
 
-  // Web Push expects JOSE signature (r||s 64 bytes). WebCrypto returns DER for ECDSA, so convert.
-  const sigJose = derToJose(sigDer, 64);
+  // Cloudflare Workers(WebCrypto)에서는 ECDSA 서명이
+  // - DER(ASN.1)로 올 수도 있고
+  // - JOSE(raw r||s, 64 bytes)로 올 수도 있음
+  let sigJose;
+  if (sig.length === 64) {
+    // already JOSE (r||s)
+    sigJose = sig;
+  } else if (sig[0] === 0x30) {
+    // DER → JOSE
+    sigJose = derToJose(sig, 64);
+  } else {
+    // 알 수 없는 형식
+    throw new Error(`Unexpected ECDSA signature format (len=${sig.length}, first=0x${sig[0]?.toString(16)})`);
+  }
+
 
   const jwt = `${signingInput}.${bytesToB64url(sigJose)}`;
 
