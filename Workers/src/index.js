@@ -240,10 +240,24 @@ async function runScheduledCrawl(env) {
     const dateParts = splitTomorrowToEndOfNextMonth(10);
     targetDates = dateParts[state.datePart] || [];
   } else if (state.phase === "DELTA") {
-    targetRids = allRids;
-    const allDates = listTomorrowToEndOfNextMonth();
-    targetDates = allDates.slice(0, 3);
-  } else {
+  // ✅ DELTA도 시설을 분할해서 CPU Limit 방지
+  // 1분 크론 기준: 10~15분할 추천 (시설 수에 따라 조정)
+  const DELTA_PARTS = 10;
+
+  targetRids = splitFacilitiesByPart(facilities, state.facilityPart, DELTA_PARTS);
+
+  const allDates = listTomorrowToEndOfNextMonth();
+  targetDates = allDates.slice(0, 3);
+
+  // 로그로 확인하기 쉽게
+  console.log("[DELTA] parts", {
+    part: state.facilityPart,
+    parts: DELTA_PARTS,
+    rids: targetRids.length,
+    dates: targetDates.length
+  });
+  }
+ else {
     const raw = await env.CACHE.get("PRIORITY_FACILITY_NAMES");
     if (!raw) {
       console.log("[NIGHT] no priority facilities");
@@ -328,10 +342,11 @@ function advanceIndexFull(state) {
 }
 
 function advanceIndexDelta(state) {
-  state.facilityPart++;
+  const DELTA_PARTS = 10; // 위에서 쓴 값과 동일하게 맞추기
 
-  if (state.facilityPart >= 3) {
-    state.facilityPart = 0;
-    state.datePart = (state.datePart + 1) % 3;
-  }
+  state.facilityPart = (state.facilityPart + 1) % DELTA_PARTS;
+  state.datePart = 0; // DELTA에서는 사실상 고정이므로 0으로 유지
+
+  // 시설 파트 한 바퀴 돌면 또 계속 감시하는 거니까 fullDone은 그대로 유지
 }
+
