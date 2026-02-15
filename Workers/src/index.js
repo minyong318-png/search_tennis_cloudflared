@@ -11,6 +11,8 @@ import {
   splitTomorrowToEndOfNextMonth,
   splitFacilitiesByPart
 } from "./util";
+import { runCrawlCycle } from "./api_refresh";
+import { yyyymmddKST, getKSTNow } from "./util";
 import { dbRun } from "./db";
 
 
@@ -175,7 +177,6 @@ export default {
 
 
 async function runScheduledCrawl(env) {
-  // 1️⃣ 상태 로드 (없으면 초기화)
   let state = await env.CACHE.get("CRAWL_STATE", { type: "json" });
   if (!state) {
     state = {
@@ -184,13 +185,34 @@ async function runScheduledCrawl(env) {
       datePart: 0,
       fullDone: false,
       retry: 0,
-      lastError: null
+      lastError: null,
+      lastResetDate: null
     };
   }
 
-  const hour = getKSTHour();
+  const nowKST = getKSTNow();
+  const hour = nowKST.getHours();
+  const today = yyyymmddKST(new Date());
 
-  // 2️⃣ PHASE 결정
+  // ✅ 00시(하루 1회) DB 초기화 + FULL 재시작
+  if (hour === 0 && state.lastResetDate !== today) {
+    console.log("[DAILY RESET] start", { today });
+
+    // availability_cache 전체 삭제 (요구한 “매일 초기화”)
+    await dbRun(env, `DELETE FROM availability_cache`);
+
+    // 인덱스/상태 초기화
+    state.facilityPart = 0;
+    state.datePart = 0;
+    state.fullDone = false;
+    state.retry = 0;
+    state.lastError = null;
+    state.lastResetDate = today;
+
+    await env.CACHE.put("CRAWL_STATE", JSON.stringify(state));
+  }
+
+  // PHASE 결정
   if (hour === 23) {
     state.phase = "NIGHT";
   } else if (!state.fullDone) {
@@ -206,34 +228,22 @@ async function runScheduledCrawl(env) {
     retry: state.retry
   });
 
-  // 3️⃣ 시설 목록 확보
+  // 시설 목록 확보
   const { facilities } = await fetchAllFacilities({ concurrency: 4 });
   const allRids = Object.keys(facilities).sort();
 
   let targetRids = [];
   let targetDates = [];
 
-  // 4️⃣ PHASE별 대상 계산
   if (state.phase === "FULL") {
-    // 시설 10분할
-    targetRids = splitFacilitiesByPart(
-      facilities,
-      state.facilityPart,
-      10
-    );
-
+    targetRids = splitFacilitiesByPart(facilities, state.facilityPart, 10);
     const dateParts = splitTomorrowToEndOfNextMonth(10);
     targetDates = dateParts[state.datePart] || [];
-
   } else if (state.phase === "DELTA") {
-    // 모든 시설 + 최근 3일
     targetRids = allRids;
     const allDates = listTomorrowToEndOfNextMonth();
-    targetDates = allDates.slice(0, 3); // 내일 기준 3일
-
-
+    targetDates = allDates.slice(0, 3);
   } else {
-    // NIGHT: 지정 시설 + 내일
     const raw = await env.CACHE.get("PRIORITY_FACILITY_NAMES");
     if (!raw) {
       console.log("[NIGHT] no priority facilities");
@@ -241,67 +251,36 @@ async function runScheduledCrawl(env) {
     }
 
     let names = [];
-    try {
-      names = JSON.parse(raw);
-    } catch {
+    try { names = JSON.parse(raw); } catch {
       console.error("[NIGHT] invalid PRIORITY_FACILITY_NAMES");
       return;
     }
 
     targetRids = allRids.filter(rid =>
-      names.some(name =>
-        facilities[rid]?.title?.includes(name)
-      )
+      names.some(name => facilities[rid]?.title?.includes(name))
     );
-
     targetDates = listTomorrowOnly();
   }
 
-  console.log("[CRAWL] target", {
-    rids: targetRids.length,
-    dates: targetDates.length
-  });
+  console.log("[CRAWL] target", { rids: targetRids.length, dates: targetDates.length });
 
-  // 5️⃣ 실제 크롤 + 재시도 제어
   try {
-    for (const rid of targetRids) {
-      for (const dateVal of targetDates) {
-        const slots = await fetchTimesForRidDate({
-          rid,
-          dateVal
-        });
+    // ✅ 여기서 통합 파이프라인 실행: 크롤 → DB → KV → 알람
+    const { fired } = await runCrawlCycle(env, {
+      targetRids,
+      targetDates,
+      concurrency: 6
+    });
 
-        if (!Array.isArray(slots)) {
-          throw new Error(`Invalid slots for rid=${rid} date=${dateVal}`);
-        }
+    console.log("[ALARM] fired", fired);
 
-        await dbRun(
-          env,
-          `
-          INSERT INTO availability_cache (rid, date, slots_json, updated_at)
-          VALUES (?, ?, ?, datetime('now'))
-          ON CONFLICT(rid, date) DO UPDATE SET
-            slots_json=excluded.slots_json,
-            updated_at=excluded.updated_at
-        `,
-          [rid, dateVal, JSON.stringify(slots)]
-        );
-      }
-    }
-
-    // ✅ 성공 시
     state.retry = 0;
     state.lastError = null;
 
-    if(state.phase === "FULL") {
-      advanceIndexFull(state);
-      }
-      else{
-      advanceIndexDelta(state);
-      }
+    if (state.phase === "FULL") advanceIndexFull(state);
+    else advanceIndexDelta(state);
 
   } catch (e) {
-    // ❌ 실패 시
     state.retry = (state.retry || 0) + 1;
     state.lastError = e.message;
 
@@ -313,27 +292,17 @@ async function runScheduledCrawl(env) {
       error: e.message
     });
 
-    // 3회 실패 시 해당 part 스킵
     if (state.retry >= 3 && (state.phase === "FULL" || state.phase === "DELTA")) {
-      console.error("[CRAWL] skip part", {
-        facilityPart: state.facilityPart,
-        datePart: state.datePart
-      });
-
+      console.error("[CRAWL] skip part", { facilityPart: state.facilityPart, datePart: state.datePart });
       state.retry = 0;
-      if(state.phase === "FULL") {
-      advanceIndexFull(state);
-      }
-      else{
-      advanceIndexDelta(state);
-      }
+      if (state.phase === "FULL") advanceIndexFull(state);
+      else advanceIndexDelta(state);
     }
 
     await env.CACHE.put("CRAWL_STATE", JSON.stringify(state));
-    return; // ⛔ 실패 시 여기서 종료
+    return;
   }
 
-  // 6️⃣ 상태 저장
   await env.CACHE.put("CRAWL_STATE", JSON.stringify(state));
 
   console.log("[CRON] done", {
@@ -343,6 +312,7 @@ async function runScheduledCrawl(env) {
     fullDone: state.fullDone
   });
 }
+
 
 
 function advanceIndexFull(state) {
