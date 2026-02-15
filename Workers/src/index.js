@@ -126,6 +126,12 @@ export default {
       });
     }
 
+    // 라우팅에 /api/vapid-public 추가
+    if (path === "/api/data") {
+      return new Response(JSON.stringify({ publicKey: env.VAPID_PUBLIC_KEY }), {
+        headers: { "content-type": "application/json" },
+      });
+    }
     if (path.startsWith("/api/alarm")) {
       const res = await handleAlarm(req, env);
       return new Response(res.body, {

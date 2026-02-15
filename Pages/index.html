@@ -380,13 +380,46 @@ async function requestNotificationPermissionOnly() {
 }
 
 async function subscribePushAfterPermission() {
+  // 0) 권한 확인 (이미 허용된 상태가 아니면 요청)
+  if (Notification.permission !== "granted") {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") throw new Error("Notification permission denied");
+  }
+
   const reg = await navigator.serviceWorker.ready;
 
-  const sub = await reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-  });
+  // 1) (추천) public key는 워커에서 가져오기 — 프론트 하드코딩/캐시 문제 제거
+  const { publicKey } = await fetch(
+    "https://yongin-tennis-worker.ccoo2000.workers.dev/api/vapid-public",
+    { cache: "no-store" }
+  ).then(r => r.json());
 
+  const newKey = urlBase64ToUint8Array(publicKey);
+
+  // 2) 기존 구독이 있으면 재사용 / 키 다르면 unsubscribe 후 재구독
+  let sub = await reg.pushManager.getSubscription();
+
+  if (sub) {
+    const oldKey = sub.options?.applicationServerKey; // ArrayBuffer
+    const same =
+      oldKey &&
+      oldKey.byteLength === newKey.byteLength &&
+      new Uint8Array(oldKey).every((v, i) => v === new Uint8Array(newKey)[i]);
+
+    if (!same) {
+      await sub.unsubscribe();
+      sub = null;
+    }
+  }
+
+  if (!sub) {
+    sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: newKey
+    });
+  }
+
+  // 3) 서버 등록
   const res = await fetch(
     "https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/subscribe",
     {
@@ -396,10 +429,18 @@ async function subscribePushAfterPermission() {
     }
   );
 
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`subscribe API failed: ${res.status} ${text}`);
+  }
+
   const data = await res.json();
-  localStorage.setItem("subscription_id", data.subscription_id);
+  if (data?.subscription_id) {
+    localStorage.setItem("subscription_id", data.subscription_id);
+  }
   return data.subscription_id;
 }
+
 
 
 function getCourtGroup(title){
