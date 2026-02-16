@@ -44,8 +44,32 @@ self.addEventListener("push", event => {
 });
 */
 self.addEventListener("push", (event) => {
-  console.log("[SW] push fired", event);
+  event.waitUntil((async () => {
+    // ✅ 1) 서버에 "iPhone에서 push 받음" 핑
+    try {
+      await fetch("https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/debug", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          from: "iphone-sw",
+          t: Date.now(),
+          hasData: !!event.data,
+        }),
+      });
+    } catch (e) {}
 
+    // ✅ 2) 알림은 매번 새로 보이게(tag 유니크)
+    await self.registration.showNotification("테스트 알람", {
+      body: `iphone push ${Date.now()}`,
+      tag: `t-${Date.now()}`,
+      renotify: true,
+    });
+  })());
+});
+
+self.addEventListener("push", (event) => {
+  console.log("[SW] push fired", event);
+  
   event.waitUntil((async () => {
     let title = "테스트 알림";
     let body = "";
@@ -61,7 +85,7 @@ self.addEventListener("push", (event) => {
       });
     } catch (e) {}
     await self.registration.showNotification("DEBUG", { body: "push arrived" });
-    
+
     if (event.data) {
       // 1) JSON이면 JSON으로
       try {
