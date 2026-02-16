@@ -56,10 +56,12 @@ self.addEventListener("push", (event) => {
         body: JSON.stringify({
           t: Date.now(),
           hasData: !!event.data,
+          text: event.data ? await event.data.text().catch(() => null) : null,
         }),
       });
     } catch (e) {}
-
+    await self.registration.showNotification("DEBUG", { body: "push arrived" });
+    
     if (event.data) {
       // 1) JSON이면 JSON으로
       try {

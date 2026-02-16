@@ -1,6 +1,6 @@
 import { handleData } from "./api_data";
 import { handleAlarm } from "./api_alarm";
-import { handlePushSubscribe } from "./api_push";
+import { handlePushSubscribe,handlePushDebug } from "./api_push";
 import { handleRefresh } from "./api_refresh";
 import { fetchAllFacilities, fetchTimesForRidDate } from "./crawler";
 import {
@@ -140,7 +140,7 @@ export default {
       });
     }
     if (path === "/api/test_alarm") return handleTestAlarm(req, env);
-
+    if (path === "/api/push/debug") {return handlePushDebug(req, env)};
     if (path === "/api/push/subscribe") {
       if (req.method !== "POST") {
         return new Response("Method Not Allowed", {
