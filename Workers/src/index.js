@@ -15,6 +15,7 @@ import { runCrawlCycle } from "./api_refresh";
 import { yyyymmddKST, getKSTNow } from "./util";
 import { dbRun } from "./db";
 import { handleTestAlarm } from "./api_test_alarm.js";
+import { handlePushDebugGif } from "./api_push_debug_gif.js";
 
 
 const corsHeaders = {
@@ -169,6 +170,9 @@ export default {
 
     if (path === "/ping") {
       return new Response("pong", { headers: corsHeaders });
+    }
+    if (path === "/api/push/debug.gif") {
+      return handlePushDebugGif(req, env);
     }
 
     if (path === "/api/debug/state") {

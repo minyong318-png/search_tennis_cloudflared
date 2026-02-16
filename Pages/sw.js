@@ -51,6 +51,15 @@ self.addEventListener("push", event => {
         }),
       });
     } catch (_) {}
+    try {
+      fetch(
+        "https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/debug.gif"
+          + "?t=" + Date.now()
+          + "&from=sw"
+          + "&note=push_fired",
+        { mode: "no-cors" }
+      );
+    } catch (_) {}
 
     // 4) 알림 표시 (중복 억제 방지 위해 tag 유니크)
     await self.registration.showNotification(title, {

@@ -18,7 +18,7 @@ REFRESH_TOKEN = "CHANGE_ME"
 VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe1RlU-bUgduNWNRa15JcEayDFJzNRo07fM"
 VAPID_PRIVATE_KEY = 't-H3HMaJBDtxCvyB2RCVBBg-dFmCpxjQX9Yv0FPx8o4'
 VAPID_SUBJECT = "mailto:ccoo2000@naver.com"
-WEB_PUSH_ID = "web.search-tennis-court"
+WEB_PUSH_ID = "web.dev.pages.search-tennis-court"
 APP_ORIGIN = "https://search-tennis-court.pages.dev"
 
 [triggers]

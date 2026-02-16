@@ -284,15 +284,18 @@ export async function sendWebPush({ subscription, title, body, ttl = 60, env }) 
     "Authorization": authorization,
   };
 
-  // ✅ Apple Web Push(APNs) 전용
-  if (url.hostname === "web.push.apple.com") {
-    if (!env.WEB_PUSH_ID) {
-      throw new Error("Missing env var WEB_PUSH_ID for Apple Web Push Topic");
-    }
-    const seed = env.APP_ORIGIN || "search-tennis-court";
-    const hash = await crypto.subtle.digest("SHA-256", textBytes(seed));
-    headers["Topic"] = bytesToHex(new Uint8Array(hash)).slice(0, 32); // ✅ 32 chars, [0-9a-f]
-  }
+ if (url.hostname === "web.push.apple.com") {
+  if (!env.WEB_PUSH_ID) throw new Error("Missing WEB_PUSH_ID");
+
+  // ✅ 핵심: APNs가 기대하는 헤더명
+  headers["apns-topic"] = String(env.WEB_PUSH_ID).trim();
+
+  // ✅ APNs는 push type도 요구하는 경우가 많음 (없으면 다른 4xx로 터짐)
+  // web push일 때 값은 구현/가이드에 따라 다를 수 있는데, 일단 아래로 시도해봐
+  headers["apns-push-type"] = "webpush";
+}
+
+
 
   const res = await fetch(subscription.endpoint, {
     method: "POST",
