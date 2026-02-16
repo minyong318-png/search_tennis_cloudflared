@@ -13,6 +13,12 @@ function b64urlToBytes(b64url) {
   return out;
 }
 
+function bytesToHex(bytes) {
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += bytes[i].toString(16).padStart(2, "0");
+  return s;
+}
+
 function bytesToB64url(bytes) {
   let bin = "";
   for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
@@ -283,8 +289,10 @@ export async function sendWebPush({ subscription, title, body, ttl = 60, env }) 
     if (!env.WEB_PUSH_ID) {
       throw new Error("Missing env var WEB_PUSH_ID for Apple Web Push Topic");
     }
-      headers["Topic"] = await makeAppleTopic(env, subscription);
-}  }
+    const seed = env.APP_ORIGIN || "search-tennis-court";
+    const hash = await crypto.subtle.digest("SHA-256", textBytes(seed));
+    headers["Topic"] = bytesToHex(new Uint8Array(hash)).slice(0, 32); // ✅ 32 chars, [0-9a-f]
+  }
 
   const res = await fetch(subscription.endpoint, {
     method: "POST",

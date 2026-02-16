@@ -31,3 +31,10 @@ export async function handlePushSubscribe(req, env) {
 
   return json({ subscription_id });
 }
+
+export async function handlePushDebug(request, env) {
+  const body = await request.json().catch(() => ({}));
+  console.log("[PUSH DEBUG]", body);
+  return new Response("ok");
+}
+

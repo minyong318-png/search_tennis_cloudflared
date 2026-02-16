@@ -49,6 +49,16 @@ self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
     let title = "테스트 알림";
     let body = "";
+    try {
+      await fetch("https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/debug", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          t: Date.now(),
+          hasData: !!event.data,
+        }),
+      });
+    } catch (e) {}
 
     if (event.data) {
       // 1) JSON이면 JSON으로
