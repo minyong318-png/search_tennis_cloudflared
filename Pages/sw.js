@@ -3,49 +3,42 @@
    ========================= */
 
 self.addEventListener("install", event => {
-  // 즉시 활성화 (iOS 중요)
   self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {
-  // 모든 클라이언트 즉시 제어
   event.waitUntil(self.clients.claim());
 });
 
 /* =========================
-   Push 알림 수신
+   Push 알림 수신 (디버그용: 반드시 1개만!)
    ========================= */
-/*
+
 self.addEventListener("push", event => {
-  console.log("[SW] push fired", event);
-  let data = {};
-
-  try {
-    data = event.data ? event.data.json() : {};
-  } catch (e) {console.log("[SW] payload parse fail", e);}
-  
-
-  const title = (data.title || "🎾 테니스 알림").trim();
-  const body = data.body || "(test push: no payload)";
-
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      //icon: "/icon.png",
-      //badge: "/icon.png",
-      //tag: "tennis-alert",
-      //vibrate: [200, 100, 200],
-      tag: `tennis-${Date.now()}`,
-      renotify: true,
-      requireInteraction: true,
-    }).then(() => console.log("[SW] showNotification OK"))
-    .catch(err => console.error("[SW] showNotification FAILED", err))
-  );
-});
-*/
-self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
-    // ✅ 1) 서버에 "iPhone에서 push 받음" 핑
+    // 1) payload 원문 확보 (JSON 실패해도 text로 남김)
+    let rawText = "";
+    if (event.data) {
+      try {
+        rawText = await event.data.text();
+      } catch (e) {
+        rawText = "(failed to read event.data.text())";
+      }
+    }
+
+    // 2) title/body 추출 (JSON이면 JSON, 아니면 text)
+    let title = "📩 PUSH RECEIVED (debug)";
+    let body = `rawHead: ${rawText.slice(0, 160)}`;
+
+    try {
+      const data = rawText ? JSON.parse(rawText) : {};
+      if (data?.title) title = String(data.title).trim();
+      if (data?.body) body = `body: ${data.body}\n` + body;
+    } catch (_) {
+      // rawText가 JSON이 아니어도 그대로 진행
+    }
+
+    // 3) 서버에 "iPhone에서 push 받음" 핑 (best-effort)
     try {
       await fetch("https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/debug", {
         method: "POST",
@@ -54,84 +47,38 @@ self.addEventListener("push", (event) => {
           from: "iphone-sw",
           t: Date.now(),
           hasData: !!event.data,
+          rawHead: rawText.slice(0, 200),
         }),
       });
-    } catch (e) {}
+    } catch (_) {}
 
-    // ✅ 2) 알림은 매번 새로 보이게(tag 유니크)
-    await self.registration.showNotification("테스트 알람", {
-      body: `iphone push ${Date.now()}`,
-      tag: `t-${Date.now()}`,
-      renotify: true,
-    });
-  })());
-});
-
-self.addEventListener("push", (event) => {
-  console.log("[SW] push fired", event);
-  
-  event.waitUntil((async () => {
-    let title = "테스트 알림";
-    let body = "";
-    try {
-      await fetch("https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/debug", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          t: Date.now(),
-          hasData: !!event.data,
-          text: event.data ? await event.data.text().catch(() => null) : null,
-        }),
-      });
-    } catch (e) {}
-    await self.registration.showNotification("DEBUG", { body: "push arrived" });
-
-    if (event.data) {
-      // 1) JSON이면 JSON으로
-      try {
-        const data = event.data.json();
-        title = (data.title || title).trim();
-        body = data.body || "";
-      } catch (e) {
-        // 2) JSON 아니면 text로
-        body = await event.data.text();
-      }
-    } else {
-      body = "(no payload)";
-    }
-
-    // ✅ 중복 억제 방지: tag를 매번 다르게
+    // 4) 알림 표시 (중복 억제 방지 위해 tag 유니크)
     await self.registration.showNotification(title, {
-      body: body || "(empty)",
+      body,
       tag: `debug-${Date.now()}`,
       renotify: true,
       requireInteraction: true,
+      data: { url: "/" },
     });
-
-    console.log("[SW] showNotification OK");
   })());
 });
 
 /* =========================
-   알림 클릭 처리
+   알림 클릭 처리 (1개만!)
    ========================= */
 
 self.addEventListener("notificationclick", event => {
   event.notification.close();
-
-  event.waitUntil(
-    self.clients.matchAll({
-      type: "window",
-      includeUncontrolled: true
-    }).then(clientList => {
-      // 이미 열린 창이 있으면 포커스
-      for (const client of clientList) {
-        if ("focus" in client) {
-          return client.focus();
-        }
-      }
-      // 없으면 새 창 열기
-      return self.clients.openWindow("/");
-    })
-  );
+  event.waitUntil((async () => {
+    const url = event.notification?.data?.url || "/";
+    const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    if (all && all.length) {
+      // 열린 창 있으면 포커스 + 이동(가능한 경우)
+      const client = all[0];
+      if ("focus" in client) await client.focus();
+      if ("navigate" in client) await client.navigate(url);
+      return;
+    }
+    await self.clients.openWindow(url);
+  })());
 });
