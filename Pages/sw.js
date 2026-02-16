@@ -40,14 +40,14 @@ self.addEventListener("push", event => {
 
     // 3) 서버에 "iPhone에서 push 받음" 핑 (best-effort)
     try {
-      await fetch("https://yongin-tennis-worker.ccoo2000.workers.dev/api/push/debug", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          from: "iphone-sw",
-          t: Date.now(),
-          hasData: !!event.data,
-          rawHead: rawText.slice(0, 200),
+      await fetch("/api/push/debug", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        from: "sw",
+        t: Date.now(),
+        hasData: !!event.data,
+        rawHead: rawText.slice(0, 200),
         }),
       });
     } catch (_) {}
@@ -56,9 +56,6 @@ self.addEventListener("push", event => {
     await self.registration.showNotification(title, {
       body,
       tag: `debug-${Date.now()}`,
-      renotify: true,
-      requireInteraction: true,
-      data: { url: "/" },
     });
   })());
 });
