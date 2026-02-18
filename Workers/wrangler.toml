@@ -1,29 +1,22 @@
 name = "yongin-tennis-worker"
 main = "src/index.js"
-compatibility_date = "2026-01-25"
-
-# KV
-kv_namespaces = [
-  { binding = "CACHE", id = "64f7e91517344e6fa23d95ae042f94df" }
-]
-
-# D1
-d1_databases = [
-  { binding = "yongin_tennis_db", database_name = "yongin-tennis-db", database_id = "5e305821-e677-49e9-a582-4e72ecf46d20" }
-]
+compatibility_date = "2026-02-18"
 
 [vars]
-REFRESH_TOKEN = "CHANGE_ME"
+# 1) UptimeRobot이 /trigger 호출할 때 검증용 토큰
+TRIGGER_TOKEN = "CHANGE_ME"
 
-VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe1RlU-bUgduNWNRa15JcEayDFJzNRo07fM"
-VAPID_PRIVATE_KEY = 't-H3HMaJBDtxCvyB2RCVBBg-dFmCpxjQX9Yv0FPx8o4'
-VAPID_SUBJECT = "mailto:ccoo2000@naver.com"
-WEB_PUSH_ID = "web.dev.pages.search-tennis-court"
+# 2) GitHub Actions workflow_dispatch 호출 정보
+GITHUB_OWNER = "minyong318-png"
+GITHUB_REPO = "Search_Tennis_Fly"
+GITHUB_WORKFLOW_ID = "crawl.yml"   # .github/workflows/crawl.yml (파일명)
+
+# 3) (선택) Actions가 크롤 결과를 Worker로 업로드할 때 검증용 키
+UPDATE_KEY = "CHANGE_ME"
+
+# 4) (선택) Pages에서 최신 데이터 읽을 때 origin 제한/표시용 (필요시만)
 APP_ORIGIN = "https://search-tennis-court.pages.dev"
 
-[triggers]
-# */2분 일반 크론 + 23시 priority는 코드에서 분기
-crons = ["* * * * *"]
 
 [observability]
 [observability.logs]
