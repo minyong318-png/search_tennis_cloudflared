@@ -37,6 +37,29 @@
 
   .header h1{ margin:0; font-size:22px; font-weight:800; }
   .header .updated{ margin-top:6px; font-size:13px; color:var(--sub); }
+  .updated-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  }
+
+  .mini-btn{
+    margin-top:0;
+    padding:6px 10px;
+    border-radius:10px;
+    background:#ffffff;
+    color:#444;
+    border:1px solid var(--border);
+    font-weight:700;
+    font-size:12px;
+    line-height:1;
+  }
+
+  .mini-btn:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+  }
 
   .card{
     background:var(--card);
@@ -137,7 +160,11 @@
 
   <div class="header">
     <h1>🎾 용인 테니스 예약</h1>
+    <div class="updated-row">
     <div class="updated" id="updatedAt">업데이트 확인 중…</div>
+    <button id="forceUpdateBtn" class="mini-btn" title="지금 즉시 갱신 요청">🔄</button>
+  </div>
+
 
     <div class="updated">
       <button id="noticeBtn"
@@ -214,10 +241,8 @@
       이 페이지의 예약 정보는 <b>일부 시설·날짜는 최신 정보가 아닐 수 있습니다.</b><br><br>
       <b>✔ 데이터 수집 방식</b><br>
       • 용인시 공공예약 시스템을 주기적으로 확인하여 데이터를 갱신합니다.<br>
-      • 서버 부하 및 안정성을 위해 <b>시설과 날짜를 나누어 순차적으로 조회</b>합니다.<br><br>
       <b>✔ 업데이트 주기</b><br>
-      • 현재 시점 3일 이후의 데이터는 하루에 한번 갱신됩니다.(00시~)<br>
-      • 3일 이내의 데이터는 1분마다 시설을 나누어 갱신합니다.<br><br>
+      • 최소 5분에 한번씩 업데이트를 진행하며 강제 업데이트 필요 시 🔄을 클릭하세요.
       <b>✔ 표시 시간 안내</b><br>
       • 상단의 “업데이트” 시간은 <b>가장 최근에 데이터가 갱신된 시점</b>입니다.<br>
       • 특정 시설·날짜의 최신 갱신 시점은 보장되지 않습니다.<br><br>
@@ -727,6 +752,44 @@ async function init() {
   await loadData();
   await loadMyAlarms();
 }
+const TRIGGER_URL = "https://yongin-tennis-worker.ccoo2000.workers.dev/trigger?token=CHANGE_ME";
+
+async function forceUpdate() {
+  const btn = document.getElementById("forceUpdateBtn");
+  if (!btn) return;
+
+  btn.disabled = true;
+  const oldText = btn.textContent;
+  btn.textContent = "…";
+
+  try {
+    // ✅ 캐시 방지 파라미터
+    const url = TRIGGER_URL + "&_=" + Date.now();
+
+    // ✅ "백그라운드 호출" (UI 블로킹 X)
+    // no-cors는 응답을 읽을 수 없지만(opaque), 호출 트리거 목적이면 OK
+    // 만약 Worker가 CORS 허용한다면 no-cors 빼고 res.ok 체크 가능
+    await fetch(url, { method: "GET", mode: "no-cors", cache: "no-store" });
+
+    // 트리거가 곧바로 DB 업데이트를 끝내는 구조가 아니면,
+    // 약간의 딜레이 후 로드하는 게 더 잘 맞는다
+    await new Promise(r => setTimeout(r, 800));
+
+    await loadData();   // ✅ 화면 갱신
+  } catch (e) {
+    console.error("[forceUpdate error]", e);
+    alert("업데이트 요청 실패: " + (e.message || e));
+  } finally {
+    btn.textContent = oldText;
+    btn.disabled = false;
+  }
+}
+
+// 이벤트 연결
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("forceUpdateBtn");
+  if (btn) btn.addEventListener("click", forceUpdate);
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   if ("serviceWorker" in navigator) {
