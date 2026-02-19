@@ -243,7 +243,8 @@
  * ========================================================= */
 const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SB = window.supabase || window.supabaseJs;
+const sb = SB.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /** VAPID PUBLIC KEY (기존 값 유지) */
 const VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe1RlU-bUgduNWNRa15JcEayDFJzNRo07fM";
