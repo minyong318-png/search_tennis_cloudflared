@@ -243,7 +243,7 @@
  * ========================================================= */
 const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /** VAPID PUBLIC KEY (기존 값 유지) */
 const VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe1RlU-bUgduNWNRa15JcEayDFJzNRo07fM";
@@ -315,7 +315,7 @@ function renderUpdatedTime(isoUtc) {
  * ========================================================= */
 async function loadData() {
   try {
-    const { data, error } = await supabase.rpc("get_public_data", { p_days_ahead: 45 });
+    const { data, error } = await sb.rpc("get_public_data", { p_days_ahead: 45 });
     if (error) throw new Error(error.message || "RPC error");
     if (!data) throw new Error("RPC returned null");
 
@@ -537,7 +537,7 @@ async function saveSubscriptionToSupabase(sub) {
 
   const subscription_id = await sha256Hex(endpoint);
 
-  const { error } = await supabase
+  const { error } = await sb
     .from("push_subscriptions")
     .upsert({ id: subscription_id, endpoint, p256dh, auth });
 
@@ -573,7 +573,7 @@ async function enablePushIfNeeded({ silent = false } = {}) {
  *  alarms 저장/조회/삭제 (Supabase)
  * ========================================================= */
 async function addAlarm(subscriptionId, courtGroup, yyyymmdd) {
-  const { error } = await supabase
+  const { error } = await sb
     .from("alarms")
     .insert({ subscription_id: subscriptionId, court_group: courtGroup, date: yyyymmdd });
 
@@ -598,7 +598,7 @@ async function loadMyAlarms() {
     }
   }
 
-  const { data: alarms, error } = await supabase
+  const { data: alarms, error } = await sb
     .from("alarms")
     .select("id, date, court_group")
     .eq("subscription_id", subscriptionId)
@@ -649,7 +649,7 @@ async function loadMyAlarms() {
 }
 
 async function deleteAlarmById(alarmId) {
-  const { error } = await supabase
+  const { error } = await sb
     .from("alarms")
     .delete()
     .eq("id", alarmId);
