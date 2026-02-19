@@ -302,24 +302,19 @@ function makeReserveLink(resveId){
 
 function renderUpdatedTime(ts) {
   if (!ts) return;
-
-  // ts가 "2026-02-19T08:16:00+09:00" 처럼 오든
-  // "2026-02-18T21:16:00Z" 처럼 오든
-  // Date가 파싱해서 로컬(한국이면 KST)로 변환해줌
   const d = new Date(ts);
-
-  // 파싱 실패 방어
   if (isNaN(d.getTime())) {
     document.getElementById("updatedAt").textContent = "업데이트: -";
     return;
   }
 
-  // ✅ 로컬 타임존 기준으로 출력 (한국이면 자동으로 KST)
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
+  const kst = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+  const hh = String(kst.getHours()).padStart(2, "0");
+  const mm = String(kst.getMinutes()).padStart(2, "0");
 
   document.getElementById("updatedAt").textContent = `업데이트: ${hh}:${mm}`;
 }
+
 
 
 /** =========================================================
