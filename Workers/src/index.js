@@ -105,7 +105,7 @@ export default {
     const api = `https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/actions/workflows/${workflowId}/dispatches`;
 
     // inputs: workflow에서 안 받아도 dispatch는 성공(204) 가능
-    const body = { ref: "main", inputs: { mode: "refresh", target } };
+    const body = { ref: "main" };
 
     try {
       const res = await fetch(api, {

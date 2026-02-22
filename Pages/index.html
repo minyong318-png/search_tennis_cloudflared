@@ -861,8 +861,12 @@ async function init() {
   await loadMyAlarms();
 }
 
-const TRIGGER_URL = "https://yongin-tennis-worker.ccoo2000.workers.dev/trigger?token=CHANGE_ME";
+const TRIGGER_URL_BASE = "https://yongin-tennis-worker.ccoo2000.workers.dev/trigger?token=CHANGE_ME";
 
+function getTriggerUrlForCurrentTab() {
+  const t = (CURRENT_CITY === "goyang") ? "goyang" : "yongin";
+  return TRIGGER_URL_BASE + "&target=" + t;
+}
 // ✅ updated_at만 빠르게 확인 (DATA 전체 다시 렌더링 X)
 async function fetchUpdatedAt() {
   const { data, error } = await sb.rpc("get_public_data", { p_days_ahead: 45 });
@@ -908,7 +912,7 @@ async function forceUpdate() {
   btn.innerHTML = `<span class="spin">⟳</span>`;
 
   try {
-    const url = TRIGGER_URL + "&_=" + Date.now();
+    const url = getTriggerUrlForCurrentTab() + "&_=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(await res.text().catch(() => `trigger failed ${res.status}`));
 
