@@ -336,10 +336,16 @@ function yyyymmddToPretty(yyyymmdd) {
 }
 
 function getCourtGroup(title){
-  return (title || "")
-    .replace(/\[.*?\]/g, "")
-    .split("테니스장")[0]
-    .trim();
+  const t = (title || "").replace(/\[.*?\]/g, "").trim();
+
+  // ✅ 고양: "대화 1코트" / "화정코트 2코트" -> "대화" / "화정코트"
+  // (뒤에 붙는 " N코트" 패턴 제거)
+  if (CURRENT_CITY === "goyang") {
+    return t.replace(/\s*\d+\s*코트\s*$/,"").trim();
+  }
+
+  // ✅ 용인: 기존 로직 유지
+  return t.split("테니스장")[0].trim();
 }
 
 function getWeekday(yyyymmdd){
