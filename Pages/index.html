@@ -9,7 +9,7 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎾 시립 테니스 예약</title>
+  <title>🎾 시립 테니스장 예약</title>
 
   <style>
   :root{
@@ -38,10 +38,10 @@
   .header h1{ margin:0; font-size:22px; font-weight:800; }
   .header .updated{ margin-top:6px; font-size:13px; color:var(--sub); }
   .updated-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
   }
 
   /* 배경/테두리 없는 아이콘 버튼 */
@@ -143,6 +143,22 @@
     text-decoration:none;
     color:inherit;
   }
+
+  /* Tabs */
+  .tabs { display:flex; gap:8px; margin:10px 0; }
+  .tab{
+    padding:8px 12px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:#fff;
+    color:var(--text);
+    font-weight:800;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .tab.active{
+    border-color:#111827;
+  }
   </style>
 </head>
 
@@ -168,12 +184,11 @@
 <div class="container">
 
   <div class="header">
-    <h1>🎾 용인 테니스 예약</h1>
+    <h1>🎾 시립 테니스장 예약</h1>
     <div class="updated-row">
-    <div class="updated" id="updatedAt">업데이트 확인 중…</div>
-    <button id="forceUpdateBtn" class="icon-btn" title="지금 즉시 갱신 요청" aria-label="업데이트 요청">🔄</button>
-  </div>
-
+      <div class="updated" id="updatedAt">업데이트 확인 중…</div>
+      <button id="forceUpdateBtn" class="icon-btn" title="지금 즉시 갱신 요청" aria-label="업데이트 요청">🔄</button>
+    </div>
 
     <div class="updated">
       <button id="noticeBtn"
@@ -186,8 +201,14 @@
   <!-- 필터 -->
   <div class="card">
     <h3>필터</h3>
+
+    <div class="tabs">
+      <button id="tabYongin" class="tab active" type="button">용인시</button>
+      <button id="tabGoyang" class="tab" type="button">고양시</button>
+    </div>
+
     <div class="filter-stack">
-      <div class="select">
+      <div class="select" id="filterGuWrap">
         🏘️
         <select id="filterGu">
           <option value="">구 전체</option>
@@ -250,6 +271,7 @@
       이 페이지의 예약 정보는 <b>일부 시설·날짜는 최신 정보가 아닐 수 있습니다.</b><br><br>
       <b>✔ 데이터 수집 방식</b><br>
       • 용인시 공공예약 시스템을 주기적으로 확인하여 데이터를 갱신합니다.<br>
+      • 고양시 테니스장(고양테니스협회/성저)은 별도 수집 로직으로 갱신합니다.<br>
       <b>✔ 업데이트 주기</b><br>
       • 최소 5분에 한번씩 업데이트를 진행하며 강제 업데이트 필요 시 🔄을 클릭하세요.<br>
       • 버튼 클릭 시 데이터 수집 시간인 <b>약 1분 후</b> 데이터가 업데이트 됩니다.<br>
@@ -273,7 +295,7 @@
 
 <script>
 /** =========================================================
- *  Supabase 설정 (너가 준 값)
+ *  Supabase 설정
  * ========================================================= */
 const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
@@ -285,6 +307,7 @@ const VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe
 
 let DATA = {};
 let COURT_GROUPS = {};
+let CURRENT_CITY = "yongin"; // "yongin" | "goyang"
 
 /** =========================================================
  *  Utils
@@ -334,6 +357,26 @@ function makeReserveLink(resveId){
   return `${base}?key=4236&resveId=${resveId}&pageUnit=8&pageIndex=1&checkSearchMonthNow=false`;
 }
 
+function cityOfFacilityId(fid){
+  fid = String(fid || "");
+  if (fid.startsWith("goyang:")) return "goyang";
+  if (fid.startsWith("yongin:")) return "yongin";
+  // 구버전(숫자 rid 등)은 용인으로 취급
+  return "yongin";
+}
+
+function prefixedGroupValue(displayName){
+  return (CURRENT_CITY === "yongin" ? "용인|" : "고양|") + (displayName || "");
+}
+
+function stripPrefixedGroupValue(val){
+  // "용인|대화" -> {city:"yongin", name:"대화"}
+  val = String(val || "");
+  if (val.startsWith("용인|")) return { city:"yongin", name: val.slice(3) };
+  if (val.startsWith("고양|")) return { city:"goyang", name: val.slice(3) };
+  return { city: CURRENT_CITY, name: val };
+}
+
 function renderUpdatedTime(ts) {
   if (!ts) return;
   const d = new Date(ts);
@@ -349,11 +392,8 @@ function renderUpdatedTime(ts) {
   document.getElementById("updatedAt").textContent = `업데이트: ${hh}:${mm}`;
 }
 
-
-
 /** =========================================================
- *  ✅ DATA: Supabase RPC로 로드
- *  - public.get_public_data(p_days_ahead int) 필요
+ *  DATA: Supabase RPC로 로드
  * ========================================================= */
 async function loadData() {
   try {
@@ -379,8 +419,10 @@ function buildCourtGroups(){
 
   if (!DATA || !DATA.facilities || typeof DATA.facilities !== "object") return;
 
-  Object.values(DATA.facilities).forEach(f => {
+  // ✅ 현재 탭(도시)에 해당하는 시설만 그룹 구성
+  Object.entries(DATA.facilities).forEach(([cid, f]) => {
     if (!f || !f.title) return;
+    if (cityOfFacilityId(cid) !== CURRENT_CITY) return;
     const g = getCourtGroup(f.title);
     COURT_GROUPS[g] = true;
   });
@@ -391,8 +433,9 @@ function buildCourtGroups(){
   Object.keys(COURT_GROUPS)
     .sort((a, b) => a.localeCompare(b, "ko"))
     .forEach(g => {
-      filterCourt.innerHTML += `<option>${g}</option>`;
-      alarmCourt.innerHTML += `<option>${g}</option>`;
+      filterCourt.innerHTML += `<option value="${g}">${g}</option>`;
+      // ✅ 알람 court_group은 도시 prefix를 value에 붙여 저장(백엔드 매칭도 동일하게)
+      alarmCourt.innerHTML += `<option value="${prefixedGroupValue(g)}">${g}</option>`;
     });
 }
 
@@ -406,7 +449,8 @@ function renderCourts() {
 
   courtsEl.innerHTML = "";
 
-  const gu = filterGu.value;
+  // 고양 탭에서는 구 필터 무의미 → 적용하지 않음
+  const gu = (CURRENT_CITY === "yongin") ? filterGu.value : "";
   const group = filterCourt.value;
   const date = filterDate.value ? filterDate.value.replaceAll("-", "") : "";
 
@@ -415,6 +459,9 @@ function renderCourts() {
   for (const cid in DATA.facilities) {
     const fac = DATA.facilities[cid];
     if (!fac || !fac.title) continue;
+
+    // ✅ 탭 필터: 현재 도시만
+    if (cityOfFacilityId(cid) !== CURRENT_CITY) continue;
 
     const courtGroup = getCourtGroup(fac.title);
 
@@ -449,11 +496,21 @@ function renderCourts() {
       for (const s of slots) {
         if (!s || !s.timeContent) continue;
 
-        const reserveId = s.resveId || cid;
+        // ✅ 링크 규칙:
+        // - 고양: slot.reserveUrl 우선
+        // - 용인: 기존 makeReserveLink(resveId)
+        let href = "";
+        if (s.reserveUrl) {
+          href = s.reserveUrl; // 고양
+        } else {
+          // 용인: cid가 yongin:123 형태일 수 있으니 숫자 rid로 fallback
+          const reserveId = s.resveId || (String(cid).startsWith("yongin:") ? String(cid).split(":")[1] : cid);
+          href = makeReserveLink(reserveId);
+        }
 
         html += `
           <a class="slot"
-             href="${makeReserveLink(reserveId)}"
+             href="${href}"
              target="_blank"
              rel="noopener noreferrer">
             ${s.timeContent}
@@ -531,7 +588,6 @@ window.addEventListener("touchend", async () => {
 
 /** =========================================================
  *  Push subscribe + push_subscriptions upsert
- *  - subscription_id = sha256(endpoint)
  * ========================================================= */
 function checkPushSupport() {
   if (!("serviceWorker" in navigator)) throw new Error("serviceWorker not supported");
@@ -651,14 +707,22 @@ async function loadMyAlarms() {
     return;
   }
 
-  if (!alarms || alarms.length === 0) {
+  // ✅ 현재 탭 도시 알람만 표시
+  const filtered = (alarms || []).filter(a => {
+    const cg = String(a.court_group || "");
+    if (CURRENT_CITY === "yongin") return cg.startsWith("용인|");
+    if (CURRENT_CITY === "goyang") return cg.startsWith("고양|");
+    return true;
+  });
+
+  if (!filtered || filtered.length === 0) {
     alarmListEl.innerHTML = "<li>등록된 알람이 없습니다.</li>";
     return;
   }
 
   alarmListEl.innerHTML = "";
 
-  for (const a of alarms) {
+  for (const a of filtered) {
     const li = document.createElement("li");
     li.style.display = "flex";
     li.style.justifyContent = "space-between";
@@ -666,7 +730,10 @@ async function loadMyAlarms() {
 
     const text = document.createElement("span");
     const ymd = (a.date || "").includes("-") ? a.date.replaceAll("-","") : a.date;
-    text.textContent = `${yyyymmddToPretty(ymd)} · ${a.court_group}`;
+
+    // 표시용: prefix 제거
+    const cgObj = stripPrefixedGroupValue(a.court_group);
+    text.textContent = `${yyyymmddToPretty(ymd)} · ${cgObj.name}`;
 
     const delBtn = document.createElement("button");
     delBtn.textContent = "✕";
@@ -757,10 +824,43 @@ if (isDesktop()) {
   });
 }
 
+/** =========================================================
+ *  탭 UI
+ * ========================================================= */
+function setCity(city){
+  CURRENT_CITY = city;
+
+  const tabY = document.getElementById("tabYongin");
+  const tabG = document.getElementById("tabGoyang");
+  tabY.classList.toggle("active", city === "yongin");
+  tabG.classList.toggle("active", city === "goyang");
+
+  // 고양 탭이면 구 필터 숨김
+  const guWrap = document.getElementById("filterGuWrap");
+  if (guWrap) guWrap.style.display = (city === "yongin") ? "" : "none";
+
+  // 필터 초기화(탭 변경 시 혼선 방지)
+  filterCourt.value = "";
+  filterDate.value = "";
+  filterDateLabel.textContent = "날짜 선택";
+
+  buildCourtGroups();
+  renderCourts();
+  loadMyAlarms(); // 탭 도시 알람만 보여주기 위해 재로딩
+}
+
+document.getElementById("tabYongin").addEventListener("click", () => setCity("yongin"));
+document.getElementById("tabGoyang").addEventListener("click", () => setCity("goyang"));
+
+/** =========================================================
+ *  init + 강제 업데이트 버튼
+ * ========================================================= */
 async function init() {
   await loadData();
+  setCity("yongin"); // 초기 탭
   await loadMyAlarms();
 }
+
 const TRIGGER_URL = "https://yongin-tennis-worker.ccoo2000.workers.dev/trigger?token=CHANGE_ME";
 
 // ✅ updated_at만 빠르게 확인 (DATA 전체 다시 렌더링 X)
@@ -776,8 +876,6 @@ function sleep(ms) {
 
 /**
  * ✅ 트리거 후, updated_at이 바뀔 때까지 기다렸다가(loadData)
- * - maxWaitMs: 최대 기다리는 시간 (예: 2분)
- * - intervalMs: 폴링 간격 (예: 3초)
  */
 async function waitUntilUpdated(prevUpdatedAt, { maxWaitMs = 120000, intervalMs = 3000 } = {}) {
   const start = Date.now();
@@ -789,70 +887,54 @@ async function waitUntilUpdated(prevUpdatedAt, { maxWaitMs = 120000, intervalMs 
     try {
       cur = await fetchUpdatedAt();
     } catch (e) {
-      // RPC 일시 실패는 그냥 계속 재시도
       console.warn("[poll updated_at failed]", e);
       continue;
     }
 
-    // ✅ 이전과 다르면 업데이트 완료로 간주
     if (cur && cur !== prevUpdatedAt) return cur;
   }
 
-  // 타임아웃
   return null;
 }
 
 async function forceUpdate() {
   const btn = document.getElementById("forceUpdateBtn");
   if (!btn) return;
-
-  // 중복 클릭 방지
   if (btn.disabled) return;
 
-  // 현재 updated_at 저장 (이 값이 바뀌면 "업데이트 완료")
   const prev = DATA?.updated_at || (await fetchUpdatedAt().catch(() => null));
 
-  // UI: 스피너로 변경
   btn.disabled = true;
   btn.innerHTML = `<span class="spin">⟳</span>`;
 
   try {
     const url = TRIGGER_URL + "&_=" + Date.now();
-
-    // CORS 열어뒀으니 정상 fetch + 상태 체크
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(await res.text().catch(() => `trigger failed ${res.status}`));
 
-    // ✅ Actions/백그라운드 작업 끝나서 DB 반영될 때까지 대기
     const changed = await waitUntilUpdated(prev, { maxWaitMs: 180000, intervalMs: 3000 });
 
     if (!changed) {
-      // 3분 내에 updated_at이 안 바뀌면 "진행중/실패" 가능
-      // 그래도 화면은 한번 새로 로드 시도
       await loadData();
       alert("업데이트가 아직 반영되지 않았습니다. 잠시 후 다시 시도해주세요.");
       return;
     }
 
-    // ✅ 반영 완료 → 데이터 새로 로드
     await loadData();
 
   } catch (e) {
     console.error("[forceUpdate error]", e);
     alert("업데이트 요청 실패: " + (e.message || e));
   } finally {
-    // UI: 원래 아이콘 복귀
     btn.innerHTML = "🔄";
     btn.disabled = false;
   }
 }
 
-// 이벤트 연결
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("forceUpdateBtn");
   if (btn) btn.addEventListener("click", forceUpdate);
 });
-
 
 document.addEventListener("DOMContentLoaded", () => {
   if ("serviceWorker" in navigator) {
