@@ -205,6 +205,8 @@
     <div class="tabs">
       <button id="tabYongin" class="tab active" type="button">용인시</button>
       <button id="tabGoyang" class="tab" type="button">고양시</button>
+      <button id="tabSuwon" class="tab" type="button">수원시</button>
+      <button id="tabSeongnam" class="tab" type="button">성남시</button>
     </div>
 
     <div class="filter-stack">
@@ -308,7 +310,8 @@ const VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe
 
 let DATA = {};
 let COURT_GROUPS = {};
-let CURRENT_CITY = "yongin"; // "yongin" | "goyang"
+let CURRENT_CITY = "yongin"; // "yongin" | "goyang" | "suwon" | "seongnam"
+const CITY_LABELS = { yongin: "용인", goyang: "고양", suwon: "수원", seongnam: "성남" };
 
 /** =========================================================
  *  Utils
@@ -344,6 +347,9 @@ function getCourtGroup(title){
   if (CURRENT_CITY === "goyang") {
     return t.replace(/\s*\d+\s*코트\s*$/,"").trim();
   }
+  if (CURRENT_CITY === "seongnam") {
+    return t.replace(/\s*\d+\s*번\s*코트.*$/,"").trim();
+  }
 
   // ✅ 용인: 기존 로직 유지
   return t.split("테니스장")[0].trim();
@@ -367,13 +373,15 @@ function makeReserveLink(resveId){
 function cityOfFacilityId(fid){
   fid = String(fid || "");
   if (fid.startsWith("goyang:")) return "goyang";
+  if (fid.startsWith("suwon:")) return "suwon";
+  if (fid.startsWith("seongnam:")) return "seongnam";
   if (fid.startsWith("yongin:")) return "yongin";
   // 구버전(숫자 rid 등)은 용인으로 취급
   return "yongin";
 }
 
 function prefixedGroupValue(displayName){
-  return (CURRENT_CITY === "yongin" ? "용인|" : "고양|") + (displayName || "");
+  return (CITY_LABELS[CURRENT_CITY] || CURRENT_CITY) + "|" + (displayName || "");
 }
 
 function stripPrefixedGroupValue(val){
@@ -381,6 +389,8 @@ function stripPrefixedGroupValue(val){
   val = String(val || "");
   if (val.startsWith("용인|")) return { city:"yongin", name: val.slice(3) };
   if (val.startsWith("고양|")) return { city:"goyang", name: val.slice(3) };
+  if (val.startsWith("수원|")) return { city:"suwon", name: val.slice(3) };
+  if (val.startsWith("성남|")) return { city:"seongnam", name: val.slice(3) };
   return { city: CURRENT_CITY, name: val };
 }
 
@@ -719,6 +729,8 @@ async function loadMyAlarms() {
     const cg = String(a.court_group || "");
     if (CURRENT_CITY === "yongin") return cg.startsWith("용인|");
     if (CURRENT_CITY === "goyang") return cg.startsWith("고양|");
+    if (CURRENT_CITY === "suwon") return cg.startsWith("수원|");
+    if (CURRENT_CITY === "seongnam") return cg.startsWith("성남|");
     return true;
   });
 
@@ -839,8 +851,12 @@ function setCity(city){
 
   const tabY = document.getElementById("tabYongin");
   const tabG = document.getElementById("tabGoyang");
+  const tabS = document.getElementById("tabSuwon");
+  const tabSN = document.getElementById("tabSeongnam");
   tabY.classList.toggle("active", city === "yongin");
   tabG.classList.toggle("active", city === "goyang");
+  tabS.classList.toggle("active", city === "suwon");
+  tabSN.classList.toggle("active", city === "seongnam");
 
   // 고양 탭이면 구 필터 숨김
   const guWrap = document.getElementById("filterGuWrap");
@@ -858,6 +874,8 @@ function setCity(city){
 
 document.getElementById("tabYongin").addEventListener("click", () => setCity("yongin"));
 document.getElementById("tabGoyang").addEventListener("click", () => setCity("goyang"));
+document.getElementById("tabSuwon").addEventListener("click", () => setCity("suwon"));
+document.getElementById("tabSeongnam").addEventListener("click", () => setCity("seongnam"));
 
 /** =========================================================
  *  init + 강제 업데이트 버튼
@@ -871,8 +889,7 @@ async function init() {
 const TRIGGER_URL_BASE = "https://yongin-tennis-worker.ccoo2000.workers.dev/trigger?token=CHANGE_ME";
 
 function getTriggerUrlForCurrentTab() {
-  const t = (CURRENT_CITY === "goyang") ? "goyang" : "yongin";
-  return TRIGGER_URL_BASE + "&target=" + t;
+  return TRIGGER_URL_BASE + "&target=" + CURRENT_CITY;
 }
 // ✅ updated_at만 빠르게 확인 (DATA 전체 다시 렌더링 X)
 async function fetchUpdatedAt() {

@@ -43,12 +43,14 @@ function pickWorkflowId(target) {
   // ✅ 네가 분리해둔 파일명 그대로 사용
   if (target === "yongin") return "crawl.yml";
   if (target === "goyang") return "crawl_goyang.yml";
+  if (target === "suwon") return "crawl_suwon.yml";
+  if (target === "seongnam") return "crawl_seongnam.yml";
   return "crawl_all.yml";
 }
 
 function normalizeTarget(v) {
   v = String(v || "").toLowerCase().trim();
-  if (v === "yongin" || v === "goyang" || v === "all") return v;
+  if (v === "yongin" || v === "goyang" || v === "suwon" || v === "seongnam" || v === "all") return v;
   return "all";
 }
 
