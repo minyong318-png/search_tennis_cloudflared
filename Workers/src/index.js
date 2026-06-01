@@ -54,6 +54,12 @@ function normalizeTarget(v) {
   return "all";
 }
 
+function triggerTarget(pathname, queryTarget) {
+  if (pathname === "/trigger") return normalizeTarget(queryTarget || "all");
+  const match = pathname.match(/^\/trigger\/(yongin|goyang|suwon|seongnam|all)$/);
+  return match ? match[1] : "";
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -89,7 +95,8 @@ export default {
     // ---------------------------
     // /trigger
     // ---------------------------
-    if (url.pathname !== "/trigger") {
+    const target = triggerTarget(url.pathname, url.searchParams.get("target"));
+    if (!target) {
       return withCors(jsonResponse({ ok: false, error: "not found" }, 404), origin);
     }
 
@@ -100,7 +107,6 @@ export default {
     }
 
     // ✅ target 파라미터
-    const target = normalizeTarget(url.searchParams.get("target") || "all");
     const workflowId = pickWorkflowId(target);
 
     // GitHub workflow dispatch API

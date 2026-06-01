@@ -4,7 +4,7 @@ compatibility_date = "2026-02-18"
 
 [vars]
 # 1) UptimeRobot이 /trigger 호출할 때 검증용 토큰
-TRIGGER_TOKEN = "CHANGE_ME"
+# TRIGGER_TOKEN is registered with `wrangler secret put TRIGGER_TOKEN`.
 
 # 2) GitHub Actions workflow_dispatch 호출 정보
 GITHUB_OWNER = "minyong318-png"

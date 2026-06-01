@@ -348,7 +348,12 @@ function getCourtGroup(title){
     return t.replace(/\s*\d+\s*코트\s*$/,"").trim();
   }
   if (CURRENT_CITY === "seongnam") {
-    return t.replace(/\s*\d+\s*번\s*코트.*$/,"").trim();
+    return t
+      .replace(/\s*\([^)]*\)/g, "")
+      .replace(/\s*당일예약\s*/g, " ")
+      .replace(/\s*반쪽\s*코트.*$/, "")
+      .replace(/\s*\d+\s*번?\s*코트.*$/, "")
+      .trim();
   }
 
   // ✅ 용인: 기존 로직 유지
