@@ -345,7 +345,14 @@ function getCourtGroup(title){
   // ✅ 고양: "대화 1코트" / "화정코트 2코트" -> "대화" / "화정코트"
   // (뒤에 붙는 " N코트" 패턴 제거)
   if (CURRENT_CITY === "goyang") {
-    return t.replace(/\s*\d+\s*코트\s*$/,"").trim();
+    return t
+      .replace(/고양\s*(특례시)?\s*테니스\s*협회/g, "")
+      .replace(/^고양\s+/, "")
+      .replace(/\s*\d+\s*코트\s*$/, "")
+      .replace(/\s*테니스장\s*$/, "")
+      .replace(/\s*코트\s*$/, "")
+      .replace(/\s+/g, " ")
+      .trim();
   }
   if (CURRENT_CITY === "seongnam") {
     return t
@@ -445,7 +452,11 @@ function buildCourtGroups(){
   Object.entries(DATA.facilities).forEach(([cid, f]) => {
     if (!f || !f.title) return;
     if (cityOfFacilityId(cid) !== CURRENT_CITY) return;
+    const days = DATA.availability && DATA.availability[cid];
+    const hasSlot = days && Object.values(days).some(slots => Array.isArray(slots) && slots.length > 0);
+    if (!hasSlot) return;
     const g = getCourtGroup(f.title);
+    if (!g) return;
     COURT_GROUPS[g] = true;
   });
 
