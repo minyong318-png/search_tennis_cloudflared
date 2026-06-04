@@ -159,6 +159,79 @@
   .tab.active{
     border-color:#111827;
   }
+
+  .notice-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    z-index:10000;
+    padding:18px;
+    box-sizing:border-box;
+  }
+  .notice-panel{
+    background:#fff;
+    max-width:560px;
+    margin:6vh auto;
+    padding:18px;
+    border-radius:18px;
+    max-height:82vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    box-shadow:0 24px 70px rgba(15,23,42,.26);
+  }
+  .notice-panel h3{
+    margin:0 0 10px;
+    font-size:18px;
+  }
+  .notice-section{
+    border-top:1px solid var(--border);
+    padding-top:14px;
+    margin-top:14px;
+  }
+  .notice-section:first-of-type{
+    border-top:none;
+    padding-top:0;
+  }
+  .notice-section h4{
+    margin:0 0 8px;
+    font-size:15px;
+  }
+  .notice-section p,
+  .notice-section li{
+    color:#334155;
+    font-size:13px;
+    line-height:1.65;
+  }
+  .notice-section ul{
+    margin:0;
+    padding-left:18px;
+  }
+  .update-log{
+    max-height:190px;
+    overflow-y:auto;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:#f8fafc;
+  }
+  .update-item{
+    margin:0 0 12px;
+    padding-bottom:12px;
+    border-bottom:1px dashed #cbd5e1;
+  }
+  .update-item:last-child{
+    margin-bottom:0;
+    padding-bottom:0;
+    border-bottom:none;
+  }
+  .update-date{
+    display:block;
+    margin-bottom:4px;
+    color:#0f172a;
+    font-weight:800;
+    font-size:13px;
+  }
   </style>
 </head>
 
@@ -193,7 +266,7 @@
     <div class="updated">
       <button id="noticeBtn"
         style="font-size:12px;background:none;border:none;color:#666;padding:4px;cursor:pointer;">
-        ⓘ 업데이트 방식 및 알람 설정 안내
+        ⓘ 공지사항 및 사용방법
       </button>
     </div>
   </div>
@@ -265,32 +338,72 @@
   </div>
 </div>
 
-<!-- 안내 모달 -->
-<div id="noticeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;">
-  <div style="background:#fff;max-width:340px;margin:10vh auto;padding:16px;border-radius:10px;max-height:70vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-    <h3 style="margin-top:0;">🔄 업데이트 방식 안내</h3>
-    <p style="font-size:13px;line-height:1.6;">
-      이 페이지의 예약 정보는 <b>일부 시설·날짜는 최신 정보가 아닐 수 있습니다.</b><br><br>
-      <b>✔ 데이터 수집 방식</b><br>
-      • 용인시 공공예약 시스템을 주기적으로 확인하여 데이터를 갱신합니다.<br>
-      • 용인시 테니스장은 당일 잔여 좌석을 00:00 기준 가장 가까운 갱신 시간 데이터를 남겨둠으로 정확한 정보를 보장하지 않습니다.<br>
-      • 고양시 테니스장(고양테니스협회/성저)은 별도 수집 로직으로 갱신합니다.<br>
-      <b>✔ 업데이트 주기</b><br>
-      • 최소 5분에 한번씩 업데이트를 진행하며 강제 업데이트 필요 시 🔄을 클릭하세요.<br>
-      • 버튼 클릭 시 데이터 수집 시간인 <b>약 1분 후</b> 데이터가 업데이트 됩니다.<br>
-      <b>✔ 표시 시간 안내</b><br>
-      • 상단의 “업데이트” 시간은 <b>가장 최근에 데이터가 갱신된 시점</b>입니다. <br>
-      • 특정 시설·날짜의 최신 갱신 시점은 보장되지 않습니다.<br>
-      <b>✔ 알람 기능</b><br>
-      • 사용자가 등록한 조건에 해당하는 <b>새로운 예약 가능 시간</b>이 발견되면 알림을 전송합니다.
-    </p>
+<!-- 공지사항 및 사용방법 모달 -->
+<div id="noticeModal" class="notice-overlay">
+  <div class="notice-panel">
+    <h3>공지사항 및 사용방법</h3>
 
-    <h3 style="margin-top:0;">🔔 알람 등록 유의사항</h3>
-    <p style="font-size:13px;line-height:1.6;">
-      • “브라우저 → 홈 화면에 추가” 후 사용하셔야 알람을 받을 수 있습니다(인앱정책).
-    </p>
+    <section class="notice-section">
+      <h4>사용방법</h4>
+      <ul>
+        <li>상단 도시 탭에서 용인시, 고양시, 수원시, 성남시를 선택합니다.</li>
+        <li>코트 필터와 날짜 필터를 선택하면 조건에 맞는 예약 가능 시간만 볼 수 있습니다.</li>
+        <li>예약 가능 시간 버튼을 누르면 해당 시설의 예약 페이지로 이동합니다.</li>
+        <li>오른쪽 위 새로고침 버튼을 누르면 해당 도시의 최신 데이터 수집을 요청합니다.</li>
+      </ul>
+    </section>
 
-    <div style="text-align:right;margin-top:12px;">
+    <section class="notice-section">
+      <h4>알람 설정 방법</h4>
+      <ul>
+        <li>알람 등록 영역에서 원하는 코트와 날짜를 선택한 뒤 알람 등록 버튼을 누릅니다.</li>
+        <li>등록한 조건에서 새로운 예약 가능 시간이 발견되면 브라우저 푸시 알림을 보냅니다.</li>
+        <li>알림이 오지 않으면 브라우저 알림 권한이 허용되어 있는지 확인해 주세요.</li>
+        <li>모바일에서는 브라우저 메뉴의 홈 화면에 추가 기능으로 설치한 뒤 사용하는 것을 권장합니다.</li>
+      </ul>
+    </section>
+
+    <section class="notice-section">
+      <h4>업데이트 방식</h4>
+      <ul>
+        <li>각 도시는 분리된 크롤러로 갱신됩니다. 용인, 고양, 수원, 성남은 서로 다른 예약 사이트를 조회합니다.</li>
+        <li>UptimeRobot이 주기적으로 Cloudflare Worker를 호출하고, Worker가 GitHub Actions 크롤러를 실행합니다.</li>
+        <li>수집된 예약 가능 시간은 Supabase에 저장되고, 페이지는 Supabase 공개 데이터를 읽어 표시합니다.</li>
+        <li>고양시는 고양테니스협회, 대화, 백석 데이터를 함께 조회합니다. 단, 고양 크롤은 사이트 특성상 KST 05:00~22:00 시간창에서만 실행됩니다.</li>
+        <li>상단의 업데이트 시간은 가장 최근 데이터 저장 시각이며, 시설별 실제 예약 페이지와 약간의 차이가 있을 수 있습니다.</li>
+      </ul>
+    </section>
+
+    <section class="notice-section">
+      <h4>업데이트 이력</h4>
+      <div class="update-log" aria-label="업데이트 이력">
+        <div class="update-item">
+          <span class="update-date">2026-06-05</span>
+          <ul>
+            <li>고양시 백석 테니스장 조회를 추가했습니다.</li>
+            <li>고양시 코트 필터에서 실제 예약 가능 슬롯이 있는 코트만 보이도록 정리했습니다.</li>
+            <li>고양테니스협회 접두어가 붙은 코트명과 일반 코트명이 중복으로 보이는 문제를 정리했습니다.</li>
+            <li>새로고침 아래 안내를 공지사항 및 사용방법으로 개편했습니다.</li>
+          </ul>
+        </div>
+        <div class="update-item">
+          <span class="update-date">2026-06-04</span>
+          <ul>
+            <li>도시별 갱신 트리거를 분리하고 Cloudflare Worker를 통해 개별 업데이트가 가능하도록 정리했습니다.</li>
+            <li>성남시 코트 필터에서 대원, 탄천 등 같은 시설명이 묶이도록 정규화했습니다.</li>
+          </ul>
+        </div>
+        <div class="update-item">
+          <span class="update-date">2026-06-02</span>
+          <ul>
+            <li>고양시 크롤링 안정화를 위해 Tailscale exit node와 curl_cffi 기반 요청 경로를 추가했습니다.</li>
+            <li>고양테니스협회 SSL 인증서 문제에 대비해 인증서 pin 갱신 스텝을 추가했습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="text-align:right;margin-top:14px;">
       <button id="closeNoticeBtn">닫기</button>
     </div>
   </div>
