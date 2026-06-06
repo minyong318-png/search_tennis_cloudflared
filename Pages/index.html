@@ -69,10 +69,18 @@
   .tabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 0 14px; }
   .tab{ margin:0; padding:11px 8px; border:1px solid var(--border); border-radius:16px; background:#fffdf8; color:var(--text); font-weight:900; font-size:14px; cursor:pointer; }
   .tab.active{ border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 8px 20px rgba(31,111,67,.22); }
-  .filter-stack{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; }
-  .alarm-stack{ display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; }
-  .select,.date-box{ display:flex; align-items:center; gap:10px; padding:13px 14px; border-radius:16px; border:1px solid var(--border); background:#fff; font-size:14px; min-height:48px; }
-  .select select{ border:none; outline:none; font-size:14px; width:100%; background:none; color:var(--text); font-weight:700; }
+  .filter-stack{ display:grid; grid-template-columns:1fr 1fr 1fr 1.35fr; gap:10px; }
+  .alarm-stack{ display:grid; grid-template-columns:1fr 1fr 1.25fr auto; gap:10px; }
+  .filter-stack > *,.alarm-stack > *{ min-width:0; }
+  .select,.date-box,.time-control{ display:flex; align-items:center; gap:10px; padding:13px 14px; border-radius:16px; border:1px solid var(--border); background:#fff; font-size:14px; min-height:48px; }
+  .select select,.time-control select{ border:none; outline:none; font-size:14px; width:100%; background:none; color:var(--text); font-weight:700; }
+  .time-control{ gap:8px; padding:8px 10px; min-width:0; box-sizing:border-box; }
+  .time-control .time-icon{ flex:0 0 auto; }
+  .time-control select{ flex:1 1 86px; min-width:0; width:auto; }
+  .time-modes{ display:flex; align-items:center; gap:4px; flex:0 0 auto; }
+  .time-mode{ display:inline-flex; align-items:center; justify-content:center; min-width:42px; padding:7px 8px; border-radius:999px; border:1px solid rgba(31,111,67,.16); background:#f8faf0; color:var(--sub); font-size:12px; font-weight:950; cursor:pointer; user-select:none; }
+  .time-mode input{ position:absolute; opacity:0; pointer-events:none; }
+  .time-mode:has(input:checked){ border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 6px 14px rgba(31,111,67,.18); }
   .date-box{ cursor:pointer; color:var(--sub); font-weight:800; }
   .date-box span{ color:var(--sub); font-size:14px; }
   .date-box input{ position:absolute; opacity:0; pointer-events:none; }
@@ -106,7 +114,7 @@
   .update-date{ display:block; margin-bottom:4px; color:#0f172a; font-weight:900; font-size:13px; }
   .toast{ position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); width:min(520px,calc(100vw - 32px)); padding:13px 15px; border-radius:16px; background:#17211b; color:#fff; font-size:13px; font-weight:800; box-shadow:0 20px 50px rgba(0,0,0,.22); opacity:0; pointer-events:none; transition:opacity .18s,transform .18s; z-index:12000; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
-  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-stack button{ width:100%; } }
+  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-stack button{ width:100%; } .time-control{ width:100%; gap:6px; padding:8px; } .time-control .time-icon{ display:none; } .time-control select{ flex:0 0 118px; max-width:118px; min-width:0; } .time-modes{ flex:0 0 162px; min-width:0; } .time-mode{ flex:1 1 0; min-width:0; padding:6px 0; font-size:11px; } }
   @media (prefers-reduced-motion:reduce){ *,*:before,*:after{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
   </style>
 </head>
@@ -185,9 +193,14 @@
         <input type="date" id="filterDate">
       </label>
 
-      <div class="select">
-        ⏰
-        <select id="filterTimeCondition"></select>
+      <div class="time-control" id="filterTimeControl" aria-label="조회 시간 조건">
+        <span class="time-icon">⏰</span>
+        <select id="filterTimeHour" aria-label="조회 시간"></select>
+        <div class="time-modes" aria-label="조회 시간 방식">
+          <label class="time-mode"><input type="radio" name="filterTimeMode" value="before">이전</label>
+          <label class="time-mode"><input type="radio" name="filterTimeMode" value="after">이후</label>
+          <label class="time-mode"><input type="radio" name="filterTimeMode" value="contains" checked>포함</label>
+        </div>
       </div>
     </div>
   </div>
@@ -208,9 +221,14 @@
         <input type="date" id="alarmDate">
       </label>
 
-      <div class="select">
-        ⏰
-        <select id="alarmTimeCondition"></select>
+      <div class="time-control" id="alarmTimeControl" aria-label="알람 시간 조건">
+        <span class="time-icon">⏰</span>
+        <select id="alarmTimeHour" aria-label="알람 시간"></select>
+        <div class="time-modes" aria-label="알람 시간 방식">
+          <label class="time-mode"><input type="radio" name="alarmTimeMode" value="before">이전</label>
+          <label class="time-mode"><input type="radio" name="alarmTimeMode" value="after">이후</label>
+          <label class="time-mode"><input type="radio" name="alarmTimeMode" value="contains" checked>포함</label>
+        </div>
       </div>
 
       <button id="alarmBtn">알람 등록</button>
@@ -238,7 +256,7 @@
       <ul>
         <li>상단 도시 탭에서 용인시, 고양시, 수원시, 성남시를 선택합니다.</li>
         <li>용인시는 구 필터와 코트 필터를 함께 사용할 수 있고, 날짜와 시간 조건까지 선택하면 원하는 예약 가능 슬롯만 볼 수 있습니다.</li>
-        <li>시간 조건은 전체, 특정 시각 이후, 이전, 해당 시각 포함 중에서 고를 수 있습니다. 분 단위 선택은 제공하지 않습니다.</li>
+        <li>시간 조건은 6시부터 22시까지 선택한 뒤 이전, 이후, 포함 중 하나를 고르는 방식입니다. 분 단위 선택은 제공하지 않습니다.</li>
         <li>예약 가능 시간 버튼을 누르면 해당 시설의 예약 페이지로 이동합니다. 선택한 조건은 슬롯 검색용이며 실제 예약은 각 시설 예약 페이지에서 최종 확정합니다.</li>
         <li>오른쪽 위 새로고침 버튼을 누르면 Supabase에 저장된 최신 데이터를 다시 불러옵니다.</li>
       </ul>
@@ -276,7 +294,8 @@
             <li>공개 페이지에 갱신 토큰이 노출되지 않도록 수동 갱신 버튼을 데이터 다시 불러오기 방식으로 변경했습니다.</li>
             <li>용인시 구/코트 필터를 유지하면서 원하는 시간 조건까지 좁혀 볼 수 있는 시간 필터를 추가했습니다.</li>
             <li>사용자에게 불필요한 상단 요약/빠른 목록을 제거하고 실제 예약 가능 현황에 집중하도록 화면을 단순화했습니다.</li>
-            <li>알람 등록에도 시간 조건을 추가해 특정 시각 이후, 이전, 해당 시각 포함 슬롯만 알림 받을 수 있게 했습니다.</li>
+            <li>시간 선택 UI를 긴 목록 대신 6~22시 선택과 이전/이후/포함 버튼 조합으로 정리했습니다.</li>
+            <li>알람 등록에도 같은 시간 조건 UI를 적용해 특정 시각 이후, 이전, 해당 시각 포함 슬롯만 알림 받을 수 있게 했습니다.</li>
           </ul>
         </div>
         <div class="update-item">
@@ -457,24 +476,30 @@ function getWeekday(yyyymmdd){
   return ["일","월","화","수","목","금","토"][d.getDay()];
 }
 
-function makeTimeConditionOptions(selectEl) {
+function makeHourOptions(selectEl) {
   if (!selectEl) return;
-  const options = [{ value: "any", label: "시간 전체" }];
-  const hours = Array.from({ length: 19 }, (_, i) => i + 5);
-  [
-    ["after", "이후"],
-    ["before", "이전"],
-    ["contains", "포함"],
-  ].forEach(([mode, label]) => {
-    hours.forEach(hour => options.push({ value: `${mode}:${hour}`, label: `${hour}시 ${label}` }));
-  });
-  selectEl.replaceChildren();
-  options.forEach(opt => {
-    const el = document.createElement("option");
-    el.value = opt.value;
-    el.textContent = opt.label;
-    selectEl.appendChild(el);
-  });
+  const fragment = document.createDocumentFragment();
+  const first = document.createElement("option");
+  first.value = "";
+  first.textContent = "시간 전체";
+  fragment.appendChild(first);
+  for (let hour = 6; hour <= 22; hour += 1) {
+    const opt = document.createElement("option");
+    opt.value = String(hour);
+    opt.textContent = `${hour}시`;
+    fragment.appendChild(opt);
+  }
+  selectEl.replaceChildren(fragment);
+}
+
+function selectedTimeMode(name) {
+  return document.querySelector(`input[name="${name}"]:checked`)?.value || "contains";
+}
+
+function getTimeConditionValue(hourSelect, modeName) {
+  const hour = hourSelect?.value || "";
+  if (!hour) return "any";
+  return timeConditionValue(selectedTimeMode(modeName), hour);
 }
 
 function parseTimeCondition(value) {
@@ -643,7 +668,7 @@ function renderCourts() {
   const gu = (CURRENT_CITY === "yongin") ? filterGu.value : "";
   const group = filterCourt.value;
   const date = filterDate.value ? filterDate.value.replaceAll("-", "") : "";
-  const timeCondition = filterTimeCondition.value || "any";
+  const timeCondition = getTimeConditionValue(filterTimeHour, "filterTimeMode");
   let renderedCount = 0;
 
   for (const cid in DATA.facilities) {
@@ -950,15 +975,16 @@ async function deleteAlarmById(alarmId) {
   if (error) showToast("알람 삭제 실패: " + error.message);
 }
 
-makeTimeConditionOptions(filterTimeCondition);
-makeTimeConditionOptions(alarmTimeCondition);
+makeHourOptions(filterTimeHour);
+makeHourOptions(alarmTimeHour);
 
 /** =========================================================
  *  events
  * ========================================================= */
 filterGu.onchange = renderCourts;
 filterCourt.onchange = renderCourts;
-filterTimeCondition.onchange = renderCourts;
+filterTimeHour.onchange = renderCourts;
+document.querySelectorAll('input[name="filterTimeMode"]').forEach(input => input.onchange = renderCourts);
 
 filterDate.onchange = () => {
   filterDateLabel.textContent = filterDate.value;
@@ -978,7 +1004,7 @@ alarmBtn.onclick = async () => {
     }
 
     const ymd = toYYYYMMDD(alarmDate.value);
-    const res = await addAlarm(subscriptionId, alarmCourt.value, ymd, alarmTimeCondition.value || "any");
+    const res = await addAlarm(subscriptionId, alarmCourt.value, ymd, getTimeConditionValue(alarmTimeHour, "alarmTimeMode"));
 
     if (res.status === "duplicate") showToast("이미 등록된 알람입니다.");
     else showToast("알람 등록이 완료되었습니다.");
@@ -1034,7 +1060,8 @@ function setCity(city){
   // 필터 초기화(탭 변경 시 혼선 방지)
   filterCourt.value = "";
   filterDate.value = "";
-  filterTimeCondition.value = "any";
+  filterTimeHour.value = "";
+  document.querySelector('input[name="filterTimeMode"][value="contains"]').checked = true;
   filterDateLabel.textContent = "날짜 선택";
 
   buildCourtGroups();
