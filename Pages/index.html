@@ -92,7 +92,7 @@
   .slot{ padding:9px 12px; border-radius:999px; border:1px solid rgba(31,111,67,.2); font-size:13px; font-weight:900; background:var(--lime-soft); text-decoration:none; color:#17211b; }
   .slot:hover{ background:var(--lime); border-color:var(--primary); }
   .empty-state{ padding:26px 12px; text-align:center; color:var(--sub); font-weight:800; }
-  #alarmList li{ margin-bottom:8px; }
+  #alarmList .alarm-item{ margin-bottom:8px; }
   .notice-overlay{ display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:10000; padding:18px; box-sizing:border-box; }
   .notice-panel{ background:#fffdf8; max-width:600px; margin:6vh auto; padding:20px; border-radius:24px; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch; box-shadow:0 24px 70px rgba(15,23,42,.26); }
   .notice-panel h3{ margin:0 0 10px; font-size:20px; }
@@ -358,9 +358,8 @@ function safeReserveUrl(raw) {
 }
 
 function setListMessage(listEl, message) {
-  const li = document.createElement("li");
-  li.textContent = message;
-  listEl.replaceChildren(li);
+  const item = makeNode("div", "alarm-item", message);
+  listEl.replaceChildren(item);
 }
 
 function setSelectOptions(select, placeholder, values, valueMapper = v => v) {
@@ -851,7 +850,8 @@ async function loadMyAlarms() {
   alarmListEl.replaceChildren();
 
   for (const a of filtered) {
-    const li = document.createElement("li");
+    const li = document.createElement("div");
+    li.className = "alarm-item";
     li.style.display = "flex";
     li.style.justifyContent = "space-between";
     li.style.alignItems = "center";
