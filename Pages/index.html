@@ -61,11 +61,21 @@
   .icon-btn:disabled,.ghost-btn:disabled{ opacity:.58; cursor:not-allowed; }
   .spin{ display:inline-block; animation:spin .9s linear infinite; }
   @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-  .summary-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:18px; }
-  .summary-card{ background:rgba(255,255,255,.72); border:1px solid rgba(31,111,67,.16); border-radius:20px; padding:14px; min-height:86px; min-width:0; }
-  .summary-label{ color:var(--sub); font-size:12px; font-weight:800; }
-  .summary-value{ margin-top:7px; font-size:24px; line-height:1; font-weight:950; letter-spacing:-.04em; }
-  .summary-note{ margin-top:6px; color:var(--sub); font-size:11px; }
+  .data-dot{ display:inline-flex; align-items:center; gap:6px; }
+  .data-dot:before{ content:""; width:8px; height:8px; border-radius:999px; background:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,.12); }
+  .data-dot.is-error:before{ background:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.12); }
+  .quick-panel{ margin-top:18px; padding:14px; border:1px solid rgba(31,111,67,.16); border-radius:22px; background:rgba(255,255,255,.72); }
+  .quick-head{ display:flex; justify-content:space-between; gap:12px; align-items:flex-end; margin-bottom:10px; }
+  .quick-title{ font-size:16px; font-weight:950; letter-spacing:-.02em; }
+  .quick-hint{ font-size:12px; color:var(--sub); white-space:nowrap; }
+  .quick-list{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .quick-slot{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; padding:12px; border:1px solid rgba(31,111,67,.16); border-radius:16px; background:#fff; text-decoration:none; color:inherit; overflow:hidden; }
+  .quick-slot:hover{ border-color:var(--primary); background:var(--lime-soft); }
+  .quick-slot > div:first-child{ min-width:0; }
+  .quick-court{ font-weight:950; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .quick-meta{ margin-top:4px; font-size:12px; color:var(--sub); }
+  .quick-time{ padding:8px 10px; border-radius:999px; background:var(--lime-soft); font-weight:950; font-size:13px; white-space:nowrap; }
+  .quick-empty{ padding:16px; border-radius:16px; background:#fff; color:var(--sub); font-weight:800; }
   .card{ background:rgba(255,253,246,.92); border:1px solid rgba(31,111,67,.16); border-radius:var(--radius); padding:18px; box-shadow:0 10px 30px rgba(23,33,27,.08); margin-top:14px; }
   .card h3{ margin:0 0 14px; font-size:16px; font-weight:950; letter-spacing:-.02em; }
   .tabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 0 14px; }
@@ -109,7 +119,7 @@
   .update-date{ display:block; margin-bottom:4px; color:#0f172a; font-weight:900; font-size:13px; }
   .toast{ position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); width:min(520px,calc(100vw - 32px)); padding:13px 15px; border-radius:16px; background:#17211b; color:#fff; font-size:13px; font-weight:800; box-shadow:0 20px 50px rgba(0,0,0,.22); opacity:0; pointer-events:none; transition:opacity .18s,transform .18s; z-index:12000; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
-  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .summary-grid{ grid-template-columns:repeat(2,1fr); } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-stack button{ width:100%; } }
+  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .quick-list{ grid-template-columns:1fr; } .quick-head{ align-items:flex-start; flex-direction:column; } .quick-hint{ white-space:normal; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-stack button{ width:100%; } }
   @media (prefers-reduced-motion:reduce){ *,*:before,*:after{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
   </style>
 </head>
@@ -143,7 +153,7 @@
           <p class="hero-copy">원하는 지역과 날짜, 시간을 고르면 지금 남아있는 코트만 빠르게 보여드립니다.</p>
           <div class="updated-row">
             <div class="updated" id="updatedAt">업데이트 확인 중</div>
-            <span class="updated" id="cityStatusText">자동 갱신 대기 중</span>
+            <span class="updated data-dot" id="cityStatusText">업데이트 상태</span>
           </div>
         </div>
         <div class="header-actions">
@@ -151,13 +161,15 @@
           <button id="forceUpdateBtn" class="icon-btn" title="최신 데이터 다시 불러오기" aria-label="데이터 다시 불러오기">↻</button>
         </div>
       </div>
-      <div class="summary-grid" aria-label="예약 현황 요약">
-        <div class="summary-card"><div class="summary-label">오늘 잔여 슬롯</div><div class="summary-value" id="summaryToday">-</div><div class="summary-note">선택 도시 기준</div></div>
-        <div class="summary-card"><div class="summary-label">7일 내 잔여 슬롯</div><div class="summary-value" id="summaryWeek">-</div><div class="summary-note">이번 주 예약 기회</div></div>
-        <div class="summary-card"><div class="summary-label">잔여 코트 수</div><div class="summary-value" id="summaryCourts">-</div><div class="summary-note">비어있는 코트 기준</div></div>
-        <div class="summary-card"><div class="summary-label">가장 빠른 예약</div><div class="summary-value" id="summaryState">-</div><div class="summary-note" id="summaryStateNote">잔여 시간 기준</div></div>
+      <div class="quick-panel" aria-label="빠른 잔여 코트">
+        <div class="quick-head">
+          <div class="quick-title">바로 예약 가능한 코트</div>
+          <div class="quick-hint">필터를 바꾸면 이 목록도 같이 바뀝니다.</div>
+        </div>
+        <div id="quickSlots" class="quick-list">
+          <div class="quick-empty">예약 가능 시간을 불러오는 중입니다.</div>
+        </div>
       </div>
-      <div id="statusBanner" class="status-banner"></div>
     </div>
   </section>
 
@@ -279,6 +291,7 @@
             <li>외부 크롤링 데이터가 HTML로 직접 삽입되지 않도록 렌더링 방식을 안전하게 정리했습니다.</li>
             <li>공개 페이지에 갱신 토큰이 노출되지 않도록 수동 갱신 버튼을 데이터 다시 불러오기 방식으로 변경했습니다.</li>
             <li>용인시 구/코트 필터를 유지하면서 원하는 시간까지 좁혀 볼 수 있는 시간 필터를 추가했습니다.</li>
+            <li>상단 요약 카드를 실제 잔여 코트와 시간대가 바로 보이는 빠른 예약 목록으로 변경했습니다.</li>
           </ul>
         </div>
         <div class="update-item">
@@ -583,52 +596,84 @@ function buildCourtGroups(){
   setSelectOptions(alarmCourt, "코트 선택", groups, prefixedGroupValue);
 }
 
-function renderSummary() {
+function collectVisibleSlots({ limit = Infinity } = {}) {
   const facilities = DATA?.facilities || {};
   const availability = DATA?.availability || {};
-  const today = yyyymmddTodayKst(0);
-  const weekEnd = yyyymmddTodayKst(6);
-  const selectedDate = filterDate?.value ? filterDate.value.replaceAll("-", "") : "";
-  const desiredTime = filterTime?.value || "";
-  let todaySlots = 0;
-  let weekSlots = 0;
-  const activeCourts = new Set();
-  let earliest = null;
+  const gu = (CURRENT_CITY === "yongin") ? filterGu.value : "";
+  const group = filterCourt.value;
+  const date = filterDate.value ? filterDate.value.replaceAll("-", "") : "";
+  const desiredTime = filterTime.value || "";
+  const rows = [];
 
-  Object.entries(facilities).forEach(([cid, fac]) => {
-    if (!fac || cityOfFacilityId(cid) !== CURRENT_CITY) return;
-    const courtGroup = getCourtGroup(fac.title) || cid;
-    const dayMap = availability[cid] || {};
-    let hasAny = false;
+  for (const cid in facilities) {
+    const fac = facilities[cid];
+    if (!fac || !fac.title) continue;
+    if (cityOfFacilityId(cid) !== CURRENT_CITY) continue;
+    const courtGroup = getCourtGroup(fac.title);
+    if (gu && !(fac.location || "").includes(gu)) continue;
+    if (group && courtGroup !== group) continue;
 
-    Object.entries(dayMap).forEach(([ymd, rawSlots]) => {
-      if (selectedDate && ymd !== selectedDate) return;
-      const slots = (Array.isArray(rawSlots) ? rawSlots : []).filter(s => slotMatchesDesiredTime(s, desiredTime));
-      const count = slots.length;
-      if (!count) return;
-      hasAny = true;
-      if (ymd === today) todaySlots += count;
-      if (ymd >= today && ymd <= weekEnd) weekSlots += count;
-      slots.forEach(slot => {
-        const time = firstTimeLabel(slot.timeContent);
-        const key = `${ymd}${time}`;
-        if (!earliest || key < earliest.key) earliest = { key, ymd, time };
+    const days = availability[cid];
+    if (!days || typeof days !== "object") continue;
+
+    Object.keys(days).sort().forEach(d => {
+      if (date && d !== date) return;
+      const slots = (Array.isArray(days[d]) ? days[d] : []).filter(s => slotMatchesDesiredTime(s, desiredTime));
+      slots.forEach(s => {
+        let href = "";
+        if (s.reserveUrl) {
+          href = s.reserveUrl;
+        } else {
+          const reserveId = s.resveId || (String(cid).startsWith("yongin:") ? String(cid).split(":")[1] : cid);
+          href = makeReserveLink(reserveId);
+        }
+        rows.push({ cid, fac, date: d, slot: s, href, time: firstTimeLabel(s.timeContent) });
       });
     });
+  }
 
-    if (hasAny) activeCourts.add(courtGroup);
+  rows.sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+  return rows.slice(0, limit);
+}
+
+function renderQuickSlots() {
+  const list = document.getElementById("quickSlots");
+  if (!list) return;
+  list.replaceChildren();
+
+  if (!DATA || !DATA.facilities || !DATA.availability) {
+    list.appendChild(makeNode("div", "quick-empty", "예약 가능 시간을 불러오는 중입니다."));
+    return;
+  }
+
+  const rows = collectVisibleSlots({ limit: 6 });
+  if (!rows.length) {
+    list.appendChild(makeNode("div", "quick-empty", "현재 조건에 맞는 잔여 코트가 없습니다."));
+    return;
+  }
+
+  rows.forEach(row => {
+    const a = makeNode("a", "quick-slot");
+    a.href = safeReserveUrl(row.href);
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    const body = makeNode("div", "");
+    body.appendChild(makeNode("div", "quick-court", row.fac.title));
+    body.appendChild(makeNode("div", "quick-meta", `${compactDateLabel(row.date)} (${getWeekday(row.date)}) · ${row.fac.location || CITY_LABELS[CURRENT_CITY] || ""}`));
+    a.appendChild(body);
+    a.appendChild(makeNode("div", "quick-time", row.slot.timeContent || row.time || "예약"));
+    list.appendChild(a);
   });
+}
 
-  document.getElementById("summaryToday").textContent = String(todaySlots);
-  document.getElementById("summaryWeek").textContent = String(weekSlots);
-  document.getElementById("summaryCourts").textContent = String(activeCourts.size);
-  document.getElementById("summaryState").textContent = earliest ? compactDateLabel(earliest.ymd) : "없음";
-  document.getElementById("summaryStateNote").textContent = earliest?.time ? `${earliest.time}부터 가능` : "조건에 맞는 잔여 없음";
-
+function renderSummary() {
   const statusText = document.getElementById("cityStatusText");
-  if (statusText) statusText.textContent = CITY_NOTES[CURRENT_CITY] || "잔여 코트를 확인하세요.";
-  const banner = document.getElementById("statusBanner");
-  if (banner) banner.classList.remove("show");
+  if (statusText) {
+    statusText.textContent = DATA?.updated_at ? "업데이트 정상" : "업데이트 확인 필요";
+    statusText.classList.toggle("is-error", !DATA?.updated_at);
+  }
+  renderQuickSlots();
 }
 
 function renderCourts() {
