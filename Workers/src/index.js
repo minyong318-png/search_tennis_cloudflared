@@ -71,28 +71,6 @@ export default {
     }
 
     // ---------------------------
-    // /whoami (디버그용)
-    // ---------------------------
-    if (url.pathname === "/whoami") {
-      try {
-        const r = await fetch("https://api.github.com/user", {
-          headers: {
-            "Authorization": `token ${env.GITHUB_PAT}`,
-            "Accept": "application/vnd.github+json",
-            "User-Agent": "tennis-trigger",
-          },
-        });
-        const body = await r.text();
-        return withCors(
-          new Response(body, { status: r.status, headers: { "Content-Type": "application/json" } }),
-          origin
-        );
-      } catch (e) {
-        return withCors(jsonResponse({ ok: false, error: e?.message || String(e) }, 500), origin);
-      }
-    }
-
-    // ---------------------------
     // /trigger
     // ---------------------------
     const target = triggerTarget(url.pathname, url.searchParams.get("target"));
