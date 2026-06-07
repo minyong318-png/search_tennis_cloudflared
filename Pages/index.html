@@ -98,6 +98,19 @@
   .slots{ display:flex; flex-wrap:wrap; gap:8px; }
   .slot{ padding:9px 12px; border-radius:999px; border:1px solid rgba(31,111,67,.2); font-size:13px; font-weight:900; background:var(--lime-soft); text-decoration:none; color:#17211b; }
   .slot:hover{ background:var(--lime); border-color:var(--primary); }
+  .favorites-panel{ margin-top:12px; padding:12px; border:1px solid rgba(31,111,67,.13); border-radius:18px; background:rgba(255,255,255,.62); }
+  .favorites-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .favorites-title{ font-size:13px; font-weight:950; color:var(--primary-strong); }
+  .favorite-add{ margin:0; padding:8px 10px; min-height:0; border-radius:999px; background:#fff; color:var(--primary-strong); border:1px solid rgba(31,111,67,.2); font-size:12px; }
+  .favorite-add:disabled{ background:#f8faf0; color:var(--sub); opacity:.78; }
+  .favorite-list{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .favorite-empty{ color:var(--sub); font-size:13px; font-weight:800; }
+  .favorite-chip{ display:inline-flex; align-items:center; overflow:hidden; border:1px solid rgba(31,111,67,.18); border-radius:999px; background:#fff; box-shadow:0 6px 14px rgba(23,33,27,.05); }
+  .favorite-chip.is-active{ border-color:var(--primary); background:var(--lime-soft); }
+  .favorite-pick,.favorite-remove{ margin:0; min-height:0; border:none; border-radius:0; background:transparent; color:var(--text); }
+  .favorite-pick{ padding:8px 10px 8px 12px; font-size:13px; font-weight:950; }
+  .favorite-remove{ padding:8px 10px; border-left:1px solid rgba(31,111,67,.13); color:var(--sub); font-size:13px; }
+  .favorite-pick:hover,.favorite-remove:hover{ background:rgba(200,242,74,.22); }
   .empty-state{ padding:26px 12px; text-align:center; color:var(--sub); font-weight:800; }
   #alarmList .alarm-item{ margin-bottom:8px; }
   .notice-overlay{ display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:10000; padding:18px; box-sizing:border-box; }
@@ -114,7 +127,7 @@
   .update-date{ display:block; margin-bottom:4px; color:#0f172a; font-weight:900; font-size:13px; }
   .toast{ position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); width:min(520px,calc(100vw - 32px)); padding:13px 15px; border-radius:16px; background:#17211b; color:#fff; font-size:13px; font-weight:800; box-shadow:0 20px 50px rgba(0,0,0,.22); opacity:0; pointer-events:none; transition:opacity .18s,transform .18s; z-index:12000; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
-  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-stack button{ width:100%; } .time-control{ width:100%; gap:6px; padding:8px; } .time-control .time-icon{ display:none; } .time-control select{ flex:0 0 118px; max-width:118px; min-width:0; } .time-modes{ flex:0 0 162px; min-width:0; } .time-mode{ flex:1 1 0; min-width:0; padding:6px 0; font-size:11px; } }
+  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-stack button{ width:100%; } .time-control{ width:100%; gap:6px; padding:8px; } .time-control .time-icon{ display:none; } .time-control select{ flex:0 0 118px; max-width:118px; min-width:0; } .time-modes{ flex:0 0 162px; min-width:0; } .time-mode{ flex:1 1 0; min-width:0; padding:6px 0; font-size:11px; } .favorites-head{ align-items:flex-start; flex-direction:column; } .favorite-add{ width:100%; } }
   @media (prefers-reduced-motion:reduce){ *,*:before,*:after{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
   </style>
 </head>
@@ -203,6 +216,16 @@
         </div>
       </div>
     </div>
+
+    <div class="favorites-panel" aria-label="즐겨찾는 코트">
+      <div class="favorites-head">
+        <div class="favorites-title">즐겨찾는 코트</div>
+        <button id="favoriteAddBtn" class="favorite-add" type="button">현재 코트 저장</button>
+      </div>
+      <div id="favoriteList" class="favorite-list">
+        <span class="favorite-empty">저장된 즐겨찾기가 없습니다.</span>
+      </div>
+    </div>
   </div>
 
   <!-- 알람 -->
@@ -257,6 +280,7 @@
         <li>상단 도시 탭에서 용인시, 고양시, 수원시, 성남시를 선택합니다.</li>
         <li>용인시는 구 필터와 코트 필터를 함께 사용할 수 있고, 날짜와 시간 조건까지 선택하면 원하는 예약 가능 슬롯만 볼 수 있습니다.</li>
         <li>시간 조건은 6시부터 22시까지 선택한 뒤 이전, 이후, 포함 중 하나를 고르는 방식입니다. 분 단위 선택은 제공하지 않습니다.</li>
+        <li>코트 필터에서 자주 보는 코트를 고른 뒤 즐겨찾기에 저장하면 다음부터 칩을 눌러 바로 해당 코트 그룹을 조회할 수 있습니다.</li>
         <li>예약 가능 시간 버튼을 누르면 해당 시설의 예약 페이지로 이동합니다. 선택한 조건은 슬롯 검색용이며 실제 예약은 각 시설 예약 페이지에서 최종 확정합니다.</li>
         <li>오른쪽 위 새로고침 버튼을 누르면 Supabase에 저장된 최신 데이터를 다시 불러옵니다.</li>
       </ul>
@@ -296,6 +320,7 @@
             <li>사용자에게 불필요한 상단 요약/빠른 목록을 제거하고 실제 예약 가능 현황에 집중하도록 화면을 단순화했습니다.</li>
             <li>시간 선택 UI를 긴 목록 대신 6~22시 선택과 이전/이후/포함 버튼 조합으로 정리했습니다.</li>
             <li>알람 등록에도 같은 시간 조건 UI를 적용해 특정 시각 이후, 이전, 해당 시각 포함 슬롯만 알림 받을 수 있게 했습니다.</li>
+            <li>자주 보는 코트 그룹을 브라우저에 저장하고 바로 필터 적용할 수 있는 즐겨찾기 기능을 추가했습니다.</li>
           </ul>
         </div>
         <div class="update-item">
@@ -354,6 +379,7 @@ const CITY_NOTES = {
   suwon: "수원시는 현재 망포 중심으로 잔여 시간을 보여줍니다.",
   seongnam: "성남시는 시설별 남은 시간과 예약 이동을 지원합니다."
 };
+const FAVORITE_COURTS_KEY = "tennis_favorite_courts_v1";
 
 let toastTimer = null;
 function showToast(message) {
@@ -400,6 +426,115 @@ function setSelectOptions(select, placeholder, values, valueMapper = v => v) {
     fragment.appendChild(opt);
   });
   select.replaceChildren(fragment);
+}
+
+function ensureSelectOption(select, value, label = value) {
+  if (!select || !value || [...select.options].some(opt => opt.value === value)) return;
+  const opt = document.createElement("option");
+  opt.value = value;
+  opt.textContent = label;
+  select.appendChild(opt);
+}
+
+function favoriteKey(city, group) {
+  return `${city}|${group}`;
+}
+
+function loadFavoriteCourts() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(FAVORITE_COURTS_KEY) || "[]");
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map(f => ({ city: String(f.city || ""), group: String(f.group || "") }))
+      .filter(f => f.city && f.group);
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveFavoriteCourts(favorites) {
+  const seen = new Set();
+  const cleaned = [];
+  favorites.forEach(f => {
+    const city = String(f.city || "").trim();
+    const group = String(f.group || "").trim();
+    const key = favoriteKey(city, group);
+    if (!city || !group || seen.has(key)) return;
+    seen.add(key);
+    cleaned.push({ city, group });
+  });
+  localStorage.setItem(FAVORITE_COURTS_KEY, JSON.stringify(cleaned));
+}
+
+function isFavoriteCourt(city, group) {
+  const key = favoriteKey(city, group);
+  return loadFavoriteCourts().some(f => favoriteKey(f.city, f.group) === key);
+}
+
+function renderFavoriteCourts() {
+  const list = document.getElementById("favoriteList");
+  const addBtn = document.getElementById("favoriteAddBtn");
+  if (!list || !addBtn) return;
+
+  const currentGroup = filterCourt.value || "";
+  const currentSaved = currentGroup && isFavoriteCourt(CURRENT_CITY, currentGroup);
+  addBtn.disabled = !currentGroup || currentSaved;
+  addBtn.textContent = !currentGroup ? "코트 선택 후 저장" : (currentSaved ? "저장됨" : "현재 코트 저장");
+
+  const favorites = loadFavoriteCourts();
+  list.replaceChildren();
+  if (!favorites.length) {
+    list.appendChild(makeNode("span", "favorite-empty", "저장된 즐겨찾기가 없습니다."));
+    return;
+  }
+
+  favorites.forEach(fav => {
+    const chip = makeNode("span", "favorite-chip");
+    chip.classList.toggle("is-active", fav.city === CURRENT_CITY && fav.group === currentGroup);
+
+    const pick = makeNode("button", "favorite-pick", `${CITY_LABELS[fav.city] || fav.city} · ${fav.group}`);
+    pick.type = "button";
+    pick.onclick = () => applyFavoriteCourt(fav.city, fav.group);
+
+    const remove = makeNode("button", "favorite-remove", "×");
+    remove.type = "button";
+    remove.title = "즐겨찾기 삭제";
+    remove.onclick = () => removeFavoriteCourt(fav.city, fav.group);
+
+    chip.appendChild(pick);
+    chip.appendChild(remove);
+    list.appendChild(chip);
+  });
+}
+
+function addCurrentFavoriteCourt() {
+  const group = filterCourt.value || "";
+  if (!group) {
+    showToast("즐겨찾기에 저장할 코트를 먼저 선택하세요.");
+    return;
+  }
+  const favorites = loadFavoriteCourts();
+  if (!favorites.some(f => f.city === CURRENT_CITY && f.group === group)) {
+    favorites.push({ city: CURRENT_CITY, group });
+    saveFavoriteCourts(favorites);
+  }
+  renderFavoriteCourts();
+  showToast(`${CITY_LABELS[CURRENT_CITY] || CURRENT_CITY} · ${group} 즐겨찾기를 저장했습니다.`);
+}
+
+function removeFavoriteCourt(city, group) {
+  const key = favoriteKey(city, group);
+  saveFavoriteCourts(loadFavoriteCourts().filter(f => favoriteKey(f.city, f.group) !== key));
+  renderFavoriteCourts();
+  showToast("즐겨찾기를 삭제했습니다.");
+}
+
+function applyFavoriteCourt(city, group) {
+  if (CURRENT_CITY !== city) setCity(city);
+  ensureSelectOption(filterCourt, group, group);
+  filterCourt.value = group;
+  renderCourts();
+  renderFavoriteCourts();
 }
 
 function yyyymmddTodayKst(offsetDays = 0) {
@@ -643,7 +778,11 @@ function buildCourtGroups(){
 
   const groups = Object.keys(COURT_GROUPS).sort((a, b) => a.localeCompare(b, "ko"));
   setSelectOptions(filterCourt, "코트 전체", groups);
+  loadFavoriteCourts()
+    .filter(f => f.city === CURRENT_CITY)
+    .forEach(f => ensureSelectOption(filterCourt, f.group, f.group));
   setSelectOptions(alarmCourt, "코트 선택", groups, prefixedGroupValue);
+  renderFavoriteCourts();
 }
 
 function renderSummary() {
@@ -982,7 +1121,11 @@ makeHourOptions(alarmTimeHour);
  *  events
  * ========================================================= */
 filterGu.onchange = renderCourts;
-filterCourt.onchange = renderCourts;
+filterCourt.onchange = () => {
+  renderCourts();
+  renderFavoriteCourts();
+};
+favoriteAddBtn.onclick = addCurrentFavoriteCourt;
 filterTimeHour.onchange = renderCourts;
 document.querySelectorAll('input[name="filterTimeMode"]').forEach(input => input.onchange = renderCourts);
 
@@ -1066,6 +1209,7 @@ function setCity(city){
 
   buildCourtGroups();
   renderCourts();
+  renderFavoriteCourts();
   loadMyAlarms(); // 탭 도시 알람만 보여주기 위해 재로딩
 }
 
