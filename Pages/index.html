@@ -328,6 +328,21 @@
       <h4>업데이트 이력</h4>
       <div class="update-log" aria-label="업데이트 이력">
         <div class="update-item">
+          <span class="update-date">2026-06-08</span>
+          <ul>
+            <li>성남시 예약 가능 날짜를 기존 일부 날짜만 조회하던 방식에서 오늘부터 45일 뒤까지 조회하도록 개선했습니다.</li>
+            <li>성남시 50개 시설의 날짜별 잔여 코트 조회를 병렬 처리해 갱신 시간을 크게 줄였습니다.</li>
+            <li>긴 크롤링 중 Supabase 연결이 끊겨 저장이 실패할 수 있던 문제를 수정했습니다.</li>
+          </ul>
+        </div>
+        <div class="update-item">
+          <span class="update-date">2026-06-07</span>
+          <ul>
+            <li>성남시 데이터가 공개 페이지에서 45일치로 표시되는지 Supabase 공개 데이터 경로까지 검증했습니다.</li>
+            <li>성남시 갱신 로그에 요청 수와 소요 시간을 남겨 이후 장애 원인을 더 쉽게 확인할 수 있도록 했습니다.</li>
+          </ul>
+        </div>
+        <div class="update-item">
           <span class="update-date">2026-06-06</span>
           <ul>
             <li>메인 화면을 예약 현황 대시보드 형태로 개편했습니다.</li>
