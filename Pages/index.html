@@ -103,6 +103,7 @@
   .slots{ display:flex; flex-wrap:wrap; gap:8px; }
   .slot{ padding:9px 12px; border-radius:999px; border:1px solid rgba(31,111,67,.2); font-size:13px; font-weight:900; background:var(--lime-soft); text-decoration:none; color:#17211b; }
   .slot:hover{ background:var(--lime); border-color:var(--primary); }
+  .no-slot-note{ padding:16px; border-top:1px solid #f1f2eb; color:var(--sub); font-size:13px; font-weight:800; line-height:1.55; background:#fbfcf5; }
   .favorites-panel{ margin-top:12px; padding:12px; border:1px solid rgba(31,111,67,.13); border-radius:18px; background:rgba(255,255,255,.62); }
   .favorites-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
   .favorites-title{ font-size:13px; font-weight:950; color:var(--primary-strong); }
@@ -327,6 +328,12 @@
     <section class="notice-section">
       <h4>업데이트 이력</h4>
       <div class="update-log" aria-label="업데이트 이력">
+        <div class="update-item">
+          <span class="update-date">2026-06-23</span>
+          <ul>
+            <li>용인은 잔여 슬롯이 없는 시설도 목록과 알람 코트 선택지에 계속 보이도록 변경했습니다.</li>
+          </ul>
+        </div>
         <div class="update-item">
           <span class="update-date">2026-06-08</span>
           <ul>
@@ -857,7 +864,7 @@ function buildCourtGroups(){
     if (cityOfFacilityId(cid) !== CURRENT_CITY) return;
     const days = DATA.availability && DATA.availability[cid];
     const hasSlot = days && Object.values(days).some(slots => Array.isArray(slots) && slots.length > 0);
-    if (!hasSlot) return;
+    if (CURRENT_CITY !== "yongin" && !hasSlot) return;
     const g = getCourtGroup(f.title);
     if (!g) return;
     COURT_GROUPS[g] = true;
@@ -909,7 +916,7 @@ function renderCourts() {
     if (!group && FAVORITES_ONLY && !favoriteGroups.has(courtGroup)) continue;
 
     const days = DATA.availability[cid];
-    if (!days || typeof days !== "object") continue;
+    if ((!days || typeof days !== "object") && CURRENT_CITY !== "yongin") continue;
 
     const card = makeNode("article", "court-card");
     const head = makeNode("div", "court-head");
@@ -918,7 +925,8 @@ function renderCourts() {
     card.appendChild(head);
 
     let hasAnySlot = false;
-    Object.keys(days).sort().forEach(d => {
+    const showEmptyYongin = CURRENT_CITY === "yongin";
+    Object.keys(days || {}).sort().forEach(d => {
       if (date && d !== date) return;
       const slots = (Array.isArray(days[d]) ? days[d] : []).filter(s => slotMatchesTimeCondition(s, timeCondition));
       if (slots.length === 0) return;
@@ -951,7 +959,12 @@ function renderCourts() {
       card.appendChild(dayBox);
     });
 
-    if (hasAnySlot) {
+    if (!hasAnySlot && showEmptyYongin) {
+      const label = date ? `${date.slice(4, 6)}.${date.slice(6, 8)} (${getWeekday(date)})` : "현재 조회 조건";
+      card.appendChild(makeNode("div", "no-slot-note", `${label}에 맞는 잔여 슬롯은 없습니다. 그래도 이 코트에는 알람을 등록할 수 있습니다.`));
+    }
+
+    if (hasAnySlot || showEmptyYongin) {
       courtsEl.appendChild(card);
       renderedCount++;
     }
