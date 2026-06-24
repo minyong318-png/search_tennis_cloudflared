@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login/
+
+Sitemap: https://courtissum.pages.dev/sitemap.xml
