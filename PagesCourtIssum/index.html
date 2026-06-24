@@ -1352,8 +1352,32 @@ if (isDesktop()) {
 /** =========================================================
  *  탭 UI
  * ========================================================= */
-function setCity(city){
+const CITY_ROUTES = {
+  yongin: "/tennis/yongin/",
+  goyang: "/tennis/goyang/",
+  suwon: "/tennis/suwon/",
+  seongnam: "/tennis/seongnam/"
+};
+
+function cityFromLocation() {
+  const routeCity = Object.entries(CITY_ROUTES).find(([, route]) => location.pathname === route)?.[0];
+  if (routeCity) return routeCity;
+
+  const queryCity = new URLSearchParams(location.search).get("city");
+  return CITY_ROUTES[queryCity] ? queryCity : "yongin";
+}
+
+function updateCityRoute(city, replace = false) {
+  const route = CITY_ROUTES[city];
+  if (!route || location.pathname === route) return;
+  const method = replace ? "replaceState" : "pushState";
+  history[method]({ city }, "", route);
+}
+
+function setCity(city, options = {}){
+  const { updateRoute = false, replaceRoute = false } = options;
   CURRENT_CITY = city;
+  if (updateRoute) updateCityRoute(city, replaceRoute);
 
   const tabY = document.getElementById("tabYongin");
   const tabG = document.getElementById("tabGoyang");
@@ -1382,17 +1406,21 @@ function setCity(city){
   loadMyAlarms(); // 탭 도시 알람만 보여주기 위해 재로딩
 }
 
-document.getElementById("tabYongin").addEventListener("click", () => setCity("yongin"));
-document.getElementById("tabGoyang").addEventListener("click", () => setCity("goyang"));
-document.getElementById("tabSuwon").addEventListener("click", () => setCity("suwon"));
-document.getElementById("tabSeongnam").addEventListener("click", () => setCity("seongnam"));
+document.getElementById("tabYongin").addEventListener("click", () => setCity("yongin", { updateRoute: true }));
+document.getElementById("tabGoyang").addEventListener("click", () => setCity("goyang", { updateRoute: true }));
+document.getElementById("tabSuwon").addEventListener("click", () => setCity("suwon", { updateRoute: true }));
+document.getElementById("tabSeongnam").addEventListener("click", () => setCity("seongnam", { updateRoute: true }));
+
+window.addEventListener("popstate", () => {
+  setCity(cityFromLocation());
+});
 
 /** =========================================================
  *  init + 강제 업데이트 버튼
  * ========================================================= */
 async function init() {
   await loadData();
-  setCity("yongin"); // 초기 탭
+  setCity(cityFromLocation()); // URL에 맞는 초기 탭
   await loadMyAlarms();
 }
 
