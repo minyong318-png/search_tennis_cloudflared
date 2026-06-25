@@ -329,6 +329,12 @@
       <h4>업데이트 이력</h4>
       <div class="update-log" aria-label="업데이트 이력">
         <div class="update-item">
+          <span class="update-date">2026-06-25</span>
+          <ul>
+            <li>필터 적용 후에도 잔여 슬롯이 있는 코트가 먼저 보이도록 목록 정렬을 개선했습니다.</li>
+          </ul>
+        </div>
+        <div class="update-item">
           <span class="update-date">2026-06-23</span>
           <ul>
             <li>용인은 잔여 슬롯이 없는 시설도 목록과 알람 코트 선택지에 계속 보이도록 변경했습니다.</li>
@@ -904,6 +910,8 @@ function renderCourts() {
   const date = filterDate.value ? filterDate.value.replaceAll("-", "") : "";
   const timeCondition = getTimeConditionValue(filterTimeHour, "filterTimeMode");
   let renderedCount = 0;
+  const courtCards = [];
+  let renderOrder = 0;
 
   for (const cid in DATA.facilities) {
     const fac = DATA.facilities[cid];
@@ -965,10 +973,14 @@ function renderCourts() {
     }
 
     if (hasAnySlot || showEmptyYongin) {
-      courtsEl.appendChild(card);
+      courtCards.push({ card, hasAnySlot, order: renderOrder++ });
       renderedCount++;
     }
   }
+
+  courtCards
+    .sort((a, b) => Number(b.hasAnySlot) - Number(a.hasAnySlot) || a.order - b.order)
+    .forEach(item => courtsEl.appendChild(item.card));
 
   if (renderedCount === 0) {
     const message = FAVORITES_ONLY && !favoriteGroups.size
