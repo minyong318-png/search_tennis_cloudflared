@@ -46,18 +46,19 @@ function pickWorkflowId(target) {
   if (target === "suwon") return "crawl_suwon.yml";
   if (target === "seongnam") return "crawl_seongnam.yml";
   if (target === "anyang") return "crawl_anyang.yml";
+  if (target === "paju") return "crawl_paju.yml";
   return "crawl_all.yml";
 }
 
 function normalizeTarget(v) {
   v = String(v || "").toLowerCase().trim();
-  if (v === "yongin" || v === "goyang" || v === "suwon" || v === "seongnam" || v === "anyang" || v === "all") return v;
+  if (v === "yongin" || v === "goyang" || v === "suwon" || v === "seongnam" || v === "anyang" || v === "paju" || v === "all") return v;
   return "all";
 }
 
 function triggerTarget(pathname, queryTarget) {
   if (pathname === "/trigger") return normalizeTarget(queryTarget || "all");
-  const match = pathname.match(/^\/trigger\/(yongin|goyang|suwon|seongnam|anyang|all)$/);
+  const match = pathname.match(/^\/trigger\/(yongin|goyang|suwon|seongnam|anyang|paju|all)$/);
   return match ? match[1] : "";
 }
 
