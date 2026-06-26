@@ -95,7 +95,7 @@
   .data-dot.is-error:before{ background:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.12); }
   .card{ background:rgba(255,253,246,.92); border:1px solid rgba(31,111,67,.16); border-radius:var(--radius); padding:18px; box-shadow:0 10px 30px rgba(23,33,27,.08); margin-top:14px; }
   .card h3{ margin:0 0 14px; font-size:16px; font-weight:950; letter-spacing:-.02em; }
-  .tabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 0 14px; }
+  .tabs{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:0 0 14px; }
   .tab{ margin:0; padding:11px 8px; border:1px solid var(--border); border-radius:16px; background:#fffdf8; color:var(--text); font-weight:900; font-size:14px; cursor:pointer; }
   .tab.active{ border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 8px 20px rgba(31,111,67,.22); }
   .filter-stack{ display:grid; grid-template-columns:1fr 1fr 1fr 1.35fr; gap:10px; }
@@ -216,6 +216,7 @@
       <button id="tabGoyang" class="tab" type="button">고양시</button>
       <button id="tabSuwon" class="tab" type="button">수원시</button>
       <button id="tabSeongnam" class="tab" type="button">성남시</button>
+      <button id="tabAnyang" class="tab" type="button">안양시</button>
     </div>
 
     <div class="filter-stack">
@@ -319,7 +320,7 @@
     <section class="notice-section">
       <h4>사용방법</h4>
       <ul>
-        <li>상단 도시 탭에서 용인시, 고양시, 수원시, 성남시를 선택합니다.</li>
+        <li>상단 도시 탭에서 용인시, 고양시, 수원시, 성남시, 안양시를 선택합니다.</li>
         <li>용인시는 구 필터와 코트 필터를 함께 사용할 수 있고, 날짜와 시간 조건까지 선택하면 원하는 예약 가능 슬롯만 볼 수 있습니다.</li>
         <li>시간 조건은 6시부터 22시까지 선택한 뒤 이전, 이후, 포함 중 하나를 고르는 방식입니다. 분 단위 선택은 제공하지 않습니다.</li>
         <li>코트 필터에서 자주 보는 코트를 고른 뒤 즐겨찾기에 저장하면 다음부터 칩을 눌러 바로 해당 코트 그룹을 조회할 수 있고, 선택된 칩을 한 번 더 누르면 필터가 해제됩니다.</li>
@@ -343,7 +344,7 @@
     <section class="notice-section">
       <h4>업데이트 방식</h4>
       <ul>
-        <li>각 도시는 분리된 크롤러로 갱신됩니다. 용인, 고양, 수원, 성남은 서로 다른 예약 사이트를 조회합니다.</li>
+        <li>각 도시는 분리된 크롤러로 갱신됩니다. 용인, 고양, 수원, 성남, 안양은 서로 다른 예약 사이트를 조회합니다.</li>
         <li>UptimeRobot이 주기적으로 Cloudflare Worker를 호출하고, Worker가 GitHub Actions 크롤러를 실행합니다.</li>
         <li>수집된 예약 가능 시간은 Supabase에 저장되고, 페이지는 Supabase 공개 데이터를 읽어 표시합니다.</li>
         <li>고양시는 고양테니스협회, 대화, 백석 데이터를 함께 조회합니다. 단, 고양 크롤은 사이트 특성상 KST 05:00~22:00 시간창에서만 실행됩니다.</li>
@@ -352,8 +353,21 @@
     </section>
 
     <section class="notice-section">
+      <h4>안양시 예약 시간 안내</h4>
+      <ul>
+        <li>안양시는 예약 가능 시간이 07:00~21:00이므로 해당 시간대의 슬롯만 수집하고 표시합니다.</li>
+      </ul>
+    </section>
+
+    <section class="notice-section">
       <h4>업데이트 이력</h4>
       <div class="update-log" aria-label="업데이트 이력">
+        <div class="update-item">
+          <span class="update-date">2026-06-26</span>
+          <ul>
+            <li>안양시 조회를 추가하고 예약 가능 시간 안내에 맞춰 07:00~21:00 슬롯만 수집하고 표시하도록 제한했습니다.</li>
+          </ul>
+        </div>
         <div class="update-item">
           <span class="update-date">2026-06-25</span>
           <ul>
@@ -444,13 +458,14 @@ const VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe
 
 let DATA = {};
 let COURT_GROUPS = {};
-let CURRENT_CITY = "yongin"; // "yongin" | "goyang" | "suwon" | "seongnam"
-const CITY_LABELS = { yongin: "용인", goyang: "고양", suwon: "수원", seongnam: "성남" };
+let CURRENT_CITY = "yongin"; // "yongin" | "goyang" | "suwon" | "seongnam" | "anyang"
+const CITY_LABELS = { yongin: "용인", goyang: "고양", suwon: "수원", seongnam: "성남", anyang: "안양" };
 const CITY_NOTES = {
   yongin: "용인시는 구, 코트, 날짜, 시간으로 잔여 코트를 좁혀볼 수 있어요.",
   goyang: "고양시는 코트, 날짜, 시간으로 남은 예약 기회를 빠르게 볼 수 있어요.",
   suwon: "수원시는 현재 망포 중심으로 잔여 시간을 보여줍니다.",
-  seongnam: "성남시는 시설별 남은 시간과 예약 이동을 지원합니다."
+  seongnam: "성남시는 시설별 남은 시간과 예약 이동을 지원합니다.",
+  anyang: "안양시는 시립 코트별 남은 시간을 보여줍니다."
 };
 const FAVORITE_COURTS_KEY = "tennis_favorite_courts_v1";
 let FAVORITES_ONLY = false;
@@ -692,6 +707,11 @@ function getCourtGroup(title){
       .replace(/\s*\d+\s*번?\s*코트.*$/, "")
       .trim();
   }
+  if (CURRENT_CITY === "anyang") {
+    return t
+      .replace(/\s*\d+\s*코트\s*$/, "")
+      .trim();
+  }
 
   // ✅ 용인: 기존 로직 유지
   return t.split("테니스장")[0].trim();
@@ -795,6 +815,7 @@ function cityOfFacilityId(fid){
   if (fid.startsWith("goyang:")) return "goyang";
   if (fid.startsWith("suwon:")) return "suwon";
   if (fid.startsWith("seongnam:")) return "seongnam";
+  if (fid.startsWith("anyang:")) return "anyang";
   if (fid.startsWith("yongin:")) return "yongin";
   // 구버전(숫자 rid 등)은 용인으로 취급
   return "yongin";
@@ -815,6 +836,7 @@ function stripPrefixedGroupValue(val){
   if (val.startsWith("고양|")) return { city:"goyang", name: val.slice(3) };
   if (val.startsWith("수원|")) return { city:"suwon", name: val.slice(3) };
   if (val.startsWith("성남|")) return { city:"seongnam", name: val.slice(3) };
+  if (val.startsWith("안양|")) return { city:"anyang", name: val.slice(3) };
   return { city: CURRENT_CITY, name: val };
 }
 
@@ -836,7 +858,7 @@ function renderCityUpdatedTimes() {
   const wrap = document.getElementById("cityUpdatedGrid");
   if (!wrap) return;
   wrap.replaceChildren();
-  ["yongin", "goyang", "suwon", "seongnam"].forEach(city => {
+  ["yongin", "goyang", "suwon", "seongnam", "anyang"].forEach(city => {
     const chip = makeNode("span", "city-update-chip", `${CITY_LABELS[city]} ${formatKstTime(CITY_UPDATED_AT[city])}`);
     chip.classList.toggle("is-current", city === CURRENT_CITY);
     wrap.appendChild(chip);
@@ -844,7 +866,7 @@ function renderCityUpdatedTimes() {
 }
 
 async function loadCityUpdatedTimes() {
-  const cities = ["yongin", "goyang", "suwon", "seongnam"];
+  const cities = ["yongin", "goyang", "suwon", "seongnam", "anyang"];
   const updates = {};
   await Promise.all(cities.map(async city => {
     const { data, error } = await sb
@@ -1201,6 +1223,7 @@ async function loadMyAlarms() {
     if (CURRENT_CITY === "goyang") return cg.startsWith("고양|");
     if (CURRENT_CITY === "suwon") return cg.startsWith("수원|");
     if (CURRENT_CITY === "seongnam") return cg.startsWith("성남|");
+    if (CURRENT_CITY === "anyang") return cg.startsWith("안양|");
     return true;
   });
 
@@ -1368,7 +1391,8 @@ const CITY_ROUTES = {
   yongin: "/tennis/yongin/",
   goyang: "/tennis/goyang/",
   suwon: "/tennis/suwon/",
-  seongnam: "/tennis/seongnam/"
+  seongnam: "/tennis/seongnam/",
+  anyang: "/tennis/anyang/"
 };
 
 function cityFromLocation() {
@@ -1395,10 +1419,12 @@ function setCity(city, options = {}){
   const tabG = document.getElementById("tabGoyang");
   const tabS = document.getElementById("tabSuwon");
   const tabSN = document.getElementById("tabSeongnam");
+  const tabA = document.getElementById("tabAnyang");
   tabY.classList.toggle("active", city === "yongin");
   tabG.classList.toggle("active", city === "goyang");
   tabS.classList.toggle("active", city === "suwon");
   tabSN.classList.toggle("active", city === "seongnam");
+  tabA.classList.toggle("active", city === "anyang");
 
   // 고양 탭이면 구 필터 숨김
   const guWrap = document.getElementById("filterGuWrap");
@@ -1422,6 +1448,7 @@ document.getElementById("tabYongin").addEventListener("click", () => setCity("yo
 document.getElementById("tabGoyang").addEventListener("click", () => setCity("goyang", { updateRoute: true }));
 document.getElementById("tabSuwon").addEventListener("click", () => setCity("suwon", { updateRoute: true }));
 document.getElementById("tabSeongnam").addEventListener("click", () => setCity("seongnam", { updateRoute: true }));
+document.getElementById("tabAnyang").addEventListener("click", () => setCity("anyang", { updateRoute: true }));
 
 window.addEventListener("popstate", () => {
   setCity(cityFromLocation());
