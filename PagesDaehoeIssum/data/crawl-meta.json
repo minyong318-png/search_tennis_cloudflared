@@ -1,0 +1,21 @@
+{
+  "sourceName": "용인시테니스협회 수집",
+  "sourceUrl": "multiple",
+  "startedAt": "2026-07-05T12:15:39.912Z",
+  "finishedAt": "2026-07-05T12:15:42.255Z",
+  "listCount": 623,
+  "detailCount": 622,
+  "errorCount": 0,
+  "sources": [
+    {
+      "sourceName": "용인시테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://yitc.kr/sub2_1.asp?g_year=2026",
+      "status": "success",
+      "startedAt": "2026-07-05T12:15:39.923Z",
+      "finishedAt": "2026-07-05T12:15:42.159Z",
+      "detailCount": 24,
+      "errorMessage": null
+    }
+  ]
+}

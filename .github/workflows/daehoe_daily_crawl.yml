@@ -1,0 +1,59 @@
+name: Daehoe Daily Crawl
+
+on:
+  schedule:
+    # 10:00 KST
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daehoe-daily-crawl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Crawl tournament sources
+        env:
+          DAEHOE_MERGE_EXISTING: "1"
+          DAEHOE_AI_EXTRACT: "0"
+          DAEHOE_TENNISTOWN_ADB: "0"
+          DAEHOE_REQUEST_DELAY_MS: "1200"
+        run: |
+          node PagesDaehoeIssum/scripts/crawl-all.mjs
+
+      - name: Commit updated tournament data
+        id: commit
+        shell: bash
+        run: |
+          if git diff --quiet -- PagesDaehoeIssum/data; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PagesDaehoeIssum/data
+          git commit -m "Update tournament data"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Daehoe Pages
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler pages deploy PagesDaehoeIssum --project-name daehoe-isseum --branch main
