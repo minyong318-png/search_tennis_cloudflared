@@ -1,1538 +1,1115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3873417691460649"
-     crossorigin="anonymous"></script>
-
-  <!-- Supabase JS (UMD) -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코트있음? | 공공 테니스 코트 잔여 현황</title>
+  <meta name="description" content="공공 테니스장 잔여 예약 시간을 도시별로 빠르게 확인합니다.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <meta charset="UTF-8">
-  <meta name="naver-site-verification" content="f1ed95a99436bce7b3e5b8f2e9aebb74d4b95f8b" />
-  <meta name="google-site-verification" content="fktx0I2zGmRjWUSnqXC8eN81o3skd63rTvTBu30FFPU" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="코트있음?은 공공 테니스장의 예약 가능 시간과 빈 코트를 한눈에 확인할 수 있는 테니스 코트 조회 서비스입니다.">
-  <link rel="canonical" href="https://courtissum.pages.dev/">
-  <meta property="og:site_name" content="코트있음?">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="코트있음? | 공공 테니스장 빈 코트 조회">
-  <meta property="og:description" content="오늘 테니스 칠 코트 있음? 공공 테니스장 빈 코트를 한눈에 확인하세요.">
-  <meta property="og:url" content="https://courtissum.pages.dev/">
-  <meta property="og:image" content="https://courtissum.pages.dev/static/og-image.png">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="코트있음? | 공공 테니스장 빈 코트 조회">
-  <meta name="twitter:description" content="오늘 테니스 칠 코트 있음? 공공 테니스장 빈 코트를 한눈에 확인하세요.">
-  <meta name="twitter:image" content="https://courtissum.pages.dev/static/og-image.png">
-  <meta name="twitter:domain" content="courtissum.pages.dev">
-  <title>코트있음? | 공공 테니스장 빈 코트 조회</title>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "코트있음?",
-    "alternateName": ["코트있음", "courtissum", "Court Issum", "courtitssum", "Court Itssum"],
-    "url": "https://courtissum.pages.dev/"
-  }
-  </script>
-
   <style>
-  :root{
-    --bg:#f3f1e8;
-    --bg-2:#e8f4d9;
-    --card:#fffdf6;
-    --text:#17211b;
-    --sub:#667064;
-    --primary:#1f6f43;
-    --primary-strong:#124b2d;
-    --lime:#c8f24a;
-    --lime-soft:#eff9c7;
-    --border:#d8ddce;
-    --shadow:0 18px 50px rgba(23,33,27,.12);
-    --radius:22px;
-  }
-  *{ box-sizing:border-box; }
-  html,body{ overflow-x:hidden; }
-  body{
-    margin:0;
-    font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-    background:radial-gradient(circle at 18% -8%, rgba(200,242,74,.45), transparent 34%), linear-gradient(135deg,var(--bg),#f9f6ec 46%,var(--bg-2));
-    color:var(--text);
-    min-height:100vh;
-  }
-  body:before{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    opacity:.16;
-    background-image:linear-gradient(90deg,transparent 0 48%,rgba(31,111,67,.28) 48% 52%,transparent 52% 100%), linear-gradient(0deg,transparent 0 49%,rgba(31,111,67,.18) 49% 51%,transparent 51% 100%);
-    background-size:180px 180px,220px 220px;
-    mask-image:linear-gradient(to bottom,#000,transparent 72%);
-  }
-  .container{ max-width:980px; margin:0 auto; padding:22px 16px 120px; position:relative; }
-  .hero{ padding:22px; border:1px solid rgba(31,111,67,.18); border-radius:30px; background:linear-gradient(145deg,rgba(255,253,246,.94),rgba(238,247,222,.88)); box-shadow:var(--shadow); overflow:hidden; position:relative; }
-  .hero:after{ content:""; position:absolute; right:-80px; top:-70px; width:210px; height:210px; border-radius:999px; border:24px solid rgba(200,242,74,.48); }
-  .header{ position:relative; z-index:1; }
-  .brand-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
-  .header h1{ margin:0; font-size:30px; line-height:1.08; letter-spacing:-.04em; font-weight:950; }
-  .hero-copy{ margin:8px 0 0; color:var(--sub); font-size:14px; line-height:1.55; max-width:620px; }
-  .updated-row{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
-  .updated{ font-size:13px; color:var(--sub); }
-  .city-updates{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
-  .city-update-chip{ display:inline-flex; align-items:center; gap:5px; padding:6px 9px; border:1px solid rgba(31,111,67,.16); border-radius:999px; background:rgba(255,255,255,.6); color:var(--sub); font-size:12px; font-weight:850; }
-  .city-update-chip.is-current{ border-color:var(--primary); color:var(--primary-strong); background:var(--lime-soft); }
-  .header-actions{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
-  .icon-btn,.ghost-btn{ margin:0; border:1px solid rgba(31,111,67,.22); background:rgba(255,255,255,.66); color:var(--primary-strong); min-height:38px; border-radius:999px; padding:8px 12px; font-weight:900; font-size:13px; cursor:pointer; backdrop-filter:blur(10px); }
-  .icon-btn{ width:40px; padding:0; display:inline-grid; place-items:center; }
-  .icon-btn:hover,.ghost-btn:hover{ border-color:var(--primary); background:#fff; }
-  .icon-btn:disabled,.ghost-btn:disabled{ opacity:.58; cursor:not-allowed; }
-  .spin{ display:inline-block; animation:spin .9s linear infinite; }
-  @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-  .data-dot{ display:inline-flex; align-items:center; gap:6px; }
-  .data-dot:before{ content:""; width:8px; height:8px; border-radius:999px; background:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,.12); }
-  .data-dot.is-error:before{ background:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.12); }
-  .card{ background:rgba(255,253,246,.92); border:1px solid rgba(31,111,67,.16); border-radius:var(--radius); padding:18px; box-shadow:0 10px 30px rgba(23,33,27,.08); margin-top:14px; }
-  .card h3{ margin:0 0 14px; font-size:16px; font-weight:950; letter-spacing:-.02em; }
-  .tabs{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:0 0 14px; }
-  .tab{ margin:0; padding:11px 8px; border:1px solid var(--border); border-radius:16px; background:#fffdf8; color:var(--text); font-weight:900; font-size:14px; cursor:pointer; }
-  .tab.active{ border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 8px 20px rgba(31,111,67,.22); }
-  .filter-stack{ display:grid; grid-template-columns:1fr 1fr 1fr 1.35fr; gap:10px; }
-  .alarm-stack{ display:grid; grid-template-columns:1fr 1fr 1.35fr; gap:10px; }
-  .alarm-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:10px; }
-  .alarm-actions button{ white-space:nowrap; }
-  .filter-stack > *,.alarm-stack > *{ min-width:0; }
-  .select,.date-box,.time-control{ display:flex; align-items:center; gap:10px; padding:13px 14px; border-radius:16px; border:1px solid var(--border); background:#fff; font-size:14px; min-height:48px; }
-  .select select,.time-control select{ border:none; outline:none; font-size:14px; width:100%; background:none; color:var(--text); font-weight:700; }
-  .time-control{ gap:8px; padding:8px 10px; min-width:0; box-sizing:border-box; }
-  .time-control .time-icon{ flex:0 0 auto; }
-  .time-control select{ flex:1 1 86px; min-width:0; width:auto; }
-  .time-modes{ display:flex; align-items:center; gap:4px; flex:0 0 auto; }
-  .time-mode{ display:inline-flex; align-items:center; justify-content:center; min-width:42px; padding:7px 8px; border-radius:999px; border:1px solid rgba(31,111,67,.16); background:#f8faf0; color:var(--sub); font-size:12px; font-weight:950; cursor:pointer; user-select:none; }
-  .time-mode input{ position:absolute; opacity:0; pointer-events:none; }
-  .time-mode:has(input:checked){ border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 6px 14px rgba(31,111,67,.18); }
-  .date-box{ cursor:pointer; color:var(--sub); font-weight:800; }
-  .date-box span{ color:var(--sub); font-size:14px; }
-  .date-box input{ position:absolute; opacity:0; pointer-events:none; }
-  button{ margin-top:0; padding:14px 16px; border-radius:16px; border:none; background:var(--primary); color:#fff; font-weight:900; font-size:15px; cursor:pointer; }
-  button:disabled{ opacity:.6; cursor:not-allowed; }
-  .status-banner{ display:none; margin-top:12px; padding:12px 14px; border-radius:16px; background:#fff7d6; border:1px solid #f1d06a; color:#5f4600; font-size:13px; line-height:1.5; }
-  .status-banner.show{ display:block; }
-  .court-card{ margin-bottom:20px; border:1px solid rgba(31,111,67,.14); border-radius:22px; background:#fff; overflow:hidden; }
-  .court-head{ padding:16px 16px 10px; border-bottom:1px solid #edf0e5; }
-  .court-title{ font-weight:950; font-size:17px; letter-spacing:-.02em; }
-  .court-loc{ font-size:13px; color:var(--sub); margin-top:4px; }
-  .date-box-view{ padding:14px 16px 16px; border-top:1px solid #f1f2eb; }
-  .date-box-view:first-of-type{ border-top:none; }
-  .date-title{ display:flex; align-items:center; justify-content:space-between; font-weight:950; font-size:14px; margin-bottom:10px; color:var(--primary-strong); }
-  .slots{ display:flex; flex-wrap:wrap; gap:8px; }
-  .slot{ padding:9px 12px; border-radius:999px; border:1px solid rgba(31,111,67,.2); font-size:13px; font-weight:900; background:var(--lime-soft); text-decoration:none; color:#17211b; }
-  .slot:hover{ background:var(--lime); border-color:var(--primary); }
-  .no-slot-note{ padding:16px; border-top:1px solid #f1f2eb; color:var(--sub); font-size:13px; font-weight:800; line-height:1.55; background:#fbfcf5; }
-  .favorites-panel{ margin-top:12px; padding:12px; border:1px solid rgba(31,111,67,.13); border-radius:18px; background:rgba(255,255,255,.62); }
-  .favorites-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-  .favorites-title{ font-size:13px; font-weight:950; color:var(--primary-strong); }
-  .favorites-actions{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
-  .favorite-add,.favorite-only-toggle{ margin:0; padding:8px 10px; min-height:0; border-radius:999px; background:#fff; color:var(--primary-strong); border:1px solid rgba(31,111,67,.2); font-size:12px; }
-  .favorite-only-toggle.is-active{ background:var(--primary); color:#fff; border-color:var(--primary); }
-  .favorite-add:disabled,.favorite-only-toggle:disabled{ background:#f8faf0; color:var(--sub); opacity:.78; }
-  .favorite-list{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
-  .favorite-empty{ color:var(--sub); font-size:13px; font-weight:800; }
-  .favorite-chip{ display:inline-flex; align-items:center; overflow:hidden; border:1px solid rgba(31,111,67,.18); border-radius:999px; background:#fff; box-shadow:0 6px 14px rgba(23,33,27,.05); }
-  .favorite-chip.is-active{ border-color:var(--primary); background:var(--lime-soft); }
-  .favorite-pick,.favorite-remove{ margin:0; min-height:0; border:none; border-radius:0; background:transparent; color:var(--text); }
-  .favorite-pick{ padding:8px 10px 8px 12px; font-size:13px; font-weight:950; }
-  .favorite-remove{ padding:8px 10px; border-left:1px solid rgba(31,111,67,.13); color:var(--sub); font-size:13px; }
-  .favorite-pick:hover,.favorite-remove:hover{ background:rgba(200,242,74,.22); }
-  .empty-state{ padding:26px 12px; text-align:center; color:var(--sub); font-weight:800; }
-  #alarmList .alarm-item{ margin-bottom:8px; }
-  .notice-overlay{ display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:10000; padding:18px; box-sizing:border-box; }
-  .notice-panel{ background:#fffdf8; max-width:600px; margin:6vh auto; padding:20px; border-radius:24px; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch; box-shadow:0 24px 70px rgba(15,23,42,.26); }
-  .notice-panel h3{ margin:0 0 10px; font-size:20px; }
-  .notice-section{ border-top:1px solid var(--border); padding-top:14px; margin-top:14px; }
-  .notice-section:first-of-type{ border-top:none; padding-top:0; }
-  .notice-section h4{ margin:0 0 8px; font-size:15px; }
-  .notice-section p,.notice-section li{ color:#334155; font-size:13px; line-height:1.65; }
-  .notice-section ul{ margin:0; padding-left:18px; }
-  .update-log{ max-height:210px; overflow-y:auto; padding:12px; border:1px solid var(--border); border-radius:16px; background:#f8faf0; }
-  .update-item{ margin:0 0 12px; padding-bottom:12px; border-bottom:1px dashed #cbd5c5; }
-  .update-item:last-child{ margin-bottom:0; padding-bottom:0; border-bottom:none; }
-  .update-date{ display:block; margin-bottom:4px; color:#0f172a; font-weight:900; font-size:13px; }
-  .toast{ position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); width:min(520px,calc(100vw - 32px)); padding:13px 15px; border-radius:16px; background:#17211b; color:#fff; font-size:13px; font-weight:800; box-shadow:0 20px 50px rgba(0,0,0,.22); opacity:0; pointer-events:none; transition:opacity .18s,transform .18s; z-index:12000; }
-  .toast.show{ opacity:1; transform:translate(-50%,0); }
-  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-actions{ flex-direction:column; } .alarm-actions button{ width:100%; } .time-control{ width:100%; gap:6px; padding:8px; } .time-control .time-icon{ display:none; } .time-control select{ flex:0 0 118px; max-width:118px; min-width:0; } .time-modes{ flex:0 0 162px; min-width:0; } .time-mode{ flex:1 1 0; min-width:0; padding:6px 0; font-size:11px; } .favorites-head{ align-items:flex-start; flex-direction:column; } .favorites-actions{ width:100%; } .favorite-add,.favorite-only-toggle{ flex:1; } }
-  @media (prefers-reduced-motion:reduce){ *,*:before,*:after{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+    :root{
+      --bg:#f6f8f4;
+      --panel:#ffffff;
+      --soft:#f2f7ee;
+      --line:#e1e8dc;
+      --text:#111827;
+      --muted:#667085;
+      --green:#14743f;
+      --green-2:#0d5c31;
+      --green-soft:#e9f8e6;
+      --lime:#c9ef6b;
+      --amber:#b45f18;
+      --amber-soft:#fff2dc;
+      --shadow:0 18px 46px rgba(17,24,39,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{overflow-x:hidden}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+    a{color:inherit}
+    button,select,input{font:inherit}
+    .topbar{position:sticky;top:0;z-index:10;height:66px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    .topbar-inner{max-width:1480px;margin:0 auto;height:100%;display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;padding:0 24px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:950;font-size:28px;letter-spacing:-.04em}
+    .ball{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#63c132,#1b8c45);position:relative;box-shadow:inset 0 0 0 2px rgba(255,255,255,.45)}
+    .ball:before,.ball:after{content:"";position:absolute;top:4px;bottom:4px;width:1.5px;background:#fff;border-radius:999px;opacity:.9}
+    .ball:before{left:10px;transform:rotate(-18deg)} .ball:after{right:10px;transform:rotate(18deg)}
+    .tagline{color:var(--muted);font-size:15px;font-weight:700}
+    .product-tabs{display:flex;align-items:center;gap:8px;padding:4px;border:1px solid var(--line);border-radius:14px;background:#f8faf7}
+    .product-tab{display:flex;align-items:center;gap:8px;min-height:38px;padding:8px 18px;border-radius:11px;text-decoration:none;font-weight:900;color:#344054}
+    .product-tab.is-active{background:#fff;color:var(--green);box-shadow:0 8px 18px rgba(17,24,39,.08)}
+    .mini{width:18px;height:18px}
+    .page{max-width:1480px;margin:0 auto;padding:18px 24px 42px}
+    .shell{border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
+    .hero{display:block;padding:26px;border-bottom:1px solid var(--line)}
+    .title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    h1{margin:0;font-size:38px;line-height:1.08;letter-spacing:-.045em}
+    .nav-month{display:flex;gap:8px}
+    .icon-btn{width:48px;height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-size:24px;font-weight:700}
+    .icon-btn:hover{border-color:var(--green);color:var(--green)}
+    .summary{display:none;margin-top:12px;color:var(--muted);font-size:18px;font-weight:700}
+    .summary strong{color:#111827}
+    .filter-toggle{display:none}
+    .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;padding:20px 26px;border-bottom:1px solid var(--line)}
+    .field{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#fff}
+    .field-label{color:var(--muted);font-size:13px;font-weight:900;white-space:nowrap}
+    .field select,.field input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#111827;font-weight:900}
+    .city-tabs{display:flex;gap:8px;overflow:auto;padding:16px 26px;border-bottom:1px solid var(--line)}
+    .city-tab{flex:0 0 auto;min-width:96px;height:48px;border:1px solid var(--line);border-radius:12px;background:#fff;font-weight:950;cursor:pointer}
+    .city-tab.is-active{background:var(--green);border-color:var(--green);color:#fff}
+    .crawl-status{padding:18px 26px;border-bottom:1px solid var(--line);background:#fbfcfa}
+    .crawl-status-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .crawl-status-head h2{margin:0;font-size:17px}
+    .crawl-status-head span{color:var(--muted);font-size:12px;font-weight:900}
+    .crawl-status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+    .crawl-card{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+    .crawl-card.is-current{border-color:#b9dfac;background:#f4fbef}
+    .crawl-city{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:950}
+    .crawl-dot{width:8px;height:8px;border-radius:999px;background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.12)}
+    .crawl-dot.is-warning{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.14)}
+    .crawl-dot.is-error{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.14)}
+    .crawl-meta{margin-top:7px;color:var(--muted);font-size:11px;font-weight:850;line-height:1.45}
+    .board-wrap{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+    .board-main{min-width:0;padding:22px}
+    .board-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}
+    .board-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .board-head h2{margin:0;font-size:22px;letter-spacing:-.03em}
+    .board-head span{color:var(--muted);font-weight:800}
+    .matrix-scroll{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .mobile-courts{display:none}
+    .matrix{min-width:1010px}
+    .matrix-row,.matrix-group{display:grid;grid-template-columns:230px 76px repeat(var(--hour-count, 14),56px);border-top:1px solid var(--line)}
+    .matrix-row:first-child{border-top:0}
+    .matrix-cell,.venue,.court-no{min-height:54px;padding:8px;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:950;text-align:center}
+    .venue{position:sticky;left:0;z-index:3;border-left:0;justify-content:flex-start;background:#fbfcfa;text-align:left;box-shadow:1px 0 0 var(--line)}
+    .court-no{position:sticky;left:230px;z-index:3;background:#fbfcfa;color:var(--green);white-space:nowrap;box-shadow:1px 0 0 var(--line)}
+    .venue-title{display:flex;align-items:center;gap:6px;min-width:0}
+    .venue strong{display:block;overflow:visible;white-space:normal;word-break:keep-all;font-size:14px;line-height:1.25}
+    .venue span{display:block;margin-top:4px;color:var(--muted);font-size:11px;font-weight:800;overflow:visible;white-space:normal;word-break:keep-all;line-height:1.25}
+    .matrix-row.head .matrix-cell,.matrix-row.head .venue,.matrix-row.head .court-no{min-height:44px;background:#f8faf7;color:#667085}
+    .matrix-row.head .venue,.matrix-row.head .court-no{z-index:4}
+    .matrix-group.is-empty{opacity:.56}
+    .matrix-cell{color:#c0c7be;text-decoration:none;background:#fff}
+    .matrix-cell.open{background:var(--green-soft);color:var(--green-2)}
+    .matrix-cell.hot{background:var(--lime);color:#173b21}
+    .matrix-cell.warn{background:var(--amber-soft);color:var(--amber)}
+    .side{display:none}
+    .side-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:16px;margin-bottom:14px}
+    .side-card h3{margin:0 0 12px;font-size:17px}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat{padding:12px;border-radius:10px;background:var(--soft)}
+    .stat strong{display:block;font-size:25px;color:var(--green)}
+    .stat span{display:block;margin-top:5px;color:var(--muted);font-size:12px;font-weight:900}
+    .quick-list{display:flex;flex-direction:column;gap:8px}
+    .quick{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px;border:1px solid var(--line);border-radius:10px;text-decoration:none}
+    .quick:hover{border-color:var(--green);background:#f8fff3}
+    .quick-time{color:var(--green);font-weight:950}
+    .quick-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:900}
+    .quick-badge{padding:5px 8px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:12px;font-weight:950}
+    .details{padding:22px;background:#fff;border-top:1px solid var(--line)}
+    .details-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .details-head h2{margin:0;font-size:20px}
+    .court-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .court-item{display:grid;grid-template-columns:220px minmax(0,1fr) auto;gap:16px;align-items:center;padding:15px 16px;border-top:1px solid var(--line);background:#fff}
+    .court-item:first-child{border-top:0}
+    .court-item.is-empty{background:#fbfcfa;color:#98a2b3}
+    .court-name{display:flex;align-items:center;gap:7px;font-weight:950}
+    .court-loc{margin-top:4px;color:var(--muted);font-size:12px;font-weight:800}
+    .slot-list{display:flex;flex-wrap:wrap;gap:7px}
+    .slot{display:inline-flex;align-items:center;min-height:31px;padding:6px 10px;border:1px solid #cfe7c7;border-radius:999px;background:var(--green-soft);color:#123d25;text-decoration:none;font-size:12px;font-weight:950}
+    .slot-court{margin-right:5px;color:var(--green);font-weight:950}
+    .slot:hover{border-color:var(--green);background:var(--lime)}
+    .alarm-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+    .alarm-item{display:grid;grid-template-columns:150px minmax(0,1fr) 130px 42px;gap:14px;align-items:center;padding:14px 16px;border-top:1px solid var(--line)}
+    .alarm-item:first-child{border-top:0}
+    .alarm-date{font-weight:950;color:var(--green)}
+    .alarm-court{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:950}
+    .alarm-condition{justify-self:end;padding:6px 10px;border-radius:999px;background:var(--soft);color:var(--muted);font-size:12px;font-weight:900}
+    .alarm-delete{justify-self:end;width:32px;height:32px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#98a2b3;font-size:17px;font-weight:950;cursor:pointer}
+    .alarm-delete:hover{border-color:#ef4444;color:#ef4444;background:#fff5f5}
+    .empty{padding:26px;text-align:center;color:var(--muted);font-weight:900}
+    .court-actions{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
+    .favorite-star,.alarm-bell{flex:0 0 auto;width:24px;height:24px;display:inline-grid;place-items:center;border:1px solid #d9e4d4;border-radius:999px;background:#fff;color:#98a2b3;cursor:pointer;font-size:15px;line-height:1;padding:0}
+    .favorite-star:hover,.alarm-bell:hover{border-color:var(--green);color:var(--green)}
+    .favorite-star.is-active{border-color:#e3b600;background:#fff9db;color:#d49700}
+    .favorite-star span,.alarm-bell span{transform:translateY(-1px)}
+    .alarm-bell{font-size:14px}
+    .mobile-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px;box-shadow:0 8px 22px rgba(17,24,39,.05)}
+    .mobile-card.is-empty{opacity:.62;background:#fbfcfa}
+    .mobile-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .mobile-card-title{min-width:0}
+    .mobile-card-title strong{display:block;font-size:18px;line-height:1.25;letter-spacing:-.025em;word-break:keep-all}
+    .mobile-card-title span{display:block;margin-top:5px;color:var(--muted);font-size:12px;font-weight:850;line-height:1.35;word-break:keep-all}
+    .mobile-court-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+    .mobile-court-chip{display:inline-flex;align-items:center;min-height:28px;padding:5px 9px;border-radius:999px;background:#f3f7f1;color:#35523b;font-size:12px;font-weight:950}
+    .mobile-time-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}
+    .mobile-time{min-height:44px;border:1px solid var(--line);border-radius:10px;background:#fbfcfa;color:#98a2b3;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:950}
+    .mobile-time.is-open{border-color:#b9dfac;background:var(--green-soft);color:var(--green-2)}
+    .mobile-time.is-hot{background:var(--lime);border-color:#b8df55;color:#173b21}
+    .mobile-time-label{font-size:11px}
+    .mobile-time-value{font-size:16px;line-height:1}
+    .slot-picker{position:fixed;inset:0;z-index:30;display:none;background:rgba(17,24,39,.38);padding:18px;align-items:flex-end}
+    .slot-picker.is-open{display:flex}
+    .slot-sheet{width:100%;max-width:460px;margin:0 auto;border-radius:18px;background:#fff;box-shadow:0 22px 60px rgba(0,0,0,.24);overflow:hidden}
+    .slot-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid var(--line)}
+    .slot-sheet-head strong{display:block;font-size:18px;line-height:1.25}
+    .slot-sheet-head span{display:block;margin-top:4px;color:var(--muted);font-size:12px;font-weight:850}
+    .slot-picker-close{width:34px;height:34px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#667085;font-size:20px;font-weight:950;cursor:pointer}
+    .slot-choice-list{display:flex;flex-direction:column;gap:8px;padding:14px}
+    .slot-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:11px 13px;border:1px solid #cfe7c7;border-radius:12px;background:var(--green-soft);color:#123d25;text-decoration:none;font-weight:950}
+    .slot-choice small{color:var(--muted);font-size:12px;font-weight:850}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100vw - 32px);padding:13px 16px;border-radius:12px;background:#111827;color:#fff;font-size:13px;font-weight:800;box-shadow:0 16px 36px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:.18s;z-index:20}
+    .toast.show{opacity:1;bottom:30px}
+    @media (max-width:900px){
+      .topbar{height:auto}.topbar-inner{grid-template-columns:1fr;padding:8px 10px;gap:8px}.brand{gap:8px;font-size:22px}.ball{width:28px;height:28px}.ball:before,.ball:after{top:3px;bottom:3px}.ball:before{left:8px}.ball:after{right:8px}.tagline{display:none}.product-tabs{width:100%;gap:5px;padding:3px;border-radius:11px}.product-tab{flex:1 1 0;min-width:0;justify-content:center;min-height:34px;padding:6px 8px;border-radius:8px;font-size:13px}.mini{width:15px;height:15px}
+      .page{padding:8px}.shell{border-radius:12px}.hero{padding:13px 14px}.title-row{gap:8px}h1{font-size:24px;line-height:1.12}.nav-month{gap:6px}.icon-btn{width:38px;height:36px;border-radius:8px;font-size:19px}.summary{margin-top:8px;font-size:13px}
+      .filter-toggle{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 20px);min-height:40px;margin:0 10px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);font-size:13px;font-weight:950;padding:0 11px;cursor:pointer}
+      .filter-toggle:after{content:"⌄";font-size:15px;color:var(--green)}
+      .filter-toggle.is-open:after{content:"⌃"}
+      .filters{display:none;grid-template-columns:1fr;gap:8px;padding:0 10px 10px;border-bottom:1px solid var(--line)}
+      .filters.is-open{display:grid}
+      .field{min-height:42px;padding:7px 10px;gap:9px}.field-label{font-size:11px}.field select,.field input{font-size:13px}
+      .city-tabs{gap:6px;padding:10px}.city-tab{min-width:72px;height:38px;border-radius:9px;font-size:13px}
+      .crawl-status{padding:10px}.crawl-status-head{align-items:flex-start;flex-direction:column;gap:4px;margin-bottom:7px}.crawl-status-head h2{font-size:14px}.crawl-status-head span{font-size:10px}.crawl-status-grid{display:flex;grid-template-columns:none;overflow:auto;padding-bottom:2px}.crawl-card{flex:0 0 116px;padding:8px 9px;text-align:left}.crawl-city{font-size:12px}.crawl-meta{margin-top:5px;font-size:10px;line-height:1.35}
+      .board-wrap{grid-template-columns:1fr}.board-main{border-right:0;border-bottom:0;padding:10px}.board-head{align-items:flex-start;flex-direction:column;gap:6px;margin-bottom:9px}.board-head h2{font-size:17px}.board-head span{font-size:12px}
+      .matrix-scroll,.side{display:none}
+      .mobile-courts{display:flex;flex-direction:column;gap:8px}
+      .mobile-card{border-radius:11px;padding:10px;box-shadow:0 6px 16px rgba(17,24,39,.045)}.mobile-card-head{gap:7px}.mobile-card-title strong{font-size:15px;line-height:1.28}.mobile-card-title span{margin-top:3px;font-size:10px}.court-actions{gap:3px}.favorite-star,.alarm-bell{width:22px;height:22px;font-size:13px}.alarm-bell{font-size:12px}
+      .mobile-court-chips{gap:5px;margin-top:8px}.mobile-court-chip{min-height:23px;padding:4px 7px;font-size:10px}
+      .mobile-time-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .mobile-time-grid{gap:5px;margin-top:8px}.mobile-time{min-width:0;min-height:36px;border-radius:8px;font-size:12px}.mobile-time-label{font-size:10px}.mobile-time-value{font-size:13px}
+      .details{padding:10px}.details-head h2{font-size:16px}.court-item{grid-template-columns:1fr;padding:11px 12px;gap:9px}.court-count{text-align:left}
+      .alarm-item{grid-template-columns:1fr 34px;gap:6px;padding:10px 11px}.alarm-date,.alarm-court,.alarm-condition{grid-column:1;font-size:12px}.alarm-condition{justify-self:start;padding:5px 8px;font-size:11px}.alarm-delete{grid-column:2;grid-row:1 / span 3;width:30px;height:30px}
+      .slot-picker{padding:10px}.slot-sheet{border-radius:15px}.slot-sheet-head{padding:13px}.slot-sheet-head strong{font-size:16px}.slot-picker-close{width:30px;height:30px;font-size:18px}.slot-choice-list{gap:6px;padding:11px}.slot-choice{min-height:42px;padding:9px 11px;font-size:13px}
+    }
+    @media (max-width:420px){
+      .page{padding:6px}.hero{padding:12px}.mobile-time-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .crawl-card{flex-basis:110px}
+    }
   </style>
 </head>
-
 <body>
-<div id="pullIndicator"
-  style="
-    position: fixed;
-    top: -50px;
-    left: 0;
-    right: 0;
-    height: 50px;
-    text-align: center;
-    line-height: 50px;
-    background: #f5f5f5;
-    color: #555;
-    font-size: 14px;
-    transition: top 0.2s;
-    z-index: 9999;
-  ">
-  🔄 아래로 당겨 새로고침
-</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./"><span class="ball"></span><span>코트있음?</span><span class="tagline">공공 테니스 코트 잔여 현황</span></a>
+      <nav class="product-tabs" aria-label="서비스 전환">
+        <a class="product-tab" href="https://daehoe-isseum.pages.dev/"><span class="ball mini"></span>대회있음?</a>
+        <a class="product-tab is-active" href="./">코트있음?</a>
+      </nav>
+    </div>
+  </header>
 
-<div class="container">
-
-  <section class="hero">
-    <div class="header">
-      <div class="brand-row">
+  <main class="page">
+    <section class="shell">
+      <div class="hero">
         <div>
-          <h1>코트있음?</h1>
-          <p class="hero-copy">공공 테니스장 빈 코트를 한눈에 확인하세요. 코트있음은 예약 가능한 시간과 코트를 지역, 날짜, 시간 기준으로 모아 보여드립니다.</p>
-          <div class="updated-row">
-            <div class="updated" id="updatedAt">업데이트 확인 중</div>
-            <span class="updated data-dot" id="cityStatusText">업데이트 상태</span>
+          <div class="title-row">
+            <h1 id="pageTitle">용인 코트 현황</h1>
           </div>
-          <div id="cityUpdatedGrid" class="city-updates" aria-label="도시별 마지막 갱신 시각"></div>
-        </div>
-        <div class="header-actions">
-          <button id="noticeBtn" class="ghost-btn" type="button">공지 및 사용방법</button>
-          <button id="forceUpdateBtn" class="icon-btn" title="최신 데이터 다시 불러오기" aria-label="데이터 다시 불러오기">↻</button>
+          <div class="summary" id="summary">데이터를 불러오는 중입니다.</div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- 필터 -->
-  <div class="card">
-    <h3>도시와 조건 선택</h3>
+      <div class="city-tabs" id="cityTabs"></div>
 
-    <div class="tabs">
-      <button id="tabYongin" class="tab active" type="button">용인시</button>
-      <button id="tabGoyang" class="tab" type="button">고양시</button>
-      <button id="tabSuwon" class="tab" type="button">수원시</button>
-      <button id="tabSeongnam" class="tab" type="button">성남시</button>
-      <button id="tabAnyang" class="tab" type="button">안양시</button>
-      <button id="tabPaju" class="tab" type="button">파주시</button>
-    </div>
-
-    <div class="filter-stack">
-      <div class="select" id="filterGuWrap">
-        🏘️
-        <select id="filterGu">
-          <option value="">구 전체</option>
-          <option>처인구</option>
-          <option>기흥구</option>
-          <option>수지구</option>
-        </select>
+      <button id="filterToggle" class="filter-toggle" type="button" aria-expanded="false" aria-controls="filterPanel">필터 열기</button>
+      <div id="filterPanel" class="filters">
+        <label class="field"><span class="field-label">날짜</span><input id="dateFilter" type="date"></label>
+        <label class="field"><span class="field-label">지역</span><select id="citySelect"></select></label>
+        <label class="field"><span class="field-label">코트</span><select id="courtFilter"></select></label>
+        <label class="field"><span class="field-label">시간</span><select id="hourFilter"></select></label>
+        <label class="field"><span class="field-label">조건</span><select id="timeMode"><option value="contains">해당 시간 포함</option><option value="after">이후 시작</option><option value="before">이전 시작</option></select></label>
       </div>
 
-      <div class="select">
-        🎾
-        <select id="filterCourt">
-          <option value="">코트 전체</option>
-        </select>
-      </div>
-
-      <label class="date-box" onclick="filterDate.click()">
-        📅 <span id="filterDateLabel">날짜 선택</span>
-        <input type="date" id="filterDate">
-      </label>
-
-      <div class="time-control" id="filterTimeControl" aria-label="조회 시간 조건">
-        <span class="time-icon">⏰</span>
-        <select id="filterTimeHour" aria-label="조회 시간"></select>
-        <div class="time-modes" aria-label="조회 시간 방식">
-          <label class="time-mode"><input type="radio" name="filterTimeMode" value="before">이전</label>
-          <label class="time-mode"><input type="radio" name="filterTimeMode" value="after">이후</label>
-          <label class="time-mode"><input type="radio" name="filterTimeMode" value="contains" checked>포함</label>
+      <section class="crawl-status" aria-label="도시별 수집 상태">
+        <div class="crawl-status-head">
+          <h2>도시별 수집 상태</h2>
+          <span id="crawlStatusUpdated">데이터 확인 중</span>
         </div>
-      </div>
-    </div>
+        <div id="crawlStatusGrid" class="crawl-status-grid"></div>
+      </section>
 
-    <div class="favorites-panel" aria-label="즐겨찾는 코트">
-      <div class="favorites-head">
-        <div class="favorites-title">즐겨찾는 코트</div>
-        <div class="favorites-actions">
-          <button id="favoriteOnlyBtn" class="favorite-only-toggle" type="button">즐겨찾기만 보기</button>
-          <button id="favoriteAddBtn" class="favorite-add" type="button">현재 코트 저장</button>
+      <section class="details">
+        <div class="details-head">
+          <h2>알람 등록 내역</h2>
+          <span id="updatedAt">업데이트 확인 중</span>
         </div>
+        <div id="alarmList" class="alarm-list"></div>
+      </section>
+
+      <div class="board-wrap">
+        <section class="board-main">
+          <div class="board-head">
+            <div>
+              <div class="board-title-row">
+                <h2 id="boardTitle">시간대별 잔여 코트</h2>
+                <div class="nav-month">
+                  <button class="icon-btn" id="prevDate" type="button" aria-label="이전 날짜">‹</button>
+                  <button class="icon-btn" id="nextDate" type="button" aria-label="다음 날짜">›</button>
+                </div>
+              </div>
+              <span id="boardSubtitle">잔여 슬롯이 있는 코트를 위로 정렬합니다.</span>
+            </div>
+          </div>
+          <div class="matrix-scroll"><div id="matrix" class="matrix"></div></div>
+          <div id="mobileCards" class="mobile-courts"></div>
+        </section>
       </div>
-      <div id="favoriteList" class="favorite-list">
-        <span class="favorite-empty">저장된 즐겨찾기가 없습니다.</span>
+
+    </section>
+  </main>
+  <div id="toast" class="toast"></div>
+  <div id="slotPicker" class="slot-picker" aria-hidden="true">
+    <div class="slot-sheet" role="dialog" aria-modal="true" aria-labelledby="slotPickerTitle">
+      <div class="slot-sheet-head">
+        <div>
+          <strong id="slotPickerTitle">예약할 코트 선택</strong>
+          <span id="slotPickerSubtitle"></span>
+        </div>
+        <button id="slotPickerClose" class="slot-picker-close" type="button" aria-label="닫기">×</button>
       </div>
+      <div id="slotPickerChoices" class="slot-choice-list"></div>
     </div>
   </div>
 
-  <!-- 알람 -->
-  <div class="card">
-    <h3>🔔 알람 등록</h3>
-    <div class="alarm-stack">
-      <div class="select">
-        🎾
-        <select id="alarmCourt">
-          <option value="">코트 선택</option>
-        </select>
-      </div>
-
-      <label class="date-box" onclick="alarmDate.click()">
-        📅 <span id="alarmDateLabel">날짜 선택</span>
-        <input type="date" id="alarmDate">
-      </label>
-
-      <div class="time-control" id="alarmTimeControl" aria-label="알람 시간 조건">
-        <span class="time-icon">⏰</span>
-        <select id="alarmTimeHour" aria-label="알람 시간"></select>
-        <div class="time-modes" aria-label="알람 시간 방식">
-          <label class="time-mode"><input type="radio" name="alarmTimeMode" value="before">이전</label>
-          <label class="time-mode"><input type="radio" name="alarmTimeMode" value="after">이후</label>
-          <label class="time-mode"><input type="radio" name="alarmTimeMode" value="contains" checked>포함</label>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="alarm-actions">
-      <button id="alarmBtn">알람 등록</button>
-      <button id="favoriteAlarmBtn" type="button">즐겨찾기 전체 알람</button>
-    </div>
-
-    <div id="alarmList" style="margin-top:12px;font-size:13px;color:var(--sub)">
-      등록된 알람이 없습니다.
-    </div>
-  </div>
-
-  <!-- 데이터 -->
-  <div class="card">
-    <h3>예약 가능 현황</h3>
-    <div id="courts">⏳ 예약 정보를 불러오는 중입니다…</div>
-  </div>
-</div>
-
-<!-- 공지사항 및 사용방법 모달 -->
-<div id="noticeModal" class="notice-overlay">
-  <div class="notice-panel">
-    <h3>공지사항 및 사용방법</h3>
-
-    <section class="notice-section">
-      <h4>사용방법</h4>
-      <ul>
-        <li>상단 도시 탭에서 용인시, 고양시, 수원시, 성남시, 안양시, 파주시를 선택합니다.</li>
-        <li>용인시는 구 필터와 코트 필터를 함께 사용할 수 있고, 날짜와 시간 조건까지 선택하면 원하는 예약 가능 슬롯만 볼 수 있습니다.</li>
-        <li>시간 조건은 6시부터 22시까지 선택한 뒤 이전, 이후, 포함 중 하나를 고르는 방식입니다. 분 단위 선택은 제공하지 않습니다.</li>
-        <li>코트 필터에서 자주 보는 코트를 고른 뒤 즐겨찾기에 저장하면 다음부터 칩을 눌러 바로 해당 코트 그룹을 조회할 수 있고, 선택된 칩을 한 번 더 누르면 필터가 해제됩니다.</li>
-        <li>즐겨찾기만 보기를 켜면 현재 도시에서 저장해 둔 코트 그룹의 잔여 슬롯만 표시됩니다.</li>
-        <li>예약 가능 시간 버튼을 누르면 해당 시설의 예약 페이지로 이동합니다. 선택한 조건은 슬롯 검색용이며 실제 예약은 각 시설 예약 페이지에서 최종 확정합니다.</li>
-        <li>오른쪽 위 새로고침 버튼을 누르면 Supabase에 저장된 최신 데이터를 다시 불러옵니다.</li>
-      </ul>
-    </section>
-
-    <section class="notice-section">
-      <h4>알람 설정 방법</h4>
-      <ul>
-        <li>알람 등록 영역에서 원하는 코트, 날짜, 시간 조건을 선택한 뒤 알람 등록 버튼을 누릅니다.</li>
-        <li>즐겨찾기 전체 알람은 현재 도시의 즐겨찾기 코트 전체에 같은 날짜와 시간 조건으로 알림을 등록합니다.</li>
-        <li>등록한 조건에서 새로운 예약 가능 시간이 발견되면 브라우저 푸시 알림을 보냅니다.</li>
-        <li>알림이 오지 않으면 브라우저 알림 권한이 허용되어 있는지 확인해 주세요.</li>
-        <li>모바일에서는 브라우저 메뉴의 홈 화면에 추가 기능으로 설치한 뒤 사용하는 것을 권장합니다.</li>
-      </ul>
-    </section>
-
-    <section class="notice-section">
-      <h4>업데이트 방식</h4>
-      <ul>
-        <li>각 도시는 분리된 크롤러로 갱신됩니다. 용인, 고양, 수원, 성남, 안양, 파주는 서로 다른 예약 사이트를 조회합니다.</li>
-        <li>UptimeRobot이 주기적으로 Cloudflare Worker를 호출하고, Worker가 GitHub Actions 크롤러를 실행합니다.</li>
-        <li>수집된 예약 가능 시간은 Supabase에 저장되고, 페이지는 Supabase 공개 데이터를 읽어 표시합니다.</li>
-        <li>고양시는 고양테니스협회, 대화, 백석 데이터를 함께 조회합니다. 단, 고양 크롤은 사이트 특성상 KST 05:00~22:00 시간창에서만 실행됩니다.</li>
-        <li>상단의 업데이트 시간은 가장 최근 데이터 저장 시각이며, 시설별 실제 예약 페이지와 약간의 차이가 있을 수 있습니다.</li>
-      </ul>
-    </section>
-
-    <section class="notice-section">
-      <h4>안양시 예약 시간 안내</h4>
-      <ul>
-        <li>안양시는 예약 가능 시간이 07:00~21:00이므로 해당 시간대의 슬롯만 수집하고 표시합니다.</li>
-      </ul>
-    </section>
-
-    <section class="notice-section">
-      <h4>파주시 예약 시간 안내</h4>
-      <ul>
-        <li>파주시는 예약 가능 시간이 07:00~21:00이므로 해당 시간대의 슬롯만 수집하고 표시합니다.</li>
-      </ul>
-    </section>
-
-    <section class="notice-section">
-      <h4>업데이트 이력</h4>
-      <div class="update-log" aria-label="업데이트 이력">
-        <div class="update-item">
-          <span class="update-date">2026-06-26</span>
-          <ul>
-            <li>파주시 조회를 추가하고 예약 가능 시간 안내에 맞춰 07:00~21:00 슬롯만 수집하고 표시하도록 제한했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-26</span>
-          <ul>
-            <li>안양시 조회를 추가하고 예약 가능 시간 안내에 맞춰 07:00~21:00 슬롯만 수집하고 표시하도록 제한했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-25</span>
-          <ul>
-            <li>필터 적용 후에도 잔여 슬롯이 있는 코트가 먼저 보이도록 목록 정렬을 개선했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-23</span>
-          <ul>
-            <li>용인은 잔여 슬롯이 없는 시설도 목록과 알람 코트 선택지에 계속 보이도록 변경했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-08</span>
-          <ul>
-            <li>성남시 예약 가능 날짜를 기존 일부 날짜만 조회하던 방식에서 오늘부터 45일 뒤까지 조회하도록 개선했습니다.</li>
-            <li>성남시 50개 시설의 날짜별 잔여 코트 조회를 병렬 처리해 갱신 시간을 크게 줄였습니다.</li>
-            <li>긴 크롤링 중 Supabase 연결이 끊겨 저장이 실패할 수 있던 문제를 수정했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-07</span>
-          <ul>
-            <li>성남시 데이터가 공개 페이지에서 45일치로 표시되는지 Supabase 공개 데이터 경로까지 검증했습니다.</li>
-            <li>성남시 갱신 로그에 요청 수와 소요 시간을 남겨 이후 장애 원인을 더 쉽게 확인할 수 있도록 했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-06</span>
-          <ul>
-            <li>메인 화면을 예약 현황 대시보드 형태로 개편했습니다.</li>
-            <li>외부 크롤링 데이터가 HTML로 직접 삽입되지 않도록 렌더링 방식을 안전하게 정리했습니다.</li>
-            <li>공개 페이지에 갱신 토큰이 노출되지 않도록 수동 갱신 버튼을 데이터 다시 불러오기 방식으로 변경했습니다.</li>
-            <li>용인시 구/코트 필터를 유지하면서 원하는 시간 조건까지 좁혀 볼 수 있는 시간 필터를 추가했습니다.</li>
-            <li>사용자에게 불필요한 상단 요약/빠른 목록을 제거하고 실제 예약 가능 현황에 집중하도록 화면을 단순화했습니다.</li>
-            <li>시간 선택 UI를 긴 목록 대신 6~22시 선택과 이전/이후/포함 버튼 조합으로 정리했습니다.</li>
-            <li>알람 등록에도 같은 시간 조건 UI를 적용해 특정 시각 이후, 이전, 해당 시각 포함 슬롯만 알림 받을 수 있게 했습니다.</li>
-            <li>자주 보는 코트 그룹을 브라우저에 저장하고 바로 필터 적용할 수 있는 즐겨찾기 기능을 추가했습니다.</li>
-            <li>선택된 즐겨찾기 칩을 한 번 더 누르면 코트 필터가 해제되도록 개선했습니다.</li>
-            <li>즐겨찾기만 보기 토글, 도시별 마지막 갱신 시각, 즐겨찾기 전체 알림 등록을 추가했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-05</span>
-          <ul>
-            <li>고양시 백석 테니스장 조회를 추가했습니다.</li>
-            <li>고양시 코트 필터에서 실제 예약 가능 슬롯이 있는 코트만 보이도록 정리했습니다.</li>
-            <li>고양테니스협회 접두어가 붙은 코트명과 일반 코트명이 중복으로 보이는 문제를 정리했습니다.</li>
-            <li>새로고침 아래 안내를 공지사항 및 사용방법으로 개편했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-04</span>
-          <ul>
-            <li>도시별 갱신 트리거를 분리하고 Cloudflare Worker를 통해 개별 업데이트가 가능하도록 정리했습니다.</li>
-            <li>성남시 코트 필터에서 대원, 탄천 등 같은 시설명이 묶이도록 정규화했습니다.</li>
-          </ul>
-        </div>
-        <div class="update-item">
-          <span class="update-date">2026-06-02</span>
-          <ul>
-            <li>고양시 크롤링 안정화를 위해 Tailscale exit node와 curl_cffi 기반 요청 경로를 추가했습니다.</li>
-            <li>고양테니스협회 SSL 인증서 문제에 대비해 인증서 pin 갱신 스텝을 추가했습니다.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <div style="text-align:right;margin-top:14px;">
-      <button id="closeNoticeBtn">닫기</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-<script>
-/** =========================================================
- *  Supabase 설정
- * ========================================================= */
-const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
-const SB = window.supabase || window.supabaseJs;
-const sb = SB.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/** VAPID PUBLIC KEY (기존 값 유지) */
-const VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe1RlU-bUgduNWNRa15JcEayDFJzNRo07fM";
-
-let DATA = {};
-let COURT_GROUPS = {};
-let CURRENT_CITY = "yongin"; // "yongin" | "goyang" | "suwon" | "seongnam" | "anyang" | "paju"
-const CITY_LABELS = { yongin: "용인", goyang: "고양", suwon: "수원", seongnam: "성남", anyang: "안양", paju: "파주" };
-const CITY_NOTES = {
-  yongin: "용인시는 구, 코트, 날짜, 시간으로 잔여 코트를 좁혀볼 수 있어요.",
-  goyang: "고양시는 코트, 날짜, 시간으로 남은 예약 기회를 빠르게 볼 수 있어요.",
-  suwon: "수원시는 현재 망포 중심으로 잔여 시간을 보여줍니다.",
-  seongnam: "성남시는 시설별 남은 시간과 예약 이동을 지원합니다.",
-  anyang: "안양시는 시립 코트별 남은 시간을 보여줍니다.",
-  paju: "파주시는 시립 코트별 남은 시간을 보여줍니다."
-};
-const FAVORITE_COURTS_KEY = "tennis_favorite_courts_v1";
-let FAVORITES_ONLY = false;
-let CITY_UPDATED_AT = {};
-
-let toastTimer = null;
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  if (!toast) return;
-  toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
-}
-
-function makeNode(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined && text !== null) node.textContent = String(text);
-  return node;
-}
-
-function safeReserveUrl(raw) {
-  const value = String(raw || "").trim();
-  if (!value) return "#";
-  try {
-    const url = new URL(value, location.href);
-    if (url.protocol === "https:" || url.protocol === "http:") return url.href;
-  } catch (_) {}
-  return "#";
-}
-
-function setListMessage(listEl, message) {
-  const item = makeNode("div", "alarm-item", message);
-  listEl.replaceChildren(item);
-}
-
-function setSelectOptions(select, placeholder, values, valueMapper = v => v) {
-  const fragment = document.createDocumentFragment();
-  const first = document.createElement("option");
-  first.value = "";
-  first.textContent = placeholder;
-  fragment.appendChild(first);
-  values.forEach(v => {
-    const opt = document.createElement("option");
-    opt.value = valueMapper(v);
-    opt.textContent = v;
-    fragment.appendChild(opt);
-  });
-  select.replaceChildren(fragment);
-}
-
-function ensureSelectOption(select, value, label = value) {
-  if (!select || !value || [...select.options].some(opt => opt.value === value)) return;
-  const opt = document.createElement("option");
-  opt.value = value;
-  opt.textContent = label;
-  select.appendChild(opt);
-}
-
-function favoriteKey(city, group) {
-  return `${city}|${group}`;
-}
-
-function loadFavoriteCourts() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(FAVORITE_COURTS_KEY) || "[]");
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map(f => ({ city: String(f.city || ""), group: String(f.group || "") }))
-      .filter(f => f.city && f.group);
-  } catch (_) {
-    return [];
-  }
-}
-
-function saveFavoriteCourts(favorites) {
-  const seen = new Set();
-  const cleaned = [];
-  favorites.forEach(f => {
-    const city = String(f.city || "").trim();
-    const group = String(f.group || "").trim();
-    const key = favoriteKey(city, group);
-    if (!city || !group || seen.has(key)) return;
-    seen.add(key);
-    cleaned.push({ city, group });
-  });
-  localStorage.setItem(FAVORITE_COURTS_KEY, JSON.stringify(cleaned));
-}
-
-function isFavoriteCourt(city, group) {
-  const key = favoriteKey(city, group);
-  return loadFavoriteCourts().some(f => favoriteKey(f.city, f.group) === key);
-}
-
-function currentCityFavorites() {
-  return loadFavoriteCourts().filter(f => f.city === CURRENT_CITY);
-}
-
-function renderFavoriteCourts() {
-  const list = document.getElementById("favoriteList");
-  const addBtn = document.getElementById("favoriteAddBtn");
-  const onlyBtn = document.getElementById("favoriteOnlyBtn");
-  if (!list || !addBtn || !onlyBtn) return;
-
-  const currentGroup = filterCourt.value || "";
-  const currentSaved = currentGroup && isFavoriteCourt(CURRENT_CITY, currentGroup);
-  const cityFavorites = currentCityFavorites();
-  if (!cityFavorites.length) FAVORITES_ONLY = false;
-  addBtn.disabled = !currentGroup || currentSaved;
-  addBtn.textContent = !currentGroup ? "코트 선택 후 저장" : (currentSaved ? "저장됨" : "현재 코트 저장");
-  onlyBtn.disabled = cityFavorites.length === 0;
-  onlyBtn.classList.toggle("is-active", FAVORITES_ONLY);
-  onlyBtn.textContent = FAVORITES_ONLY ? "즐겨찾기만 보는 중" : "즐겨찾기만 보기";
-
-  const favorites = loadFavoriteCourts();
-  list.replaceChildren();
-  if (!favorites.length) {
-    list.appendChild(makeNode("span", "favorite-empty", "저장된 즐겨찾기가 없습니다."));
-    return;
-  }
-
-  favorites.forEach(fav => {
-    const chip = makeNode("span", "favorite-chip");
-    chip.classList.toggle("is-active", fav.city === CURRENT_CITY && fav.group === currentGroup);
-
-    const pick = makeNode("button", "favorite-pick", `${CITY_LABELS[fav.city] || fav.city} · ${fav.group}`);
-    pick.type = "button";
-    pick.onclick = () => applyFavoriteCourt(fav.city, fav.group);
-
-    const remove = makeNode("button", "favorite-remove", "×");
-    remove.type = "button";
-    remove.title = "즐겨찾기 삭제";
-    remove.onclick = () => removeFavoriteCourt(fav.city, fav.group);
-
-    chip.appendChild(pick);
-    chip.appendChild(remove);
-    list.appendChild(chip);
-  });
-}
-
-function addCurrentFavoriteCourt() {
-  const group = filterCourt.value || "";
-  if (!group) {
-    showToast("즐겨찾기에 저장할 코트를 먼저 선택하세요.");
-    return;
-  }
-  const favorites = loadFavoriteCourts();
-  if (!favorites.some(f => f.city === CURRENT_CITY && f.group === group)) {
-    favorites.push({ city: CURRENT_CITY, group });
-    saveFavoriteCourts(favorites);
-  }
-  renderCourts();
-  renderFavoriteCourts();
-  showToast(`${CITY_LABELS[CURRENT_CITY] || CURRENT_CITY} · ${group} 즐겨찾기를 저장했습니다.`);
-}
-
-function removeFavoriteCourt(city, group) {
-  const key = favoriteKey(city, group);
-  saveFavoriteCourts(loadFavoriteCourts().filter(f => favoriteKey(f.city, f.group) !== key));
-  renderCourts();
-  renderFavoriteCourts();
-  showToast("즐겨찾기를 삭제했습니다.");
-}
-
-function applyFavoriteCourt(city, group) {
-  const isActive = CURRENT_CITY === city && filterCourt.value === group;
-  if (isActive) {
-    filterCourt.value = "";
-    renderCourts();
-    renderFavoriteCourts();
-    return;
-  }
-
-  if (CURRENT_CITY !== city) setCity(city);
-  ensureSelectOption(filterCourt, group, group);
-  filterCourt.value = group;
-  renderCourts();
-  renderFavoriteCourts();
-}
-
-function yyyymmddTodayKst(offsetDays = 0) {
-  const now = new Date();
-  const kst = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
-  kst.setDate(kst.getDate() + offsetDays);
-  const y = kst.getFullYear();
-  const m = String(kst.getMonth() + 1).padStart(2, "0");
-  const d = String(kst.getDate()).padStart(2, "0");
-  return `${y}${m}${d}`;
-}
-
-
-/** =========================================================
- *  Utils
- * ========================================================= */
-function urlBase64ToUint8Array(base64) {
-  const padding = "=".repeat((4 - base64.length % 4) % 4);
-  const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
-  return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-}
-
-async function sha256Hex(str) {
-  const buf = new TextEncoder().encode(str);
-  const digest = await crypto.subtle.digest("SHA-256", buf);
-  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function toYYYYMMDD(dateStr) {
-  return (dateStr || "").replaceAll("-", "");
-}
-
-function yyyymmddToPretty(yyyymmdd) {
-  if (!yyyymmdd) return "";
-  if (yyyymmdd.includes("-")) return yyyymmdd;
-  if (yyyymmdd.length !== 8) return yyyymmdd;
-  return `${yyyymmdd.slice(0,4)}-${yyyymmdd.slice(4,6)}-${yyyymmdd.slice(6,8)}`;
-}
-
-function getCourtGroup(title){
-  const t = (title || "").replace(/\[.*?\]/g, "").trim();
-
-  // ✅ 고양: "대화 1코트" / "화정코트 2코트" -> "대화" / "화정코트"
-  // (뒤에 붙는 " N코트" 패턴 제거)
-  if (CURRENT_CITY === "goyang") {
-    return t
-      .replace(/고양\s*(특례시)?\s*테니스\s*협회/g, "")
-      .replace(/^고양\s+/, "")
-      .replace(/\s*\d+\s*코트\s*$/, "")
-      .replace(/\s*테니스장\s*$/, "")
-      .replace(/\s*코트\s*$/, "")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-  if (CURRENT_CITY === "seongnam") {
-    return t
-      .replace(/\s*\([^)]*\)/g, "")
-      .replace(/\s*당일예약\s*/g, " ")
-      .replace(/\s*반쪽\s*코트.*$/, "")
-      .replace(/\s*\d+\s*번?\s*코트.*$/, "")
-      .trim();
-  }
-  if (CURRENT_CITY === "anyang") {
-    return t
-      .replace(/\s*\d+\s*코트\s*$/, "")
-      .trim();
-  }
-  if (CURRENT_CITY === "paju") {
-    return t
-      .replace(/\s*\d+\s*코트\s*$/, "")
-      .trim();
-  }
-
-  // ✅ 용인: 기존 로직 유지
-  return t.split("테니스장")[0].trim();
-}
-
-function getWeekday(yyyymmdd){
-  const d=new Date(
-    yyyymmdd.slice(0,4),
-    yyyymmdd.slice(4,6)-1,
-    yyyymmdd.slice(6,8)
-  );
-  return ["일","월","화","수","목","금","토"][d.getDay()];
-}
-
-function makeHourOptions(selectEl) {
-  if (!selectEl) return;
-  const fragment = document.createDocumentFragment();
-  const first = document.createElement("option");
-  first.value = "";
-  first.textContent = "시간 전체";
-  fragment.appendChild(first);
-  for (let hour = 6; hour <= 22; hour += 1) {
-    const opt = document.createElement("option");
-    opt.value = String(hour);
-    opt.textContent = `${hour}시`;
-    fragment.appendChild(opt);
-  }
-  selectEl.replaceChildren(fragment);
-}
-
-function selectedTimeMode(name) {
-  return document.querySelector(`input[name="${name}"]:checked`)?.value || "contains";
-}
-
-function getTimeConditionValue(hourSelect, modeName) {
-  const hour = hourSelect?.value || "";
-  if (!hour) return "any";
-  return timeConditionValue(selectedTimeMode(modeName), hour);
-}
-
-function parseTimeCondition(value) {
-  const raw = String(value || "any");
-  if (!raw || raw === "any") return { mode: "any", hour: null };
-  const [mode, hourText] = raw.split(":");
-  const hour = Number(hourText);
-  if (!["after", "before", "contains"].includes(mode) || !Number.isInteger(hour)) {
-    return { mode: "any", hour: null };
-  }
-  return { mode, hour };
-}
-
-function timeConditionValue(mode, hour) {
-  if (!mode || mode === "any" || hour === null || hour === undefined || hour === "") return "any";
-  return `${mode}:${Number(hour)}`;
-}
-
-function timeConditionLabel(modeOrValue, hourMaybe) {
-  const cond = hourMaybe === undefined ? parseTimeCondition(modeOrValue) : parseTimeCondition(timeConditionValue(modeOrValue, hourMaybe));
-  if (cond.mode === "any") return "시간 전체";
-  const labels = { after: "이후", before: "이전", contains: "포함" };
-  return `${cond.hour}시 ${labels[cond.mode] || ""}`.trim();
-}
-
-function slotTimeRangeMinutes(timeContent) {
-  const matches = [...String(timeContent || "").matchAll(/(\d{1,2}):(\d{2})/g)];
-  if (!matches.length) return null;
-  const start = Number(matches[0][1]) * 60 + Number(matches[0][2]);
-  const end = matches[1] ? Number(matches[1][1]) * 60 + Number(matches[1][2]) : start + 30;
-  return { start, end: end <= start ? end + 24 * 60 : end };
-}
-
-function slotMatchesTimeCondition(slot, conditionValue) {
-  const cond = parseTimeCondition(conditionValue);
-  if (cond.mode === "any") return true;
-  const range = slotTimeRangeMinutes(slot?.timeContent);
-  if (!range) return true;
-  const target = cond.hour * 60;
-  if (cond.mode === "after") return range.start >= target;
-  if (cond.mode === "before") return range.start < target;
-  return target >= range.start && target < range.end;
-}
-
-function firstTimeLabel(timeContent) {
-  const m = String(timeContent || "").match(/(\d{1,2}:\d{2})/);
-  return m ? m[1] : "";
-}
-
-function compactDateLabel(yyyymmdd) {
-  if (!yyyymmdd || yyyymmdd.length !== 8) return "-";
-  return `${Number(yyyymmdd.slice(4, 6))}.${Number(yyyymmdd.slice(6, 8))}`;
-}
-
-function makeReserveLink(resveId){
-  const base =
-    "https://publicsports.yongin.go.kr/publicsports/sports/selectFcltyRceptResveViewU.do";
-  return `${base}?key=4236&resveId=${resveId}&pageUnit=8&pageIndex=1&checkSearchMonthNow=false`;
-}
-
-function cityOfFacilityId(fid){
-  fid = String(fid || "");
-  if (fid.startsWith("goyang:")) return "goyang";
-  if (fid.startsWith("suwon:")) return "suwon";
-  if (fid.startsWith("seongnam:")) return "seongnam";
-  if (fid.startsWith("anyang:")) return "anyang";
-  if (fid.startsWith("paju:")) return "paju";
-  if (fid.startsWith("yongin:")) return "yongin";
-  // 구버전(숫자 rid 등)은 용인으로 취급
-  return "yongin";
-}
-
-function prefixedGroupValueForCity(city, displayName){
-  return (CITY_LABELS[city] || city) + "|" + (displayName || "");
-}
-
-function prefixedGroupValue(displayName){
-  return prefixedGroupValueForCity(CURRENT_CITY, displayName);
-}
-
-function stripPrefixedGroupValue(val){
-  // "용인|대화" -> {city:"yongin", name:"대화"}
-  val = String(val || "");
-  if (val.startsWith("용인|")) return { city:"yongin", name: val.slice(3) };
-  if (val.startsWith("고양|")) return { city:"goyang", name: val.slice(3) };
-  if (val.startsWith("수원|")) return { city:"suwon", name: val.slice(3) };
-  if (val.startsWith("성남|")) return { city:"seongnam", name: val.slice(3) };
-  if (val.startsWith("안양|")) return { city:"anyang", name: val.slice(3) };
-  if (val.startsWith("파주|")) return { city:"paju", name: val.slice(3) };
-  return { city: CURRENT_CITY, name: val };
-}
-
-function formatKstTime(ts) {
-  if (!ts) return "-";
-  const d = new Date(ts);
-  if (isNaN(d.getTime())) return "-";
-  const kst = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
-  const hh = String(kst.getHours()).padStart(2, "0");
-  const mm = String(kst.getMinutes()).padStart(2, "0");
-  return `${hh}:${mm}`;
-}
-
-function renderUpdatedTime(ts) {
-  document.getElementById("updatedAt").textContent = `업데이트: ${formatKstTime(ts)}`;
-}
-
-function renderCityUpdatedTimes() {
-  const wrap = document.getElementById("cityUpdatedGrid");
-  if (!wrap) return;
-  wrap.replaceChildren();
-  ["yongin", "goyang", "suwon", "seongnam", "anyang", "paju"].forEach(city => {
-    const chip = makeNode("span", "city-update-chip", `${CITY_LABELS[city]} ${formatKstTime(CITY_UPDATED_AT[city])}`);
-    chip.classList.toggle("is-current", city === CURRENT_CITY);
-    wrap.appendChild(chip);
-  });
-}
-
-async function loadCityUpdatedTimes() {
-  const cities = ["yongin", "goyang", "suwon", "seongnam", "anyang", "paju"];
-  const updates = {};
-  await Promise.all(cities.map(async city => {
-    const { data, error } = await sb
-      .from("availability_cache")
-      .select("updated_at")
-      .like("facility_id", `${city}:%`)
-      .order("updated_at", { ascending: false })
-      .limit(1);
-    if (!error && data && data[0]) updates[city] = data[0].updated_at;
-  }));
-  CITY_UPDATED_AT = updates;
-  renderCityUpdatedTimes();
-}
-
-/** =========================================================
- *  DATA: Supabase RPC로 로드
- * ========================================================= */
-async function loadData() {
-  try {
-    const { data, error } = await sb.rpc("get_public_data", { p_days_ahead: 45 });
-    if (error) throw new Error(error.message || "RPC error");
-    if (!data) throw new Error("RPC returned null");
-
-    DATA = data;
-    renderUpdatedTime(data.updated_at);
-    await loadCityUpdatedTimes();
-    buildCourtGroups();
-    renderCourts();
-  } catch (e) {
-    console.error("[loadData error]", e);
-    const courtsEl = document.getElementById("courts");
-    courtsEl.replaceChildren();
-    const box = makeNode("div", "empty-state");
-    box.appendChild(makeNode("div", "", "Supabase에서 예약 정보를 불러오지 못했습니다."));
-    box.appendChild(makeNode("div", "", "잠시 후 다시 시도해 주세요."));
-    courtsEl.appendChild(box);
-    showToast("예약 정보를 불러오지 못했습니다.");
-    renderSummary();
-  }
-}
-
-function buildCourtGroups(){
-  COURT_GROUPS = {};
-
-  if (!DATA || !DATA.facilities || typeof DATA.facilities !== "object") return;
-
-  Object.entries(DATA.facilities).forEach(([cid, f]) => {
-    if (!f || !f.title) return;
-    if (cityOfFacilityId(cid) !== CURRENT_CITY) return;
-    const days = DATA.availability && DATA.availability[cid];
-    const hasSlot = days && Object.values(days).some(slots => Array.isArray(slots) && slots.length > 0);
-    if (CURRENT_CITY !== "yongin" && !hasSlot) return;
-    const g = getCourtGroup(f.title);
-    if (!g) return;
-    COURT_GROUPS[g] = true;
-  });
-
-  const groups = Object.keys(COURT_GROUPS).sort((a, b) => a.localeCompare(b, "ko"));
-  setSelectOptions(filterCourt, "코트 전체", groups);
-  loadFavoriteCourts()
-    .filter(f => f.city === CURRENT_CITY)
-    .forEach(f => ensureSelectOption(filterCourt, f.group, f.group));
-  setSelectOptions(alarmCourt, "코트 선택", groups, prefixedGroupValue);
-  renderFavoriteCourts();
-}
-
-function renderSummary() {
-  const statusText = document.getElementById("cityStatusText");
-  if (statusText) {
-    statusText.textContent = DATA?.updated_at ? "업데이트 정상" : "업데이트 확인 필요";
-    statusText.classList.toggle("is-error", !DATA?.updated_at);
-  }
-}
-
-function renderCourts() {
-  const courtsEl = document.getElementById("courts");
-
-  if (!DATA || typeof DATA !== "object" || !DATA.facilities || !DATA.availability) {
-    courtsEl.textContent = "데이터를 불러오는 중입니다.";
-    renderSummary();
-    return;
-  }
-
-  courtsEl.replaceChildren();
-
-  const gu = (CURRENT_CITY === "yongin") ? filterGu.value : "";
-  const group = filterCourt.value;
-  const favoriteGroups = new Set(currentCityFavorites().map(f => f.group));
-  const date = filterDate.value ? filterDate.value.replaceAll("-", "") : "";
-  const timeCondition = getTimeConditionValue(filterTimeHour, "filterTimeMode");
-  let renderedCount = 0;
-  const courtCards = [];
-  let renderOrder = 0;
-
-  for (const cid in DATA.facilities) {
-    const fac = DATA.facilities[cid];
-    if (!fac || !fac.title) continue;
-    if (cityOfFacilityId(cid) !== CURRENT_CITY) continue;
-
-    const courtGroup = getCourtGroup(fac.title);
-    if (gu && !(fac.location || "").includes(gu)) continue;
-    if (group && courtGroup !== group) continue;
-    if (!group && FAVORITES_ONLY && !favoriteGroups.has(courtGroup)) continue;
-
-    const days = DATA.availability[cid];
-    if ((!days || typeof days !== "object") && CURRENT_CITY !== "yongin") continue;
-
-    const card = makeNode("article", "court-card");
-    const head = makeNode("div", "court-head");
-    head.appendChild(makeNode("div", "court-title", fac.title));
-    head.appendChild(makeNode("div", "court-loc", fac.location || CITY_LABELS[CURRENT_CITY] || ""));
-    card.appendChild(head);
-
-    let hasAnySlot = false;
-    const showEmptyYongin = CURRENT_CITY === "yongin";
-    Object.keys(days || {}).sort().forEach(d => {
-      if (date && d !== date) return;
-      const slots = (Array.isArray(days[d]) ? days[d] : []).filter(s => slotMatchesTimeCondition(s, timeCondition));
-      if (slots.length === 0) return;
-      hasAnySlot = true;
-
-      const dayBox = makeNode("section", "date-box-view");
-      const title = makeNode("div", "date-title");
-      title.appendChild(makeNode("span", "", `${d.slice(4, 6)}.${d.slice(6, 8)} (${getWeekday(d)})`));
-      title.appendChild(makeNode("span", "", `${slots.length}개`));
-      dayBox.appendChild(title);
-
-      const slotWrap = makeNode("div", "slots");
-      slots.forEach(s => {
-        if (!s || !s.timeContent) return;
-        let href = "";
-        if (s.reserveUrl) {
-          href = s.reserveUrl;
-        } else {
-          const reserveId = s.resveId || (String(cid).startsWith("yongin:") ? String(cid).split(":")[1] : cid);
-          href = makeReserveLink(reserveId);
-        }
-        const a = makeNode("a", "slot", s.timeContent);
-        a.href = safeReserveUrl(href);
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        slotWrap.appendChild(a);
-      });
-
-      dayBox.appendChild(slotWrap);
-      card.appendChild(dayBox);
-    });
-
-    if (!hasAnySlot && showEmptyYongin) {
-      const label = date ? `${date.slice(4, 6)}.${date.slice(6, 8)} (${getWeekday(date)})` : "현재 조회 조건";
-      card.appendChild(makeNode("div", "no-slot-note", `${label}에 맞는 잔여 슬롯은 없습니다. 그래도 이 코트에는 알람을 등록할 수 있습니다.`));
-    }
-
-    if (hasAnySlot || showEmptyYongin) {
-      courtCards.push({ card, hasAnySlot, order: renderOrder++ });
-      renderedCount++;
-    }
-  }
-
-  courtCards
-    .sort((a, b) => Number(b.hasAnySlot) - Number(a.hasAnySlot) || a.order - b.order)
-    .forEach(item => courtsEl.appendChild(item.card));
-
-  if (renderedCount === 0) {
-    const message = FAVORITES_ONLY && !favoriteGroups.size
-      ? "현재 도시에는 저장된 즐겨찾기 코트가 없습니다."
-      : "조건에 맞는 예약 가능 시간이 없습니다.";
-    courtsEl.appendChild(makeNode("div", "empty-state", message));
-  }
-  renderSummary();
-}
-
-/** =========================================================
- *  Pull-to-refresh
- * ========================================================= */
-let pullStartY = null;
-let isRefreshing = false;
-const pullIndicator = document.getElementById("pullIndicator");
-const PULL_THRESHOLD = 70;
-
-window.addEventListener("touchstart", e => {
-  if (window.scrollY === 0 && !isRefreshing) pullStartY = e.touches[0].clientY;
-}, { passive: true });
-
-window.addEventListener("touchmove", e => {
-  if (pullStartY === null || isRefreshing) return;
-  const currentY = e.touches[0].clientY;
-  const diff = currentY - pullStartY;
-
-  if (diff > 0) {
-    e.preventDefault();
-    const offset = Math.min(diff, 80);
-    pullIndicator.style.top = (-50 + offset) + "px";
-    pullIndicator.textContent = "🔄 Refresh";
-  }
-}, { passive: false });
-
-window.addEventListener("touchend", async () => {
-  if (pullStartY === null || isRefreshing) return;
-
-  const indicatorTop = parseInt(pullIndicator.style.top || "-50", 10);
-  pullIndicator.style.top = "-50px";
-
-  if (indicatorTop > 20) {
-    isRefreshing = true;
-    pullIndicator.textContent = "⏳ Refreshing...";
-    pullIndicator.style.top = "0px";
-
-    try {
-      await loadData();
-      await loadMyAlarms();
-    } catch (e) {
-      showToast("새로고침 실패: " + (e.message || e));
-    }
-
-    pullIndicator.style.top = "-50px";
-    isRefreshing = false;
-  }
-  pullStartY = null;
-});
-
-/** =========================================================
- *  Push subscribe + push_subscriptions upsert
- * ========================================================= */
-function checkPushSupport() {
-  if (!("serviceWorker" in navigator)) throw new Error("serviceWorker not supported");
-  if (!("PushManager" in window)) throw new Error("PushManager not supported");
-}
-
-async function requestNotificationPermission() {
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") throw new Error("notification permission denied");
-  return permission;
-}
-
-async function waitForServiceWorker() {
-  const readyPromise = navigator.serviceWorker.ready;
-  const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("serviceWorker.ready timeout")), 3000)
-  );
-
-  try {
-    return await Promise.race([readyPromise, timeoutPromise]);
-  } catch (_) {
-    const fallbackReg = await navigator.serviceWorker.getRegistration();
-    if (!fallbackReg) throw new Error("No service worker registration");
-    return fallbackReg;
-  }
-}
-
-async function subscribePush(reg) {
-  const existing = await reg.pushManager.getSubscription();
-  if (existing) return existing;
-
-  return await reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-  });
-}
-
-async function saveSubscriptionToSupabase(sub) {
-  const j = sub.toJSON();
-  const endpoint = j.endpoint;
-  const p256dh = j.keys?.p256dh;
-  const auth = j.keys?.auth;
-
-  if (!endpoint || !p256dh || !auth) throw new Error("push subscription keys missing");
-
-  const subscription_id = await sha256Hex(endpoint);
-
-  const { error } = await sb
-    .from("push_subscriptions")
-    .upsert({ id: subscription_id, endpoint, p256dh, auth });
-
-  if (error) throw new Error("push_subscriptions upsert failed: " + error.message);
-
-  return subscription_id;
-}
-
-async function enablePushIfNeeded({ silent = false } = {}) {
-  try {
-    const existing = localStorage.getItem("subscription_id");
-    if (existing) return existing;
-
-    checkPushSupport();
-    await requestNotificationPermission();
-
-    const reg = await waitForServiceWorker();
-    const sub = await subscribePush(reg);
-    const subscriptionId = await saveSubscriptionToSupabase(sub);
-
-    localStorage.setItem("subscription_id", subscriptionId);
-
-    if (!silent) showToast("알림 설정이 완료되었습니다.");
-    return subscriptionId;
-  } catch (e) {
-    console.error("enablePushIfNeeded error:", e);
-    if (!silent) showToast("알림 설정에 실패했습니다: " + (e.message || e));
-    throw e;
-  }
-}
-
-/** =========================================================
- *  alarms 저장/조회/삭제 (Supabase)
- * ========================================================= */
-async function addAlarm(subscriptionId, courtGroup, yyyymmdd, conditionValue) {
-  const cond = parseTimeCondition(conditionValue);
-  const { error } = await sb
-    .from("alarms")
-    .insert({
-      subscription_id: subscriptionId,
-      court_group: courtGroup,
-      date: yyyymmdd,
-      time_mode: cond.mode,
-      time_hour: cond.hour
-    });
-
-  if (error) {
-    const msg = (error.message || "").toLowerCase();
-    if (msg.includes("duplicate") || msg.includes("unique")) return { status: "duplicate" };
-    throw new Error(error.message || "insert failed");
-  }
-  return { status: "added" };
-}
-
-async function loadMyAlarms() {
-  let subscriptionId = localStorage.getItem("subscription_id");
-  const alarmListEl = document.getElementById("alarmList");
-
-  if (!subscriptionId) {
-    try {
-      subscriptionId = await enablePushIfNeeded({ silent: true });
-    } catch {
-      setListMessage(alarmListEl, "등록된 알람이 없습니다.");
-      return;
-    }
-  }
-
-  const { data: alarms, error } = await sb
-    .from("alarms")
-    .select("id, date, court_group, time_mode, time_hour")
-    .eq("subscription_id", subscriptionId)
-    .order("date", { ascending: true });
-
-  if (error) {
-    setListMessage(alarmListEl, "알람 정보를 불러오지 못했습니다.");
-    return;
-  }
-
-  // ✅ 현재 탭 도시 알람만 표시
-  const filtered = (alarms || []).filter(a => {
-    const cg = String(a.court_group || "");
-    if (CURRENT_CITY === "yongin") return cg.startsWith("용인|");
-    if (CURRENT_CITY === "goyang") return cg.startsWith("고양|");
-    if (CURRENT_CITY === "suwon") return cg.startsWith("수원|");
-    if (CURRENT_CITY === "seongnam") return cg.startsWith("성남|");
-    if (CURRENT_CITY === "anyang") return cg.startsWith("안양|");
-    if (CURRENT_CITY === "paju") return cg.startsWith("파주|");
-    return true;
-  });
-
-  if (!filtered || filtered.length === 0) {
-    setListMessage(alarmListEl, "등록된 알람이 없습니다.");
-    return;
-  }
-
-  alarmListEl.replaceChildren();
-
-  for (const a of filtered) {
-    const li = document.createElement("div");
-    li.className = "alarm-item";
-    li.style.display = "flex";
-    li.style.justifyContent = "space-between";
-    li.style.alignItems = "center";
-
-    const text = document.createElement("span");
-    const ymd = (a.date || "").includes("-") ? a.date.replaceAll("-","") : a.date;
-
-    // 표시용: prefix 제거
-    const cgObj = stripPrefixedGroupValue(a.court_group);
-    const timeLabel = timeConditionLabel(a.time_mode || "any", a.time_hour);
-    text.textContent = `${yyyymmddToPretty(ymd)} · ${cgObj.name} · ${timeLabel}`;
-
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "✕";
-    delBtn.style.fontSize = "12px";
-    delBtn.style.padding = "2px 6px";
-    delBtn.style.border = "1px solid #ccc";
-    delBtn.style.borderRadius = "4px";
-    delBtn.style.background = "#fff";
-    delBtn.style.color = "#888";
-    delBtn.style.marginTop = "0";
-
-    delBtn.onclick = async () => {
-      if (!confirm("이 알람을 삭제할까요?")) return;
-      await deleteAlarmById(a.id);
-      await loadMyAlarms();
+  <script>
+    const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const CITY_LABELS = {
+      yongin: "용인",
+      goyang: "고양",
+      suwon: "수원",
+      seongnam: "성남",
+      anyang: "안양",
+      paju: "파주",
+      anseong: "안성",
+      uijeongbu: "의정부",
+      yangpyeong: "양평",
+      hanam: "하남",
+      uiwang: "의왕",
+      incheon: "인천"
+    };
+    const CITY_KEYS = Object.keys(CITY_LABELS);
+    const DEFAULT_HOURS = { start: 7, end: 21 };
+    const CITY_HOURS = {
+      yongin: { start: 6, end: 21 },
+      anyang: { start: 7, end: 21 },
+      paju: { start: 7, end: 21 }
+    };
+    const FAVORITE_KEY = "courtissum.favoriteCourts.v1";
+    const VAPID_PUBLIC_KEY = "BC1eSbg-J7HgWPAd_LJUvCH_fggJsdlvHLEeQUzwVzRcLHv27BiGpe1RlU-bUgduNWNRa15JcEayDFJzNRo07fM";
+    let DATA = { facilities: {}, availability: {} };
+    let currentCity = "yongin";
+
+    const $ = id => document.getElementById(id);
+    const els = {
+      pageTitle: $("pageTitle"),
+      summary: $("summary"),
+      dateFilter: $("dateFilter"),
+      citySelect: $("citySelect"),
+      filterToggle: $("filterToggle"),
+      filterPanel: $("filterPanel"),
+      courtFilter: $("courtFilter"),
+      hourFilter: $("hourFilter"),
+      timeMode: $("timeMode"),
+      cityTabs: $("cityTabs"),
+      matrix: $("matrix"),
+      mobileCards: $("mobileCards"),
+      slotPicker: $("slotPicker"),
+      slotPickerTitle: $("slotPickerTitle"),
+      slotPickerSubtitle: $("slotPickerSubtitle"),
+      slotPickerChoices: $("slotPickerChoices"),
+      slotPickerClose: $("slotPickerClose"),
+      quickList: $("quickList"),
+      alarmList: $("alarmList"),
+      crawlStatusGrid: $("crawlStatusGrid"),
+      crawlStatusUpdated: $("crawlStatusUpdated"),
+      updatedAt: $("updatedAt"),
+      openCourtCount: $("openCourtCount"),
+      openSlotCount: $("openSlotCount"),
+      boardTitle: $("boardTitle"),
+      boardSubtitle: $("boardSubtitle")
     };
 
-    li.appendChild(text);
-    li.appendChild(delBtn);
-    alarmListEl.appendChild(li);
-  }
-}
-
-async function deleteAlarmById(alarmId) {
-  const { error } = await sb
-    .from("alarms")
-    .delete()
-    .eq("id", alarmId);
-
-  if (error) showToast("알람 삭제 실패: " + error.message);
-}
-
-makeHourOptions(filterTimeHour);
-makeHourOptions(alarmTimeHour);
-
-/** =========================================================
- *  events
- * ========================================================= */
-filterGu.onchange = renderCourts;
-filterCourt.onchange = () => {
-  renderCourts();
-  renderFavoriteCourts();
-};
-favoriteAddBtn.onclick = addCurrentFavoriteCourt;
-favoriteOnlyBtn.onclick = () => {
-  FAVORITES_ONLY = !FAVORITES_ONLY;
-  renderCourts();
-  renderFavoriteCourts();
-};
-filterTimeHour.onchange = renderCourts;
-document.querySelectorAll('input[name="filterTimeMode"]').forEach(input => input.onchange = renderCourts);
-
-filterDate.onchange = () => {
-  filterDateLabel.textContent = filterDate.value;
-  renderCourts();
-};
-alarmDate.onchange = () => {
-  alarmDateLabel.textContent = alarmDate.value;
-};
-
-alarmBtn.onclick = async () => {
-  try {
-    const subscriptionId = await enablePushIfNeeded();
-
-    if (!alarmCourt.value || !alarmDate.value) {
-      showToast("코트와 날짜를 선택하세요.");
-      return;
+    function node(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined) el.textContent = text;
+      return el;
     }
 
-    const ymd = toYYYYMMDD(alarmDate.value);
-    const res = await addAlarm(subscriptionId, alarmCourt.value, ymd, getTimeConditionValue(alarmTimeHour, "alarmTimeMode"));
-
-    if (res.status === "duplicate") showToast("이미 등록된 알람입니다.");
-    else showToast("알람 등록이 완료되었습니다.");
-
-    await loadMyAlarms();
-  } catch (e) {
-    console.error(e);
-    showToast("알림설정/알람등록 실패: " + (e.message || e));
-  }
-};
-
-favoriteAlarmBtn.onclick = async () => {
-  try {
-    const favorites = currentCityFavorites();
-    if (!favorites.length) {
-      showToast("현재 도시의 즐겨찾기 코트가 없습니다.");
-      return;
-    }
-    if (!alarmDate.value) {
-      showToast("즐겨찾기 전체 알람을 등록할 날짜를 선택하세요.");
-      return;
+    function toast(message) {
+      const el = $("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => el.classList.remove("show"), 2600);
     }
 
-    const subscriptionId = await enablePushIfNeeded();
-    const ymd = toYYYYMMDD(alarmDate.value);
-    const condition = getTimeConditionValue(alarmTimeHour, "alarmTimeMode");
-    let added = 0;
-    let duplicate = 0;
-
-    for (const fav of favorites) {
-      const res = await addAlarm(subscriptionId, prefixedGroupValueForCity(fav.city, fav.group), ymd, condition);
-      if (res.status === "duplicate") duplicate += 1;
-      else added += 1;
+    function favoriteId(city, courtGroup) {
+      return `${city}|${courtGroup}`;
     }
 
-    showToast(`즐겨찾기 알람 등록: 신규 ${added}개, 기존 ${duplicate}개`);
-    await loadMyAlarms();
-  } catch (e) {
-    console.error(e);
-    showToast("즐겨찾기 알람 등록 실패: " + (e.message || e));
-  }
-};
-
-/** =========================================================
- *  Flatpickr (desktop only)
- * ========================================================= */
-function isDesktop() { return window.innerWidth >= 768; }
-
-if (isDesktop()) {
-  flatpickr("#filterDate", {
-    dateFormat: "Y-m-d",
-    onChange: function(_, dateStr) {
-      filterDateLabel.textContent = dateStr;
-      renderCourts();
+    function loadFavorites() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(FAVORITE_KEY) || "[]");
+        return new Set(Array.isArray(raw) ? raw.filter(Boolean).map(String) : []);
+      } catch {
+        return new Set();
+      }
     }
-  });
 
-  flatpickr("#alarmDate", {
-    dateFormat: "Y-m-d",
-    onChange: function(_, dateStr) {
-      alarmDateLabel.textContent = dateStr;
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITE_KEY, JSON.stringify([...favorites].sort()));
     }
-  });
-}
 
-/** =========================================================
- *  탭 UI
- * ========================================================= */
-const CITY_ROUTES = {
-  yongin: "/tennis/yongin/",
-  goyang: "/tennis/goyang/",
-  suwon: "/tennis/suwon/",
-  seongnam: "/tennis/seongnam/",
-  anyang: "/tennis/anyang/",
-  paju: "/tennis/paju/"
-};
+    function isFavoriteCourt(courtGroup) {
+      return loadFavorites().has(favoriteId(currentCity, courtGroup));
+    }
 
-function cityFromLocation() {
-  const routeCity = Object.entries(CITY_ROUTES).find(([, route]) => location.pathname === route)?.[0];
-  if (routeCity) return routeCity;
+    function toggleFavoriteCourt(courtGroup) {
+      const favorites = loadFavorites();
+      const id = favoriteId(currentCity, courtGroup);
+      const next = !favorites.has(id);
+      if (next) favorites.add(id);
+      else favorites.delete(id);
+      saveFavorites(favorites);
+      toast(next ? `${courtGroup} 즐겨찾기 등록` : `${courtGroup} 즐겨찾기 해제`);
+      render();
+    }
 
-  const queryCity = new URLSearchParams(location.search).get("city");
-  return CITY_ROUTES[queryCity] ? queryCity : "yongin";
-}
+    function favoriteButton(courtGroup) {
+      const btn = node("button", isFavoriteCourt(courtGroup) ? "favorite-star is-active" : "favorite-star");
+      btn.type = "button";
+      btn.title = isFavoriteCourt(courtGroup) ? "즐겨찾기 해제" : "즐겨찾기 등록";
+      btn.setAttribute("aria-label", `${courtGroup} ${btn.title}`);
+      btn.appendChild(node("span", "", "★"));
+      btn.onclick = event => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleFavoriteCourt(courtGroup);
+      };
+      return btn;
+    }
 
-function updateCityRoute(city, replace = false) {
-  const route = CITY_ROUTES[city];
-  if (!route || location.pathname === route) return;
-  const method = replace ? "replaceState" : "pushState";
-  history[method]({ city }, "", route);
-}
+    function alarmButton(courtGroup) {
+      const btn = node("button", "alarm-bell");
+      btn.type = "button";
+      btn.title = "알람 등록";
+      btn.setAttribute("aria-label", `${courtGroup} 알람 등록`);
+      btn.appendChild(node("span", "", "🔔"));
+      btn.onclick = event => {
+        event.preventDefault();
+        event.stopPropagation();
+        registerCourtAlarm(courtGroup);
+      };
+      return btn;
+    }
 
-function setCity(city, options = {}){
-  const { updateRoute = false, replaceRoute = false } = options;
-  CURRENT_CITY = city;
-  if (updateRoute) updateCityRoute(city, replaceRoute);
+    function courtActions(courtGroup) {
+      const wrap = node("span", "court-actions");
+      wrap.appendChild(favoriteButton(courtGroup));
+      wrap.appendChild(alarmButton(courtGroup));
+      return wrap;
+    }
 
-  const tabY = document.getElementById("tabYongin");
-  const tabG = document.getElementById("tabGoyang");
-  const tabS = document.getElementById("tabSuwon");
-  const tabSN = document.getElementById("tabSeongnam");
-  const tabA = document.getElementById("tabAnyang");
-  const tabP = document.getElementById("tabPaju");
-  tabY.classList.toggle("active", city === "yongin");
-  tabG.classList.toggle("active", city === "goyang");
-  tabS.classList.toggle("active", city === "suwon");
-  tabSN.classList.toggle("active", city === "seongnam");
-  tabA.classList.toggle("active", city === "anyang");
-  tabP.classList.toggle("active", city === "paju");
+    function urlBase64ToUint8Array(base64) {
+      const padding = "=".repeat((4 - base64.length % 4) % 4);
+      const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+      return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    }
 
-  // 고양 탭이면 구 필터 숨김
-  const guWrap = document.getElementById("filterGuWrap");
-  if (guWrap) guWrap.style.display = (city === "yongin") ? "" : "none";
+    async function sha256Hex(str) {
+      const buf = new TextEncoder().encode(str);
+      const digest = await crypto.subtle.digest("SHA-256", buf);
+      return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+    }
 
-  // 필터 초기화(탭 변경 시 혼선 방지)
-  filterCourt.value = "";
-  filterDate.value = "";
-  filterTimeHour.value = "";
-  document.querySelector('input[name="filterTimeMode"][value="contains"]').checked = true;
-  filterDateLabel.textContent = "날짜 선택";
+    function parseTimeConditionValue(value) {
+      const raw = String(value || "any");
+      if (!raw || raw === "any") return { mode: "any", hour: null };
+      const [mode, hourText] = raw.split(":");
+      const hour = Number(hourText);
+      if (!["after", "before", "contains"].includes(mode) || !Number.isInteger(hour)) return { mode: "any", hour: null };
+      return { mode, hour };
+    }
 
-  buildCourtGroups();
-  renderCourts();
-  renderFavoriteCourts();
-  renderCityUpdatedTimes();
-  loadMyAlarms(); // 탭 도시 알람만 보여주기 위해 재로딩
-}
+    function currentTimeConditionValue() {
+      if (!els.hourFilter.value) return "any";
+      return `${els.timeMode.value}:${Number(els.hourFilter.value)}`;
+    }
 
-document.getElementById("tabYongin").addEventListener("click", () => setCity("yongin", { updateRoute: true }));
-document.getElementById("tabGoyang").addEventListener("click", () => setCity("goyang", { updateRoute: true }));
-document.getElementById("tabSuwon").addEventListener("click", () => setCity("suwon", { updateRoute: true }));
-document.getElementById("tabSeongnam").addEventListener("click", () => setCity("seongnam", { updateRoute: true }));
-document.getElementById("tabAnyang").addEventListener("click", () => setCity("anyang", { updateRoute: true }));
-document.getElementById("tabPaju").addEventListener("click", () => setCity("paju", { updateRoute: true }));
+    function prefixedCourtGroup(courtGroup) {
+      return `${CITY_LABELS[currentCity] || currentCity}|${courtGroup}`;
+    }
 
-window.addEventListener("popstate", () => {
-  setCity(cityFromLocation());
-});
+    async function ensureServiceWorker() {
+      if (!("serviceWorker" in navigator)) throw new Error("이 브라우저는 알림을 지원하지 않습니다.");
+      const reg = await navigator.serviceWorker.getRegistration() || await navigator.serviceWorker.register("/sw.js");
+      return await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise(resolve => setTimeout(() => resolve(reg), 3000))
+      ]);
+    }
 
-/** =========================================================
- *  init + 강제 업데이트 버튼
- * ========================================================= */
-async function init() {
-  await loadData();
-  setCity(cityFromLocation()); // URL에 맞는 초기 탭
-  await loadMyAlarms();
-}
+    async function enablePushIfNeeded() {
+      const existingId = localStorage.getItem("subscription_id");
+      if (existingId) return existingId;
+      if (!("PushManager" in window) || !("Notification" in window)) throw new Error("이 브라우저는 푸시 알림을 지원하지 않습니다.");
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") throw new Error("알림 권한이 허용되지 않았습니다.");
+      const reg = await ensureServiceWorker();
+      const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+      const json = sub.toJSON();
+      const endpoint = json.endpoint;
+      const p256dh = json.keys?.p256dh;
+      const auth = json.keys?.auth;
+      if (!endpoint || !p256dh || !auth) throw new Error("알림 구독 정보를 만들지 못했습니다.");
+      const subscriptionId = await sha256Hex(endpoint);
+      const { error } = await sb.from("push_subscriptions").upsert({ id: subscriptionId, endpoint, p256dh, auth });
+      if (error) throw new Error(error.message || "알림 구독 저장 실패");
+      localStorage.setItem("subscription_id", subscriptionId);
+      return subscriptionId;
+    }
 
-// 공개 페이지에는 GitHub Actions trigger token을 보관하지 않습니다.
-// 수동 버튼은 현재 Supabase 데이터를 다시 읽는 용도로만 사용합니다.
-async function forceUpdate() {
-  const btn = document.getElementById("forceUpdateBtn");
-  if (!btn || btn.disabled) return;
+    async function registerCourtAlarm(courtGroup) {
+      try {
+        const subscriptionId = await enablePushIfNeeded();
+        const cond = parseTimeConditionValue(currentTimeConditionValue());
+        const { error } = await sb.from("alarms").insert({
+          subscription_id: subscriptionId,
+          court_group: prefixedCourtGroup(courtGroup),
+          date: ymd(),
+          time_mode: cond.mode,
+          time_hour: cond.hour
+        });
+        if (error) {
+          const msg = String(error.message || "").toLowerCase();
+          if (msg.includes("duplicate") || msg.includes("unique")) {
+            toast("이미 등록된 알람입니다.");
+            return;
+          }
+          throw error;
+        }
+        toast(`${courtGroup} 알람 등록 완료`);
+        renderAlarmList();
+      } catch (error) {
+        console.error(error);
+        toast("알람 등록 실패: " + (error.message || error));
+      }
+    }
 
-  btn.disabled = true;
-  btn.replaceChildren(makeNode("span", "spin", "↻"));
+    function todayKst(offset = 0) {
+      const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+      now.setDate(now.getDate() + offset);
+      return toInputDate(now);
+    }
 
-  try {
-    await loadData();
-    showToast("현재 저장된 최신 데이터를 다시 불러왔습니다. 실제 크롤링은 자동 갱신 주기에 따라 실행됩니다.");
-  } catch (e) {
-    console.error("[reload data error]", e);
-    showToast("데이터 다시 불러오기에 실패했습니다.");
-  } finally {
-    btn.textContent = "↻";
-    btn.disabled = false;
-  }
-}
+    function toInputDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("forceUpdateBtn");
-  if (btn) btn.addEventListener("click", forceUpdate);
-});
+    function ymd(dateText = els.dateFilter.value) {
+      return String(dateText || "").replaceAll("-", "");
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js").catch(err => console.error("SW register failed:", err));
-  }
-  init();
-});
+    function compactDate(dateText) {
+      const date = ymd(dateText);
+      if (date.length !== 8) return "-";
+      return `${Number(date.slice(4, 6))}.${Number(date.slice(6, 8))}`;
+    }
 
-/** modal */
-document.getElementById("noticeBtn").onclick = () => {
-  document.getElementById("noticeModal").style.display = "block";
-};
-document.getElementById("closeNoticeBtn").onclick = () => {
-  document.getElementById("noticeModal").style.display = "none";
-};
-document.getElementById("noticeModal").onclick = (e) => {
-  if (e.target.id === "noticeModal") e.target.style.display = "none";
-};
-</script>
+    function weekday(dateText) {
+      const d = ymd(dateText);
+      if (d.length !== 8) return "";
+      return ["일","월","화","수","목","금","토"][new Date(Number(d.slice(0,4)), Number(d.slice(4,6))-1, Number(d.slice(6,8))).getDay()];
+    }
+
+    function cityOfFacilityId(id) {
+      id = String(id || "");
+      if (id.startsWith("ggshare:")) return id.slice("ggshare:".length).split("-", 1)[0] || "anseong";
+      for (const city of CITY_KEYS) if (id.startsWith(`${city}:`)) return city;
+      return "yongin";
+    }
+
+    function getCourtGroup(title) {
+      const t = String(title || "").replace(/\[.*?\]/g, "").trim();
+      if (currentCity === "goyang") return t.replace(/고양\s*(특례시)?\s*테니스협회/g, "").replace(/^고양\s+/, "").replace(/\s*\d+\s*코트\s*$/, "").replace(/\s*테니스장\s*$/, "").replace(/\s*코트\s*$/, "").replace(/\s+/g, " ").trim() || t;
+      if (currentCity === "seongnam") return t.replace(/\s*\([^)]*\)/g, "").replace(/\s*당일예약\s*/g, " ").replace(/\s*반쪽\s*코트.*$/, "").replace(/\s*\d+\s*번?\s*코트.*$/, "").replace(/\s*테니스장\s*$/, "").trim() || t;
+      if (currentCity === "uiwang" && /청계체육공원/.test(t)) return "청계체육공원";
+      if (currentCity === "anyang" || currentCity === "paju") return t.replace(/\s*\d+\s*코트\s*$/, "").replace(/\s*테니스장\s*$/, "").trim() || t;
+      return t
+        .replace(/[_-]?\s*\d{1,2}월.*$/i, "")
+        .replace(/\s*\(?유료\)?\s*/g, " ")
+        .replace(/\s*\(?[A-Z]\s*존\)?\s*/gi, " ")
+        .replace(/\s*\(?장애인\s*코트\)?\s*/g, " ")
+        .replace(/\s*\(?\d+[\s.·_-]*(?:번)?\s*코트\)?\s*/gi, " ")
+        .replace(/\s*\(?[A-Z][\s.·_-]*(?:번)?\s*코트\)?\s*/gi, " ")
+        .replace(/\s*\d+[\s.·_-]*(?:번)?\s*코트\s*$/i, "")
+        .replace(/\s*[A-Z][\s.·_-]*(?:번)?\s*코트\s*$/i, "")
+        .replace(/\s*테니스장\s*$/, "")
+        .replace(/\s+/g, " ")
+        .trim() || t;
+    }
+
+    function explicitCourtLabel(title, courtGroup) {
+      const text = String(title || "");
+      if (courtGroup === "청계체육공원") {
+        const cheonggye = text.match(/(\d+)\s*번?.*코트/);
+        if (cheonggye) return `${Number(cheonggye[1])}코트`;
+      }
+      const numbered = text.match(/(\d+)[\s.·_-]*(?:번)?\s*코트/);
+      if (numbered) return `${Number(numbered[1])}코트`;
+      if (/장애인\s*코트/.test(text)) return "장애인코트";
+      const lettered = text.match(/([A-Z])[\s.·_-]*(?:번)?\s*코트/i);
+      if (lettered) return `${lettered[1].toUpperCase()}코트`;
+      return "";
+    }
+
+    function labelSlot(slot) {
+      const label = slot?._courtLabel ? `${slot._courtLabel} ` : "";
+      return `${label}${slot?.timeContent || ""}`.trim();
+    }
+
+    function expectedCourtLabels(courtGroup) {
+      if (courtGroup === "용인시립골드") return ["1코트", "2코트", "3코트", "4코트", "5코트", "6코트"];
+      return [];
+    }
+
+    function facilityMonth(title) {
+      const match = String(title || "").match(/(\d{1,2})월/);
+      return match ? Number(match[1]) : null;
+    }
+
+    function facilityMatchesSelectedMonth(title) {
+      const month = facilityMonth(title);
+      if (!month) return true;
+      const selected = ymd();
+      if (selected.length !== 8) return true;
+      return month === Number(selected.slice(4, 6));
+    }
+
+    function slotRange(slot) {
+      const matches = [...String(slot?.timeContent || "").matchAll(/(\d{1,2}):(\d{2})/g)];
+      if (!matches.length) return null;
+      const start = Number(matches[0][1]) * 60 + Number(matches[0][2]);
+      const end = matches[1] ? Number(matches[1][1]) * 60 + Number(matches[1][2]) : start + 60;
+      return { start, end: end <= start ? end + 1440 : end };
+    }
+
+    function firstTime(slot) {
+      const m = String(slot?.timeContent || "").match(/(\d{1,2}:\d{2})/);
+      return m ? m[1].padStart(5, "0") : "";
+    }
+
+    function slotHour(slot) {
+      const t = firstTime(slot);
+      return t ? Number(t.slice(0, 2)) : null;
+    }
+
+    function slotDurationHours(slot) {
+      const range = slotRange(slot);
+      if (!range) return 1;
+      return Math.max(1, Math.round((range.end - range.start) / 60));
+    }
+
+    function activeHours() {
+      const range = CITY_HOURS[currentCity] || DEFAULT_HOURS;
+      const start = Number.isFinite(range.start) ? range.start : DEFAULT_HOURS.start;
+      const end = Number.isFinite(range.end) ? range.end : DEFAULT_HOURS.end;
+      return Array.from({ length: Math.max(0, end - start) }, (_, i) => i + start);
+    }
+
+    function mobileHoursForRow(row) {
+      const hours = activeHours();
+      const starts = [...new Set(row.slots.map(slotHour).filter(hour => Number.isInteger(hour)))].sort((a, b) => a - b);
+      const hasTwoHourSlots = row.slots.some(slot => slotDurationHours(slot) >= 2);
+      if (hasTwoHourSlots && starts.length) {
+        const parity = starts[0] % 2;
+        return hours.filter(hour => hour % 2 === parity);
+      }
+      if (starts.length >= 3 && starts.every(hour => hour % 2 === starts[0] % 2)) {
+        const parity = starts[0] % 2;
+        return hours.filter(hour => hour % 2 === parity);
+      }
+      return hours;
+    }
+
+    function slotMatches(slot) {
+      const hour = els.hourFilter.value;
+      if (!hour) return true;
+      const range = slotRange(slot);
+      if (!range) return true;
+      const target = Number(hour) * 60;
+      if (els.timeMode.value === "after") return range.start >= target;
+      if (els.timeMode.value === "before") return range.start < target;
+      return target >= range.start && target < range.end;
+    }
+
+    function reserveHref(cid, slot) {
+      const raw = slot?.reserveUrl || slot?.url || "";
+      if (raw) return raw;
+      const slotCid = slot?._cid || cid;
+      if (String(slotCid).startsWith("yongin:") || slot?.resveId) {
+        const id = slot?.resveId || String(slotCid).split(":")[1];
+        return `https://publicsports.yongin.go.kr/publicsports/sports/selectFcltyRceptResveViewU.do?key=4236&resveId=${encodeURIComponent(id)}&pageUnit=8&pageIndex=1&checkSearchMonthNow=false`;
+      }
+      return "";
+    }
+
+    function openSlotPicker(row, hour, slots) {
+      if (!els.slotPicker || !slots.length) return;
+      els.slotPickerTitle.textContent = `${row.courtGroup} ${hour}:00`;
+      els.slotPickerSubtitle.textContent = "예약할 코트를 선택하세요.";
+      els.slotPickerChoices.replaceChildren();
+      slots.forEach(slot => {
+        const href = reserveHref(row.cid, slot);
+        const choice = node(href ? "a" : "button", "slot-choice");
+        if (href) {
+          choice.href = href;
+          choice.target = "_blank";
+          choice.rel = "noopener noreferrer";
+        } else {
+          choice.type = "button";
+        }
+        choice.appendChild(node("span", "", slot._courtLabel || "전체 코트"));
+        choice.appendChild(node("small", "", slot.timeContent || `${hour}:00`));
+        els.slotPickerChoices.appendChild(choice);
+      });
+      els.slotPicker.classList.add("is-open");
+      els.slotPicker.setAttribute("aria-hidden", "false");
+    }
+
+    function closeSlotPicker() {
+      if (!els.slotPicker) return;
+      els.slotPicker.classList.remove("is-open");
+      els.slotPicker.setAttribute("aria-hidden", "true");
+    }
+
+    function collectRows() {
+      const date = ymd();
+      const group = els.courtFilter.value;
+      const facilities = Object.entries(DATA.facilities || {})
+        .filter(([, fac]) => fac?.title)
+        .filter(([cid]) => cityOfFacilityId(cid) === currentCity)
+        .filter(([, fac]) => facilityMatchesSelectedMonth(fac.title))
+        .map(([cid, fac]) => ({ cid, fac, courtGroup: getCourtGroup(fac.title) }))
+        .filter(item => !group || item.courtGroup === group)
+        .sort((a, b) => a.courtGroup.localeCompare(b.courtGroup, "ko") || String(a.fac.title).localeCompare(String(b.fac.title), "ko") || a.cid.localeCompare(b.cid));
+      const groupSizes = new Map();
+      facilities.forEach(item => groupSizes.set(item.courtGroup, (groupSizes.get(item.courtGroup) || 0) + 1));
+      const groupSeen = new Map();
+      const buckets = new Map();
+
+      facilities.forEach(({ cid, fac, courtGroup }) => {
+        const index = (groupSeen.get(courtGroup) || 0) + 1;
+        groupSeen.set(courtGroup, index);
+        const courtLabel = explicitCourtLabel(fac.title, courtGroup) || (groupSizes.get(courtGroup) > 1 ? `${index}코트` : "");
+        if (!buckets.has(courtGroup)) {
+          buckets.set(courtGroup, {
+            cid,
+            fac,
+            courtGroup,
+            locations: new Set(),
+            courtLabels: new Set(),
+            slots: [],
+            byHour: new Map(),
+            count: 0,
+            first: "99:99",
+            favorite: isFavoriteCourt(courtGroup)
+          });
+        }
+        const row = buckets.get(courtGroup);
+        if (fac.location) row.locations.add(fac.location);
+        if (courtLabel) row.courtLabels.add(courtLabel);
+        const slots = ((DATA.availability?.[cid]?.[date]) || []).filter(slot => slot?.timeContent).filter(slotMatches);
+        slots.forEach(slot => {
+          const enriched = { ...slot, _cid: cid, _fac: fac, _courtLabel: courtLabel };
+          const hour = slotHour(slot);
+          row.slots.push(enriched);
+          if (hour !== null) {
+            if (!row.byHour.has(hour)) row.byHour.set(hour, []);
+            row.byHour.get(hour).push(enriched);
+          }
+        });
+      });
+
+      return [...buckets.values()].map(row => {
+        row.slots.sort((a, b) => firstTime(a).localeCompare(firstTime(b)) || String(a._courtLabel).localeCompare(String(b._courtLabel), "ko"));
+        row.byHour.forEach(slots => slots.sort((a, b) => String(a._courtLabel).localeCompare(String(b._courtLabel), "ko") || firstTime(a).localeCompare(firstTime(b))));
+        row.count = row.slots.length;
+        row.first = row.slots.map(firstTime).filter(Boolean).sort()[0] || "99:99";
+        row.locationText = [...row.locations][0] || row.fac.location || row.fac.title;
+        row.courtLabelList = [...new Set([...expectedCourtLabels(row.courtGroup), ...row.courtLabels])]
+          .sort((a, b) => a.localeCompare(b, "ko", { numeric: true }));
+        row.priority = row.count > 0 && row.favorite ? 0 : row.count > 0 ? 1 : row.favorite ? 2 : 3;
+        return row;
+      }).sort((a, b) => a.priority - b.priority || b.count - a.count || a.first.localeCompare(b.first) || a.courtGroup.localeCompare(b.courtGroup, "ko"));
+    }
+
+    function setOptions(select, values, placeholder) {
+      select.replaceChildren();
+      const first = node("option", "", placeholder);
+      first.value = "";
+      select.appendChild(first);
+      values.forEach(value => {
+        const opt = node("option", "", value);
+        opt.value = value;
+        select.appendChild(opt);
+      });
+    }
+
+    function refreshCourtOptions() {
+      const groups = new Set();
+      for (const [cid, fac] of Object.entries(DATA.facilities || {})) {
+        if (fac?.title && cityOfFacilityId(cid) === currentCity) groups.add(getCourtGroup(fac.title));
+      }
+      const current = els.courtFilter.value;
+      setOptions(els.courtFilter, [...groups].sort((a, b) => a.localeCompare(b, "ko")), "전체 코트");
+      if ([...groups].includes(current)) els.courtFilter.value = current;
+    }
+
+    function refreshHourOptions() {
+      const hours = activeHours().map(String);
+      const current = els.hourFilter.value;
+      setOptions(els.hourFilter, hours, "시간 전체");
+      if (hours.includes(current)) els.hourFilter.value = current;
+    }
+
+    function renderCityControls() {
+      els.citySelect.replaceChildren();
+      els.cityTabs.replaceChildren();
+      CITY_KEYS.forEach(city => {
+        const opt = node("option", "", CITY_LABELS[city]);
+        opt.value = city;
+        els.citySelect.appendChild(opt);
+        const btn = node("button", city === currentCity ? "city-tab is-active" : "city-tab", CITY_LABELS[city]);
+        btn.type = "button";
+        btn.onclick = () => setCity(city);
+        els.cityTabs.appendChild(btn);
+      });
+      els.citySelect.value = currentCity;
+    }
+
+    function renderMatrix(rows) {
+      const hours = activeHours();
+      els.matrix.style.setProperty("--hour-count", String(hours.length));
+      els.matrix.replaceChildren();
+      const head = node("div", "matrix-row head");
+      head.appendChild(node("div", "venue", "코트명"));
+      head.appendChild(node("div", "court-no", "코트"));
+      hours.forEach(hour => head.appendChild(node("div", "matrix-cell", `${hour}시`)));
+      els.matrix.appendChild(head);
+
+      if (!rows.length) {
+        const empty = node("div", "empty", "선택한 조건에 맞는 코트가 없습니다.");
+        els.matrix.appendChild(empty);
+        return;
+      }
+
+      rows.forEach(row => {
+        const labels = row.courtLabelList?.length ? row.courtLabelList : ["전체"];
+        const group = node("div", row.count ? "matrix-group" : "matrix-group is-empty");
+        const venue = node("div", "venue");
+        venue.style.gridRow = `span ${labels.length}`;
+        const inner = node("div");
+        const title = node("div", "venue-title");
+        title.appendChild(courtActions(row.courtGroup));
+        title.appendChild(node("strong", "", row.courtGroup));
+        inner.appendChild(title);
+        inner.appendChild(node("span", "", row.locationText || row.fac.location || row.fac.title));
+        venue.appendChild(inner);
+        group.appendChild(venue);
+
+        labels.forEach(label => {
+          group.appendChild(node("div", "court-no", label));
+          hours.forEach(hour => {
+            const hourSlots = row.byHour.get(hour) || [];
+            const slots = label === "전체" ? hourSlots : hourSlots.filter(slot => slot._courtLabel === label);
+            const className = slots.length ? "matrix-cell open" : "matrix-cell";
+            const el = node(slots.length ? "a" : "div", className, slots.length ? "O" : "-");
+            if (slots.length) {
+              const href = reserveHref(row.cid, slots[0]);
+              if (href) {
+                el.href = href;
+                el.target = "_blank";
+                el.rel = "noopener noreferrer";
+              }
+              el.title = `${row.courtGroup} ${slots.map(labelSlot).join(", ")}`;
+            }
+            group.appendChild(el);
+          });
+        });
+        els.matrix.appendChild(group);
+      });
+    }
+
+    function renderMobileCards(rows) {
+      els.mobileCards.replaceChildren();
+      if (!rows.length) {
+        els.mobileCards.appendChild(node("div", "empty", "No courts match the selected filters."));
+        return;
+      }
+
+      rows.forEach(row => {
+        const card = node("article", row.count ? "mobile-card" : "mobile-card is-empty");
+        const head = node("div", "mobile-card-head");
+        const title = node("div", "mobile-card-title");
+        title.appendChild(node("strong", "", row.courtGroup));
+        title.appendChild(node("span", "", row.locationText || row.fac.location || row.fac.title || ""));
+        head.appendChild(title);
+        head.appendChild(courtActions(row.courtGroup));
+        card.appendChild(head);
+
+        const chips = node("div", "mobile-court-chips");
+        const labels = row.courtLabelList?.length ? row.courtLabelList : ["All"];
+        labels.forEach(label => chips.appendChild(node("span", "mobile-court-chip", label)));
+        card.appendChild(chips);
+
+        const grid = node("div", "mobile-time-grid");
+        mobileHoursForRow(row).forEach(hour => {
+          const slots = row.byHour.get(hour) || [];
+          const tag = slots.length && reserveHref(row.cid, slots[0]) ? "a" : "div";
+          const cell = node(tag, slots.length > 1 ? "mobile-time is-open is-hot" : slots.length ? "mobile-time is-open" : "mobile-time");
+          if (slots.length && tag === "a") {
+            cell.href = reserveHref(row.cid, slots[0]);
+            cell.target = "_blank";
+            cell.rel = "noopener noreferrer";
+          }
+          if (slots.length > 1) {
+            cell.removeAttribute("href");
+            cell.removeAttribute("target");
+            cell.removeAttribute("rel");
+            cell.onclick = event => {
+              event.preventDefault();
+              openSlotPicker(row, hour, slots);
+            };
+          }
+          cell.title = slots.length ? `${row.courtGroup} ${slots.map(labelSlot).join(", ")}` : `${row.courtGroup} ${hour}:00`;
+          cell.appendChild(node("span", "mobile-time-label", `${hour}:00`));
+          cell.appendChild(node("span", "mobile-time-value", slots.length ? "O" : "-"));
+          grid.appendChild(cell);
+        });
+        card.appendChild(grid);
+        els.mobileCards.appendChild(card);
+      });
+    }
+
+    function renderCrawlStatus() {
+      if (!els.crawlStatusGrid) return;
+      const facilities = Object.entries(DATA.facilities || {});
+      const availability = DATA.availability || {};
+      els.crawlStatusGrid.replaceChildren();
+      els.crawlStatusUpdated.textContent = DATA.updated_at ? formatUpdated(DATA.updated_at) : "Checking data";
+      const updatedMs = DATA.updated_at ? new Date(DATA.updated_at).getTime() : NaN;
+      const ageHours = Number.isFinite(updatedMs) ? (Date.now() - updatedMs) / 36e5 : Infinity;
+
+      CITY_KEYS.forEach(city => {
+        const cityFacilities = facilities.filter(([cid]) => cityOfFacilityId(cid) === city);
+        let slotCount = 0;
+        cityFacilities.forEach(([cid]) => {
+          const byDate = availability[cid] || {};
+          Object.entries(byDate).forEach(([, slots]) => {
+            const count = Array.isArray(slots) ? slots.filter(slot => slot?.timeContent).length : 0;
+            slotCount += count;
+          });
+        });
+        const state = !cityFacilities.length || !Number.isFinite(updatedMs) || ageHours > 36 ? "error" : slotCount > 0 && ageHours <= 18 ? "ok" : "warning";
+
+        const card = node("button", city === currentCity ? "crawl-card is-current" : "crawl-card");
+        card.type = "button";
+        card.onclick = () => setCity(city);
+        const top = node("div", "crawl-city");
+        top.appendChild(node("span", "", CITY_LABELS[city]));
+        top.appendChild(node("span", state === "ok" ? "crawl-dot" : state === "warning" ? "crawl-dot is-warning" : "crawl-dot is-error"));
+        card.appendChild(top);
+        card.appendChild(node("div", "crawl-meta", DATA.updated_at ? formatUpdated(DATA.updated_at) : "No update time"));
+        els.crawlStatusGrid.appendChild(card);
+      });
+    }
+
+    function renderQuick(rows) {
+      if (!els.quickList) return;
+      els.quickList.replaceChildren();
+      const items = rows.flatMap(row => row.slots.map(slot => ({ row, slot, time: firstTime(slot) || "99:99" }))).sort((a, b) => a.time.localeCompare(b.time)).slice(0, 8);
+      if (!items.length) {
+        els.quickList.appendChild(node("div", "empty", "잔여 슬롯이 없습니다."));
+        return;
+      }
+      items.forEach(item => {
+        const href = reserveHref(item.row.cid, item.slot);
+        const a = node(href ? "a" : "div", "quick");
+        if (href) {
+          a.href = href;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+        }
+        a.appendChild(node("span", "quick-time", item.time));
+        a.appendChild(node("span", "quick-title", item.row.courtGroup));
+        a.appendChild(node("span", "quick-badge", labelSlot(item.slot)));
+        els.quickList.appendChild(a);
+      });
+    }
+
+    function alarmConditionLabel(mode, hour) {
+      if (!mode || mode === "any" || hour === null || hour === undefined) return "시간 전체";
+      const labels = { before: "이전", after: "이후", contains: "포함" };
+      return `${hour}시 ${labels[mode] || ""}`.trim();
+    }
+
+    function stripCourtPrefix(courtGroup) {
+      const text = String(courtGroup || "");
+      const [, name] = text.split("|");
+      return name || text;
+    }
+
+    function prettyAlarmDate(value) {
+      const date = String(value || "").replaceAll("-", "");
+      if (date.length !== 8) return value || "-";
+      return `${date.slice(0, 4)}.${date.slice(4, 6)}.${date.slice(6, 8)} (${weekday(date)})`;
+    }
+
+    async function deleteAlarm(alarmId) {
+      const { error } = await sb.from("alarms").delete().eq("id", alarmId);
+      if (error) throw error;
+    }
+
+    async function renderAlarmList() {
+      if (!els.alarmList) return;
+      els.alarmList.replaceChildren(node("div", "empty", "알람 내역을 확인하는 중입니다."));
+      const subscriptionId = localStorage.getItem("subscription_id");
+      if (!subscriptionId) {
+        els.alarmList.replaceChildren(node("div", "empty", "이 브라우저에 등록된 알람이 없습니다."));
+        return;
+      }
+      const { data, error } = await sb
+        .from("alarms")
+        .select("id, date, court_group, time_mode, time_hour")
+        .eq("subscription_id", subscriptionId)
+        .order("date", { ascending: true });
+      if (error) {
+        console.error(error);
+        els.alarmList.replaceChildren(node("div", "empty", "알람 내역을 불러오지 못했습니다."));
+        return;
+      }
+      const alarms = (data || []).filter(alarm => String(alarm.court_group || "").startsWith(`${CITY_LABELS[currentCity]}|`));
+      if (!alarms.length) {
+        els.alarmList.replaceChildren(node("div", "empty", "현재 지역에 등록된 알람이 없습니다."));
+        return;
+      }
+      els.alarmList.replaceChildren();
+      alarms.forEach(alarm => {
+        const item = node("article", "alarm-item");
+        item.appendChild(node("div", "alarm-date", prettyAlarmDate(alarm.date)));
+        item.appendChild(node("div", "alarm-court", stripCourtPrefix(alarm.court_group)));
+        item.appendChild(node("div", "alarm-condition", alarmConditionLabel(alarm.time_mode, alarm.time_hour)));
+        const del = node("button", "alarm-delete", "×");
+        del.type = "button";
+        del.title = "알람 삭제";
+        del.setAttribute("aria-label", `${stripCourtPrefix(alarm.court_group)} 알람 삭제`);
+        del.onclick = async () => {
+          try {
+            await deleteAlarm(alarm.id);
+            toast("알람을 삭제했습니다.");
+            renderAlarmList();
+          } catch (error) {
+            console.error(error);
+            toast("알람 삭제 실패: " + (error.message || error));
+          }
+        };
+        item.appendChild(del);
+        els.alarmList.appendChild(item);
+      });
+    }
+
+    function render() {
+      refreshHourOptions();
+      refreshCourtOptions();
+      renderCityControls();
+      const rows = collectRows();
+      const openRows = rows.filter(row => row.count > 0);
+      const slotCount = openRows.reduce((sum, row) => sum + row.count, 0);
+      els.pageTitle.textContent = `${CITY_LABELS[currentCity]} 코트 현황`;
+      els.summary.innerHTML = `<strong>${compactDate()} ${weekday()}요일</strong> 잔여 슬롯 ${slotCount}개 · 잔여 있는 코트 ${openRows.length}곳`;
+      els.boardTitle.textContent = `${compactDate()} ${weekday()}요일 시간표`;
+      els.boardSubtitle.textContent = "O는 해당 시간대에 예약 가능한 코트입니다.";
+      if (els.openCourtCount) els.openCourtCount.textContent = String(openRows.length);
+      if (els.openSlotCount) els.openSlotCount.textContent = String(slotCount);
+      renderCrawlStatus();
+      renderMatrix(rows);
+      renderMobileCards(rows);
+      renderQuick(rows);
+      renderAlarmList();
+    }
+
+    function setCity(city) {
+      currentCity = CITY_LABELS[city] ? city : "yongin";
+      els.courtFilter.value = "";
+      render();
+    }
+
+    function moveDate(delta) {
+      const base = els.dateFilter.value ? new Date(els.dateFilter.value) : new Date();
+      base.setDate(base.getDate() + delta);
+      els.dateFilter.value = toInputDate(base);
+      render();
+    }
+
+    function setFilterOpen(open) {
+      if (!els.filterToggle || !els.filterPanel) return;
+      els.filterToggle.classList.toggle("is-open", open);
+      els.filterPanel.classList.toggle("is-open", open);
+      els.filterToggle.setAttribute("aria-expanded", String(open));
+      els.filterToggle.textContent = open ? "필터 숨기기" : "필터 열기";
+    }
+
+    function formatUpdated(ts) {
+      if (!ts) return "업데이트 확인 중";
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return "업데이트 확인 중";
+      return `업데이트 ${d.toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" })}`;
+    }
+
+    async function loadData() {
+      try {
+        const { data, error } = await sb.rpc("get_public_data", { p_days_ahead: 45 });
+        if (error) throw error;
+        DATA = data || { facilities: {}, availability: {} };
+        els.updatedAt.textContent = formatUpdated(DATA.updated_at);
+        render();
+      } catch (error) {
+        console.error(error);
+        toast("데이터를 불러오지 못했습니다.");
+        els.summary.textContent = "데이터 로드 실패";
+        els.matrix.replaceChildren(node("div", "empty", "Supabase 데이터를 불러오지 못했습니다."));
+      }
+    }
+
+    function init() {
+      els.dateFilter.value = todayKst();
+      refreshHourOptions();
+      renderCityControls();
+      ["dateFilter","courtFilter","hourFilter","timeMode"].forEach(id => $(id).addEventListener("change", render));
+      els.filterToggle?.addEventListener("click", () => setFilterOpen(!els.filterPanel.classList.contains("is-open")));
+      els.slotPickerClose?.addEventListener("click", closeSlotPicker);
+      els.slotPicker?.addEventListener("click", event => {
+        if (event.target === els.slotPicker) closeSlotPicker();
+      });
+      els.citySelect.addEventListener("change", e => setCity(e.target.value));
+      $("prevDate").addEventListener("click", () => moveDate(-1));
+      $("nextDate").addEventListener("click", () => moveDate(1));
+      if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(error => console.error("SW register failed:", error));
+      loadData();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
 </body>
 </html>
