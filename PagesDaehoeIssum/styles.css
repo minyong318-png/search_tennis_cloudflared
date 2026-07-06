@@ -841,40 +841,40 @@ body[data-view="list"] .calendar-panel { display: none; }
   }
   .filters {
     display: flex;
-    gap: 6px;
-    padding: 10px 10px 9px;
+    gap: 5px;
+    padding: 8px 10px 7px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
   }
   .filters::-webkit-scrollbar { display: none; }
   .filters label {
-    min-width: 118px;
-    min-height: 38px;
+    min-width: 108px;
+    min-height: 34px;
     flex: 0 0 auto;
-    grid-template-columns: 18px 1fr;
-    padding: 5px 8px;
+    grid-template-columns: 16px 1fr;
+    padding: 4px 7px;
     border-radius: 999px;
     background: #fbfcfd;
   }
   .filter-icon {
-    font-size: 14px;
+    font-size: 13px;
   }
   .filters small {
-    font-size: 10px;
+    font-size: 9px;
   }
   .filters select,
   .filters input {
-    font-size: 12px;
-    line-height: 1.15;
+    font-size: 11px;
+    line-height: 1.1;
   }
   .reset-btn {
-    min-width: 96px;
-    min-height: 38px;
+    min-width: 86px;
+    min-height: 34px;
     flex: 0 0 auto;
-    padding: 0 12px;
+    padding: 0 10px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 11px;
   }
   .recommend-panel {
     display: block;
@@ -1104,9 +1104,9 @@ body[data-view="list"] .calendar-panel { display: none; }
     font-size: 22px;
   }
   #monthSelect { width: 58px; }
-  .filters label { min-width: 112px; }
-  .filters .search-field { min-width: 156px; }
-  .filters .week-field { min-width: 120px; }
+  .filters label { min-width: 104px; }
+  .filters .search-field { min-width: 140px; }
+  .filters .week-field { min-width: 108px; }
   .recommend-item { width: 232px; }
   .tournament-card {
     grid-template-columns: 54px minmax(0, 1fr) 24px;
