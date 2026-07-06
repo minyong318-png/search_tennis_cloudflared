@@ -50,21 +50,18 @@ function pickWorkflowId(target) {
   if (target === "hanam") return "crawl_hanam.yml";
   if (target === "uiwang") return "crawl_uiwang.yml";
   if (target === "incheon") return "crawl_incheon.yml";
-  if (target === "anseong") return "crawl_anseong.yml";
-  if (target === "uijeongbu") return "crawl_uijeongbu.yml";
-  if (target === "yangpyeong") return "crawl_yangpyeong.yml";
   return "crawl_all.yml";
 }
 
 function normalizeTarget(v) {
   v = String(v || "").toLowerCase().trim();
-  if (v === "yongin" || v === "goyang" || v === "suwon" || v === "seongnam" || v === "anyang" || v === "paju" || v === "hanam" || v === "uiwang" || v === "incheon" || v === "anseong" || v === "uijeongbu" || v === "yangpyeong" || v === "all") return v;
+  if (v === "yongin" || v === "goyang" || v === "suwon" || v === "seongnam" || v === "anyang" || v === "paju" || v === "hanam" || v === "uiwang" || v === "incheon" || v === "all") return v;
   return "all";
 }
 
 function triggerTarget(pathname, queryTarget) {
   if (pathname === "/trigger") return normalizeTarget(queryTarget || "all");
-  const match = pathname.match(/^\/trigger\/(yongin|goyang|suwon|seongnam|anyang|paju|hanam|uiwang|incheon|anseong|uijeongbu|yangpyeong|all)$/);
+  const match = pathname.match(/^\/trigger\/(yongin|goyang|suwon|seongnam|anyang|paju|hanam|uiwang|incheon|all)$/);
   return match ? match[1] : "";
 }
 

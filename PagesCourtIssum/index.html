@@ -192,7 +192,7 @@
     <div class="topbar-inner">
       <a class="brand" href="./"><span class="ball"></span><span>코트있음?</span><span class="tagline">공공 테니스 코트 잔여 현황</span></a>
       <nav class="product-tabs" aria-label="서비스 전환">
-        <a class="product-tab" href="https://daehoe-isseum.pages.dev/"><span class="ball mini"></span>대회있음?</a>
+        <a class="product-tab" href="/daehoe/"><span class="ball mini"></span>대회있음?</a>
         <a class="product-tab is-active" href="./">코트있음?</a>
       </nav>
     </div>
@@ -283,9 +283,6 @@
       seongnam: "성남",
       anyang: "안양",
       paju: "파주",
-      anseong: "안성",
-      uijeongbu: "의정부",
-      yangpyeong: "양평",
       hanam: "하남",
       uiwang: "의왕",
       incheon: "인천"
@@ -544,6 +541,7 @@
       if (currentCity === "goyang") return t.replace(/고양\s*(특례시)?\s*테니스협회/g, "").replace(/^고양\s+/, "").replace(/\s*\d+\s*코트\s*$/, "").replace(/\s*테니스장\s*$/, "").replace(/\s*코트\s*$/, "").replace(/\s+/g, " ").trim() || t;
       if (currentCity === "seongnam") return t.replace(/\s*\([^)]*\)/g, "").replace(/\s*당일예약\s*/g, " ").replace(/\s*반쪽\s*코트.*$/, "").replace(/\s*\d+\s*번?\s*코트.*$/, "").replace(/\s*테니스장\s*$/, "").trim() || t;
       if (currentCity === "uiwang" && /청계체육공원/.test(t)) return "청계체육공원";
+      if (currentCity === "hanam") return t.replace(/^하남국민체육센터\s*/, "").replace(/\s*\d+\s*(?:코트|면)\s*$/, "").trim() || t;
       if (currentCity === "anyang" || currentCity === "paju") return t.replace(/\s*\d+\s*코트\s*$/, "").replace(/\s*테니스장\s*$/, "").trim() || t;
       return t
         .replace(/[_-]?\s*\d{1,2}월.*$/i, "")
@@ -565,7 +563,7 @@
         const cheonggye = text.match(/(\d+)\s*번?.*코트/);
         if (cheonggye) return `${Number(cheonggye[1])}코트`;
       }
-      const numbered = text.match(/(\d+)[\s.·_-]*(?:번)?\s*코트/);
+      const numbered = text.match(/(\d+)[\s.·_-]*(?:번)?\s*(?:코트|면)/);
       if (numbered) return `${Number(numbered[1])}코트`;
       if (/장애인\s*코트/.test(text)) return "장애인코트";
       const lettered = text.match(/([A-Z])[\s.·_-]*(?:번)?\s*코트/i);
