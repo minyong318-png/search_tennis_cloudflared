@@ -730,14 +730,14 @@ body[data-view="list"] .calendar-panel { display: none; }
     grid-template-columns: 1fr auto;
     align-items: center;
     gap: 10px;
-    padding: 12px 14px 10px;
+    padding: 9px 10px 8px;
   }
   .brand { gap: 8px; }
   .brand-ball { width: 28px; height: 28px; }
-  .brand strong { font-size: 23px; }
+  .brand strong { font-size: 21px; }
   .brand em, .nav-actions { display: none; }
   .product-tabs {
-    height: 36px;
+    height: 33px;
     display: inline-grid;
     grid-template-columns: 1fr 1fr;
     grid-column: 1 / -1;
@@ -748,11 +748,11 @@ body[data-view="list"] .calendar-panel { display: none; }
     background: #fff;
   }
   .product-tab {
-    height: 26px;
+    height: 24px;
     justify-content: center;
     border: 0;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
   }
   .product-tab.is-active {
     background: var(--green);
@@ -761,7 +761,7 @@ body[data-view="list"] .calendar-panel { display: none; }
   .product-tab.is-active .brand-ball.mini {
     border-color: #fff;
   }
-  .tab-icon, .app-icon { width: 18px; height: 18px; font-size: 12px; }
+  .tab-icon, .app-icon { width: 16px; height: 16px; font-size: 11px; }
   .app-shell {
     width: 100%;
     margin: 0;
@@ -782,7 +782,7 @@ body[data-view="list"] .calendar-panel { display: none; }
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 16px 14px 12px;
+    padding: 13px 12px 10px;
   }
   .month-picker {
     display: grid;
@@ -790,17 +790,17 @@ body[data-view="list"] .calendar-panel { display: none; }
     gap: 8px;
   }
   #yearSelect, #monthSelect {
-    font-size: 28px;
+    font-size: 23px;
     min-width: 0;
   }
   #yearSelect { width: 100%; }
   #monthSelect { width: 68px; }
   .icon-btn, .today-btn {
     min-width: 0;
-    height: 40px;
+    height: 36px;
     border-radius: 9px;
   }
-  .icon-btn { font-size: 25px; }
+  .icon-btn { font-size: 21px; }
   .today-btn {
     justify-content: center;
     padding: 0;
@@ -820,7 +820,7 @@ body[data-view="list"] .calendar-panel { display: none; }
   }
   .tab {
     height: 38px;
-    font-size: 15px;
+    font-size: 13px;
   }
   .court-switch {
     grid-template-columns: 1fr auto;
@@ -841,39 +841,40 @@ body[data-view="list"] .calendar-panel { display: none; }
   }
   .filters {
     display: flex;
-    gap: 8px;
-    padding: 14px 14px 12px;
+    gap: 6px;
+    padding: 10px 10px 9px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
   }
   .filters::-webkit-scrollbar { display: none; }
   .filters label {
-    min-width: 142px;
-    min-height: 48px;
+    min-width: 118px;
+    min-height: 38px;
     flex: 0 0 auto;
-    grid-template-columns: 22px 1fr;
-    padding: 7px 10px;
+    grid-template-columns: 18px 1fr;
+    padding: 5px 8px;
     border-radius: 999px;
     background: #fbfcfd;
   }
   .filter-icon {
-    font-size: 18px;
+    font-size: 14px;
   }
   .filters small {
-    font-size: 11px;
+    font-size: 10px;
   }
   .filters select,
   .filters input {
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.15;
   }
   .reset-btn {
-    min-width: 116px;
-    min-height: 48px;
+    min-width: 96px;
+    min-height: 38px;
     flex: 0 0 auto;
     padding: 0 12px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 12px;
   }
   .recommend-panel {
     display: block;
@@ -971,12 +972,12 @@ body[data-view="list"] .calendar-panel { display: none; }
     backdrop-filter: none;
   }
   .list-head h2 {
-    font-size: 17px;
+    font-size: 15px;
   }
   .list-head select {
-    max-width: 134px;
-    height: 34px;
-    font-size: 12px;
+    max-width: 122px;
+    height: 30px;
+    font-size: 11px;
   }
   .calendar-weekday-row {
     display: grid;
@@ -1100,11 +1101,12 @@ body[data-view="list"] .calendar-panel { display: none; }
     grid-template-columns: minmax(0, 1fr) 58px 38px 38px 52px;
   }
   #yearSelect, #monthSelect {
-    font-size: 25px;
+    font-size: 22px;
   }
   #monthSelect { width: 58px; }
-  .filters label { min-width: 132px; }
-  .filters .week-field { min-width: 150px; }
+  .filters label { min-width: 112px; }
+  .filters .search-field { min-width: 156px; }
+  .filters .week-field { min-width: 120px; }
   .recommend-item { width: 232px; }
   .tournament-card {
     grid-template-columns: 54px minmax(0, 1fr) 24px;
