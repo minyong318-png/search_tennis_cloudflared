@@ -1,0 +1,134 @@
+body {
+  margin: 0;
+  background: #f6f8f4;
+  color: #111827;
+  font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+}
+
+a {
+  color: #14743f;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 28px;
+  border-bottom: 1px solid #e1e8dc;
+  background: rgba(255, 255, 255, .96);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  color: #0d3f22;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.site-header nav,
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.site-header nav a,
+.site-footer nav a {
+  color: #314238;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.content-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 56px 20px 42px;
+}
+
+.content-page h1 {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 38px;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+
+.content-page h2 {
+  margin: 34px 0 10px;
+  color: #17211b;
+  font-size: 24px;
+}
+
+.content-page p,
+.content-page li {
+  color: #4b5563;
+  font-size: 17px;
+  line-height: 1.78;
+}
+
+.content-page ul,
+.content-page ol {
+  padding-left: 22px;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid #cfe1c8;
+  border-radius: 999px;
+  background: #f2f8ee;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.site-footer {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 20px 44px;
+  border-top: 1px solid #e1e8dc;
+  color: #667085;
+}
+
+.site-footer p {
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 16px;
+  }
+
+  .brand {
+    font-size: 22px;
+  }
+
+  .content-page {
+    padding: 34px 16px 30px;
+  }
+
+  .content-page h1 {
+    font-size: 29px;
+  }
+
+  .content-page h2 {
+    font-size: 21px;
+  }
+
+  .content-page p,
+  .content-page li {
+    font-size: 15px;
+  }
+}

@@ -3,8 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>코트있음? | 공공 테니스 코트 잔여 현황</title>
-  <meta name="description" content="공공 테니스장 잔여 예약 시간을 도시별로 빠르게 확인합니다.">
+  <title>코트있음? | 공공 테니스장 예약 가이드와 잔여 코트 현황</title>
+  <meta name="description" content="용인, 고양, 수원, 성남, 안양, 파주, 하남, 의왕 공공 테니스장의 잔여 코트와 예약 방법을 함께 정리하는 테니스장 예약 도움 사이트입니다.">
+  <link rel="canonical" href="https://courtissum.pages.dev/">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#14743f">
+  <meta property="og:site_name" content="코트있음?">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="코트있음? | 공공 테니스장 예약 가이드와 잔여 코트 현황">
+  <meta property="og:description" content="공공 테니스장 예약 전 잔여 코트, 지역별 예약처, 갱신 주기와 이용 방법을 한눈에 확인하세요.">
+  <meta property="og:url" content="https://courtissum.pages.dev/">
+  <meta property="og:image" content="https://courtissum.pages.dev/static/og-image.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "코트있음?",
+    "url": "https://courtissum.pages.dev/",
+    "description": "공공 테니스장 예약을 돕기 위해 잔여 코트 현황과 예약 가이드를 제공하는 사이트",
+    "publisher": {
+      "@type": "Organization",
+      "name": "코트있음?"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://courtissum.pages.dev/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -52,7 +81,7 @@
     .nav-month{display:flex;gap:8px}
     .icon-btn{width:48px;height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-size:24px;font-weight:700}
     .icon-btn:hover{border-color:var(--green);color:var(--green)}
-    .summary{display:none;margin-top:12px;color:var(--muted);font-size:18px;font-weight:700}
+    .summary{display:block;margin-top:12px;color:var(--muted);font-size:18px;font-weight:700}
     .summary strong{color:#111827}
     .filter-toggle{display:none}
     .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;padding:20px 26px;border-bottom:1px solid var(--line)}
@@ -165,6 +194,19 @@
     .slot-choice small{color:var(--muted);font-size:12px;font-weight:850}
     .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100vw - 32px);padding:13px 16px;border-radius:12px;background:#111827;color:#fff;font-size:13px;font-weight:800;box-shadow:0 16px 36px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:.18s;z-index:20}
     .toast.show{opacity:1;bottom:30px}
+    .content-guide{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
+    .content-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:22px;box-shadow:0 10px 28px rgba(17,24,39,.05)}
+    .content-card h2,.content-card h3{margin:0 0 10px;letter-spacing:-.025em}
+    .content-card h2{font-size:24px}.content-card h3{font-size:18px}
+    .content-card p,.content-card li{color:#4b5563;font-size:15px;line-height:1.72;font-weight:650}
+    .content-card ul,.content-card ol{margin:10px 0 0;padding-left:20px}
+    .content-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .content-links a{display:inline-flex;align-items:center;min-height:34px;padding:7px 11px;border:1px solid #cfe1c8;border-radius:999px;background:#f7fbf4;color:#135d34;text-decoration:none;font-size:13px;font-weight:900}
+    .site-footer{max-width:1480px;margin:22px auto 0;padding:22px 24px 34px;color:#667085}
+    .footer-links{display:flex;flex-wrap:wrap;gap:10px 16px;margin-bottom:10px}
+    .footer-links a{color:#314238;text-decoration:none;font-weight:850;font-size:13px}
+    .footer-note{font-size:12px;line-height:1.6}
+    .sr-fallback{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;margin:12px 0;color:#334155}
     @media (max-width:900px){
       .topbar{height:auto}.topbar-inner{grid-template-columns:1fr auto;align-items:center;padding:9px 10px 8px;gap:10px}.brand{gap:8px}.brand-ball{width:28px;height:28px}.brand strong{font-size:21px}.brand em,.tagline{display:none}.ball{width:28px;height:28px}.ball:before,.ball:after{top:3px;bottom:3px}.ball:before{left:8px}.ball:after{right:8px}.product-tabs{height:33px;display:inline-grid;grid-template-columns:1fr 1fr;grid-column:1 / -1;width:100%;gap:6px;padding:4px;border:1px solid var(--line);border-radius:10px;background:#fff}.product-tab{height:24px;min-height:0;justify-content:center;border:0;border-radius:7px;padding:0 8px;font-size:12px}.product-tab.is-active{background:var(--green);color:#fff}.app-icon{width:16px;height:16px}.mini{width:15px;height:15px}
       .page{padding:8px}.shell{border-radius:12px}.hero{padding:13px 14px}.title-row{gap:8px}h1{font-size:24px;line-height:1.12}.nav-month{gap:6px}.icon-btn{width:38px;height:36px;border-radius:8px;font-size:19px}.summary{margin-top:8px;font-size:13px}
@@ -186,6 +228,7 @@
       .details{padding:10px}.details-head h2{font-size:16px}.court-item{grid-template-columns:1fr;padding:11px 12px;gap:9px}.court-count{text-align:left}
       .alarm-item{grid-template-columns:1fr 34px;gap:6px;padding:10px 11px}.alarm-date,.alarm-court,.alarm-condition{grid-column:1;font-size:12px}.alarm-condition{justify-self:start;padding:5px 8px;font-size:11px}.alarm-delete{grid-column:2;grid-row:1 / span 3;width:30px;height:30px}
       .slot-picker{padding:10px}.slot-sheet{border-radius:15px}.slot-sheet-head{padding:13px}.slot-sheet-head strong{font-size:16px}.slot-picker-close{width:30px;height:30px;font-size:18px}.slot-choice-list{gap:6px;padding:11px}.slot-choice{min-height:42px;padding:9px 11px;font-size:13px}
+      .content-guide{grid-template-columns:1fr;margin-top:10px}.content-card{padding:15px;border-radius:12px}.content-card h2{font-size:19px}.content-card h3{font-size:16px}.content-card p,.content-card li{font-size:13px}.site-footer{padding:18px 14px 28px;margin-top:12px}
     }
     @media (max-width:420px){
       .page{padding:6px}.hero{padding:12px}.mobile-time-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -196,13 +239,22 @@
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="./" aria-label="코트있음 홈"><span class="brand-ball" aria-hidden="true"></span><strong>코트있음?</strong><em>공공 테니스 코트 잔여 현황</em></a>
+      <a class="brand" href="/" aria-label="코트있음 홈"><span class="brand-ball" aria-hidden="true"></span><strong>코트있음?</strong><em>공공 테니스장 예약 가이드</em></a>
       <nav class="product-tabs" aria-label="서비스 전환">
         <a class="product-tab" href="/daehoe/"><span class="app-icon daehoe-icon" aria-hidden="true"></span>대회있음?</a>
-        <a class="product-tab is-active" href="./"><span class="app-icon court-icon" aria-hidden="true"></span>코트있음?</a>
+        <a class="product-tab is-active" href="/"><span class="app-icon court-icon" aria-hidden="true"></span>코트있음?</a>
       </nav>
     </div>
   </header>
+  <noscript>
+    <div class="page">
+      <section class="sr-fallback">
+        <h1>코트있음? 공공 테니스장 예약 안내</h1>
+        <p>코트있음?은 용인, 고양, 수원, 성남, 안양, 파주, 하남, 의왕의 공공 테니스장 예약 현황을 확인하기 쉽게 정리하는 콘텐츠와 도구 사이트입니다. JavaScript를 켜면 날짜별 잔여 코트 시간표와 공식 예약처 이동 링크를 사용할 수 있습니다.</p>
+        <p>잔여 코트 정보는 각 공식 예약처의 공개 화면과 수집 가능한 데이터를 바탕으로 갱신되며, 실제 예약 가능 여부와 결제 조건은 반드시 공식 예약처에서 최종 확인해야 합니다.</p>
+      </section>
+    </div>
+  </noscript>
 
   <main class="page">
     <section class="shell">
@@ -211,7 +263,7 @@
           <div class="title-row">
             <h1 id="pageTitle">용인 코트 현황</h1>
           </div>
-          <div class="summary" id="summary">데이터를 불러오는 중입니다.</div>
+          <div class="summary" id="summary">오늘의 잔여 코트는 아래 시간표에서 확인하세요. 용인, 고양, 수원, 성남, 안양, 파주, 하남, 의왕 공공 테니스장 예약 정보를 제공합니다.</div>
         </div>
       </div>
 
@@ -262,7 +314,41 @@
       </div>
 
     </section>
+    <section class="content-guide" aria-label="공공 테니스장 예약 안내">
+      <article class="content-card">
+        <h2>공공 테니스장 예약을 한 번에 비교하기 위한 안내 사이트</h2>
+        <p>코트있음?은 여러 시·구의 공공 테니스장 예약 페이지를 매번 따로 열어보지 않아도, 오늘과 가까운 날짜의 잔여 코트 흐름을 먼저 확인할 수 있도록 만든 예약 보조 사이트입니다. 사용자는 지역과 날짜를 선택한 뒤 시간표에서 예약 가능한 시간대를 확인하고, 실제 예약은 각 지자체 또는 시설공단의 공식 예약 사이트에서 진행합니다.</p>
+        <p>현재 수집 지역은 용인, 고양, 수원, 성남, 안양, 파주, 하남, 의왕입니다. 지역별로 운영 주체, 예약 시작 시간, 결제 방식, 무료·유료 코트 여부가 다르기 때문에 코트있음?은 잔여 현황과 함께 공식 예약처 확인을 권장합니다.</p>
+        <div class="content-links">
+          <a href="/guide/tennis-reservation/">예약 방법 보기</a>
+          <a href="/courts/yongin/">용인 코트 안내</a>
+          <a href="/courts/seongnam/">성남 코트 안내</a>
+          <a href="/data-source/">데이터 출처와 한계</a>
+        </div>
+      </article>
+      <aside class="content-card">
+        <h3>데이터 갱신과 오늘의 잔여 코트 요약</h3>
+        <ul>
+          <li>잔여 코트는 도시별 크롤러와 공개 예약 화면을 기준으로 주기적으로 갱신합니다.</li>
+          <li>초록색 O 표시는 해당 시간대에 예약 가능한 코트가 있음을 뜻합니다.</li>
+          <li>즐겨찾기 코트는 잔여 코트가 있을 때 우선 표시되며, 잔여가 없으면 아래로 정렬됩니다.</li>
+          <li>공식 예약처의 점검, 로그인 만료, CAPTCHA, 네트워크 지연이 있으면 실제 현황과 차이가 생길 수 있습니다.</li>
+        </ul>
+      </aside>
+    </section>
   </main>
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="하단 메뉴">
+      <a href="/">코트 현황</a>
+      <a href="/guide/tennis-reservation/">이용 가이드</a>
+      <a href="/courts/">코트 목록</a>
+      <a href="/data-source/">데이터 출처</a>
+      <a href="/contact/">문의</a>
+      <a href="/privacy/">개인정보처리방침</a>
+      <a href="/terms/">이용약관</a>
+    </nav>
+    <div class="footer-note">코트있음?은 공공 테니스장 예약을 돕는 비공식 정보 제공 사이트입니다. 잔여 코트 정보는 참고용이며 실제 예약 가능 여부, 요금, 환불, 이용 조건은 공식 예약처 기준으로 확인해야 합니다.</div>
+  </footer>
   <div id="toast" class="toast"></div>
   <div id="slotPicker" class="slot-picker" aria-hidden="true">
     <div class="slot-sheet" role="dialog" aria-modal="true" aria-labelledby="slotPickerTitle">
