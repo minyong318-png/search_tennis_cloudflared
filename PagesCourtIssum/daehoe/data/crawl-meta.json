@@ -1,10 +1,10 @@
 {
   "sourceName": "TennisTown App 수집",
   "sourceUrl": "multiple",
-  "startedAt": "2026-07-07T14:50:10.904Z",
-  "finishedAt": "2026-07-07T14:54:39.397Z",
-  "listCount": 222,
-  "detailCount": 528,
+  "startedAt": "2026-07-07T23:34:46.821Z",
+  "finishedAt": "2026-07-07T23:35:05.081Z",
+  "listCount": 1075,
+  "detailCount": 1385,
   "errorCount": 0,
   "sources": [
     {
@@ -12,9 +12,9 @@
       "sourceType": "TENNISTOWN_APP",
       "sourceUrl": "https://app.momjit.com/competition/list/v3",
       "status": "success",
-      "startedAt": "2026-07-07T14:50:10.905Z",
-      "finishedAt": "2026-07-07T14:54:39.354Z",
-      "detailCount": 222,
+      "startedAt": "2026-07-07T23:34:46.823Z",
+      "finishedAt": "2026-07-07T23:35:04.961Z",
+      "detailCount": 1075,
       "errorMessage": null
     }
   ]

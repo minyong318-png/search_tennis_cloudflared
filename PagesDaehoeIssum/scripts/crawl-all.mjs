@@ -14,10 +14,11 @@ import {
 
 const OUT_DIR = new URL("../data/", import.meta.url);
 const GEMINI_QUEUE_FILE = new URL("../../.daehoe-gemini-extract-queue.jsonl", import.meta.url);
+const TENNISTOWN_APP_CHECKPOINT_FILE = new URL("tennistown-app-checkpoint.json", OUT_DIR);
 const USER_AGENT = "daehoe-isseum-crawler/0.2 (+https://daehoe-isseum.pages.dev/)";
 const REQUEST_DELAY_MS = Number(process.env.DAEHOE_REQUEST_DELAY_MS || 900);
 const KATO_DETAIL_LIMIT = Number(process.env.DAEHOE_KATO_DETAIL_LIMIT || 40);
-const TENNISTOWN_LIMIT = Number(process.env.DAEHOE_TENNISTOWN_LIMIT || 500);
+const TENNISTOWN_LIMIT = Number(process.env.DAEHOE_TENNISTOWN_LIMIT || 5000);
 const TENNISTOWN_DETAIL_LIMIT = Number(process.env.DAEHOE_TENNISTOWN_DETAIL_LIMIT || TENNISTOWN_LIMIT);
 const TENNISTOWN_APP_MONTHS = (process.env.DAEHOE_TENNISTOWN_APP_MONTHS || "1,2,3,4,5,6,7,8,9,10,11,12")
   .split(",")
@@ -31,6 +32,8 @@ const TENNISTOWN_ADB_PATH = process.env.DAEHOE_TENNISTOWN_ADB_PATH || ".tools\\a
 const TENNISTOWN_ADB_SERIAL = process.env.DAEHOE_TENNISTOWN_ADB_SERIAL || "";
 const TENNISTOWN_ADB_YEAR = Number(process.env.DAEHOE_TENNISTOWN_ADB_YEAR || 2026);
 const TENNISTOWN_ADB_MAX_SWIPES = Number(process.env.DAEHOE_TENNISTOWN_ADB_MAX_SWIPES || 25);
+const TENNISTOWN_ADB_RESUME = process.env.DAEHOE_TENNISTOWN_ADB_RESUME !== "0";
+const TENNISTOWN_ADB_RESET_CHECKPOINT = process.env.DAEHOE_TENNISTOWN_ADB_RESET_CHECKPOINT === "1";
 const SOURCE_TYPE_FILTER = new Set((process.env.DAEHOE_SOURCE_TYPES || "")
   .split(",")
   .map((value) => value.trim())
@@ -181,6 +184,35 @@ async function readExistingTournaments() {
   }
 }
 
+async function readTennisTownAppCheckpoint() {
+  if (TENNISTOWN_ADB_RESET_CHECKPOINT) {
+    return emptyTennisTownAppCheckpoint();
+  }
+  try {
+    const checkpoint = JSON.parse(await fs.readFile(TENNISTOWN_APP_CHECKPOINT_FILE, "utf8"));
+    if (checkpoint?.year !== TENNISTOWN_ADB_YEAR) return emptyTennisTownAppCheckpoint();
+    if (!checkpoint.months || typeof checkpoint.months !== "object") checkpoint.months = {};
+    return checkpoint;
+  } catch {
+    return emptyTennisTownAppCheckpoint();
+  }
+}
+
+function emptyTennisTownAppCheckpoint() {
+  return {
+    year: TENNISTOWN_ADB_YEAR,
+    createdAt: new Date().toISOString(),
+    months: {}
+  };
+}
+
+async function writeTennisTownAppCheckpoint(checkpoint) {
+  checkpoint.year = TENNISTOWN_ADB_YEAR;
+  checkpoint.updatedAt = new Date().toISOString();
+  await fs.mkdir(OUT_DIR, { recursive: true });
+  await fs.writeFile(TENNISTOWN_APP_CHECKPOINT_FILE, `${JSON.stringify(checkpoint, null, 2)}\n`, "utf8");
+}
+
 async function processQueueOnly(startedAt) {
   await fs.mkdir(OUT_DIR, { recursive: true });
   const tournaments = JSON.parse(await fs.readFile(new URL("tournaments.json", OUT_DIR), "utf8"));
@@ -247,13 +279,16 @@ function findMatchingTournament(lookup, tournament) {
 }
 
 function tournamentMatchKeys(tournament) {
-  return uniqueTexts([
+  const keys = [
     tournament.duplicateKey && `duplicate:${tournament.duplicateKey}`,
     tournament.sourceUrl && `url:${tournament.sourceUrl}`,
     tournament.sourceType && tournament.sourceId && `source:${tournament.sourceType}:${tournament.sourceId}`,
-    tournament.sourceName && tournament.sourceId && `name-source:${tournament.sourceName}:${tournament.sourceId}`,
-    tournament.titleNormalized && tournament.startDate && `title-date:${tournament.titleNormalized}:${tournament.startDate}`
-  ]);
+    tournament.sourceName && tournament.sourceId && `name-source:${tournament.sourceName}:${tournament.sourceId}`
+  ];
+  if (tournament.sourceType !== "TENNISTOWN_APP") {
+    keys.push(tournament.titleNormalized && tournament.startDate && `title-date:${tournament.titleNormalized}:${tournament.startDate}`);
+  }
+  return uniqueTexts(keys);
 }
 
 function existingIdentity(tournament) {
@@ -695,6 +730,9 @@ async function crawlTennisTownApp(source) {
     for (const item of flattenTennisTownAppSections(data.section_list || [])) {
       const titleRaw = cleanText(item.comp_name || item.part_name || item.title || "");
       if (!titleRaw) continue;
+      const divisionName = tennisTownAppDivisionName(item);
+      const dateText = item.start_date || item.comp_start_date || item.part_date || titleRaw;
+      const venueName = item.ground_name || item.place_name || item.location || item.ground_region_name;
       const sourceId = `tennistown-app-${item.comp_part_date_id || item.id || item.comp_id || hashShort(JSON.stringify(item))}`;
       if (seen.has(sourceId)) continue;
       seen.add(sourceId);
@@ -703,16 +741,17 @@ async function crawlTennisTownApp(source) {
         sourceId,
         sourceUrl: `https://app.momjit.com/competition/list/v3#${encodeURIComponent(sourceId)}`,
         titleRaw,
-        dateText: item.start_date || item.comp_start_date || item.part_date || titleRaw,
+        dateText,
         status: tennisTownAppStatus(item.part_status),
         registrationStatus: tennisTownAppStatus(item.part_status),
         tournamentScope: "사설",
         tournamentType: inferTournamentType(titleRaw),
         organizer: "테니스타운",
-        venueName: item.ground_name || item.place_name || item.location || item.ground_region_name,
+        venueName,
+        duplicateKey: tennisTownDuplicateKey({ titleRaw, dateText, venueName, divisionName }),
         applicationMethodText: "테니스타운 앱 확인",
         divisions: [{
-          divisionName: tennisTownAppDivisionName(item),
+          divisionName,
           playDate: item.start_date || item.part_date,
           applicationUrl: "https://play.google.com/store/apps/details?id=com.momzit.tennistown"
         }].filter((division) => division.divisionName || division.playDate)
@@ -725,6 +764,7 @@ async function crawlTennisTownApp(source) {
 }
 
 async function crawlTennisTownAppWithAdb(source) {
+  const checkpoint = await readTennisTownAppCheckpoint();
   await adb("devices");
   await wakeAndUnlockTennisTownDevice();
   await adb("shell", "am", "force-stop", "com.momzit.tennistown");
@@ -744,8 +784,46 @@ async function crawlTennisTownAppWithAdb(source) {
   const tournaments = [];
   const seen = new Set();
   for (const month of TENNISTOWN_APP_MONTHS) {
+    const monthKey = String(month);
+    const cachedMonth = checkpoint.months?.[monthKey];
+    const canReuseMonth = TENNISTOWN_ADB_RESUME &&
+      cachedMonth?.status === "complete" &&
+      cachedMonth.year === TENNISTOWN_ADB_YEAR &&
+      Array.isArray(cachedMonth.tournaments);
+    if (canReuseMonth) {
+      for (const tournament of cachedMonth.tournaments) {
+        if (seen.has(tournament.sourceId)) continue;
+        seen.add(tournament.sourceId);
+        tournaments.push(normalizeTennisTownCachedTournament(tournament));
+        if (tournaments.length >= TENNISTOWN_LIMIT) return tournaments;
+      }
+      console.log(`[daehoe][tennistown-app] month ${month} reused ${cachedMonth.tournaments.length} checkpoint tournaments`);
+      continue;
+    }
+    console.log(`[daehoe][tennistown-app] month ${month} crawl started`);
+    checkpoint.months[monthKey] = {
+      ...(checkpoint.months[monthKey] || {}),
+      year: TENNISTOWN_ADB_YEAR,
+      status: "in_progress",
+      startedAt: new Date().toISOString(),
+      partialItems: checkpoint.months[monthKey]?.partialItems || [],
+      tournaments: checkpoint.months[monthKey]?.tournaments || []
+    };
+    await writeTennisTownAppCheckpoint(checkpoint);
+    const beforeMonthCount = tournaments.length;
     await moveTennisTownMonth(month);
-    const items = await scrapeVisibleTennisTownMonth(month);
+    const items = await scrapeVisibleTennisTownMonth(month, async (partialItems, progress) => {
+      checkpoint.months[monthKey] = {
+        ...checkpoint.months[monthKey],
+        year: TENNISTOWN_ADB_YEAR,
+        status: "in_progress",
+        updatedAt: new Date().toISOString(),
+        swipe: progress.swipe,
+        partialItemCount: partialItems.length,
+        partialItems
+      };
+      await writeTennisTownAppCheckpoint(checkpoint);
+    });
     for (const item of items) {
       const dateText = `${TENNISTOWN_ADB_YEAR}-${String(month).padStart(2, "0")}-${String(item.day).padStart(2, "0")}`;
       const sourceId = `tennistown-adb-${TENNISTOWN_ADB_YEAR}-${month}-${item.day}-${hashShort(`${item.titleRaw}|${item.divisionName}|${item.venueName}`)}`;
@@ -768,6 +846,12 @@ async function crawlTennisTownAppWithAdb(source) {
         organizer: "테니스타운",
         venueName: item.venueName,
         applicationMethodText: "테니스타운 앱에서 확인",
+        duplicateKey: tennisTownDuplicateKey({
+          titleRaw: item.titleRaw,
+          dateText,
+          venueName: item.venueName,
+          divisionName: item.divisionName
+        }),
         divisions: [{
           divisionName: item.divisionName,
           playDate: dateText,
@@ -777,8 +861,22 @@ async function crawlTennisTownAppWithAdb(source) {
           applicationUrl: "https://play.google.com/store/apps/details?id=com.momzit.tennistown"
         }]
       }));
-      if (tournaments.length >= TENNISTOWN_LIMIT) return tournaments;
+      if (tournaments.length >= TENNISTOWN_LIMIT) break;
     }
+    const monthTournaments = tournaments.slice(beforeMonthCount);
+    checkpoint.months[monthKey] = {
+      ...checkpoint.months[monthKey],
+      year: TENNISTOWN_ADB_YEAR,
+      status: "complete",
+      completedAt: new Date().toISOString(),
+      itemCount: items.length,
+      tournamentCount: monthTournaments.length,
+      partialItems: items,
+      tournaments: monthTournaments
+    };
+    await writeTennisTownAppCheckpoint(checkpoint);
+    console.log(`[daehoe][tennistown-app] month ${month} saved ${monthTournaments.length} tournaments`);
+    if (tournaments.length >= TENNISTOWN_LIMIT) return tournaments;
   }
   return tournaments;
 }
@@ -801,7 +899,7 @@ async function moveTennisTownMonth(targetMonth) {
   throw new Error(`TennisTown ADB crawler could not move to month ${targetMonth}`);
 }
 
-async function scrapeVisibleTennisTownMonth(month) {
+async function scrapeVisibleTennisTownMonth(month, onProgress = null) {
   const items = [];
   const seen = new Set();
   const dumpKeys = new Set();
@@ -822,6 +920,7 @@ async function scrapeVisibleTennisTownMonth(month) {
       seen.add(key);
       items.push(item);
     }
+    if (onProgress) await onProgress([...items], { swipe });
     await adb("shell", "input", "swipe", "540", "1700", "540", "650", "500");
     await delay(1200);
   }
@@ -894,9 +993,25 @@ function readVisibleMonth(values) {
 }
 
 async function dumpTennisTownUiValues() {
-  await adb("shell", "timeout", "12", "uiautomator", "dump", "/sdcard/tt-window.xml");
-  const { stdout } = await adb("exec-out", "cat", "/sdcard/tt-window.xml");
-  return decodeUiXmlValues(stdout);
+  let dumpError = null;
+  try {
+    await adb("shell", "timeout", "12", "uiautomator", "dump", "/sdcard/tt-window.xml");
+  } catch (error) {
+    dumpError = error;
+  }
+
+  try {
+    const { stdout } = await adb("exec-out", "cat", "/sdcard/tt-window.xml");
+    const values = decodeUiXmlValues(stdout);
+    if (values.length || !dumpError) return values;
+  } catch (readError) {
+    if (dumpError) {
+      throw dumpError;
+    }
+    throw readError;
+  }
+
+  throw dumpError;
 }
 
 function decodeUiXmlValues(xml) {
@@ -1266,6 +1381,34 @@ function todayStart() {
   return today;
 }
 
+function normalizeTennisTownCachedTournament(tournament) {
+  const divisionName = tournament.divisions?.[0]?.divisionName || "";
+  return {
+    ...tournament,
+    duplicateKey: tennisTownDuplicateKey({
+      titleRaw: tournament.titleRaw,
+      dateText: tournament.startDate || tournament.dateText,
+      venueName: tournament.venueName,
+      divisionName
+    })
+  };
+}
+
+function tennisTownDuplicateKey({ titleRaw, dateText, venueName, divisionName }) {
+  const dateRange = normalizeDateRange(dateText || "", 2026);
+  return [
+    "TENNISTOWN_APP",
+    normalizeTitle(titleRaw || ""),
+    dateRange.startDate || isoDateOrUndefined(dateText) || cleanText(dateText || ""),
+    compactKeyPart(venueName),
+    compactKeyPart(divisionName)
+  ].join("|");
+}
+
+function compactKeyPart(value = "") {
+  return cleanText(value).replace(/\s+/g, "").toLowerCase();
+}
+
 function makeTournament(input) {
   const dateRange = normalizeDateRange(input.dateText || "", 2026);
   const region = normalizeRegion(`${input.titleRaw || ""} ${input.venueName || ""}`);
@@ -1316,7 +1459,7 @@ function makeTournament(input) {
     sourceUrl: tournament.sourceUrl,
     media: tournament.media
   });
-  tournament.duplicateKey = buildDuplicateKey(tournament);
+  tournament.duplicateKey = input.duplicateKey || buildDuplicateKey(tournament);
   tournament.confidenceScore = calculateConfidenceScore(tournament);
   return tournament;
 }
