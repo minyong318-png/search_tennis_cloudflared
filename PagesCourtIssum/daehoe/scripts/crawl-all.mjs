@@ -107,6 +107,7 @@ async function main() {
   const sourceResults = [];
   const collected = [];
   const successfulSourceTypes = new Set();
+  const successfulSourceNames = new Set();
 
   const activeSources = sources.filter((source) => {
     if (SOURCE_TYPE_FILTER.size && !SOURCE_TYPE_FILTER.has(source.type)) return false;
@@ -131,6 +132,7 @@ async function main() {
         errorMessage: null
       });
       successfulSourceTypes.add(source.type);
+      successfulSourceNames.add(source.name);
       console.log(`[daehoe] ${source.name}: ${tournaments.length}`);
     } catch (error) {
       sourceResults.push({
@@ -147,12 +149,11 @@ async function main() {
     }
   }
 
-  if (MERGE_EXISTING) {
-    const existing = await readExistingTournaments();
-    collected.unshift(...existing.filter((item) => !successfulSourceTypes.has(item.sourceType)));
-  }
-
-  const tournaments = dedupe(collected).sort(sortForOutput);
+  const freshTournaments = dedupe(collected);
+  const existing = MERGE_EXISTING ? await readExistingTournaments() : [];
+  const tournaments = (MERGE_EXISTING
+    ? mergeExistingTournaments(existing, freshTournaments, { successfulSourceNames, successfulSourceTypes })
+    : freshTournaments).sort(sortForOutput);
   await fs.mkdir(OUT_DIR, { recursive: true });
   if (!geminiQueueAppended) {
     await applyQueuedGeminiExtractions(tournaments);
@@ -186,6 +187,146 @@ async function processQueueOnly(startedAt) {
   await applyQueuedGeminiExtractions(tournaments);
   await fs.writeFile(new URL("tournaments.json", OUT_DIR), `${JSON.stringify(tournaments, null, 2)}\n`, "utf8");
   console.log(`[daehoe][queue] processed queued Gemini extractions startedAt=${startedAt}`);
+}
+
+function mergeExistingTournaments(existing, fresh, { successfulSourceNames, successfulSourceTypes }) {
+  const existingByKey = buildTournamentLookup(existing);
+  const usedExistingIds = new Set();
+  const merged = [];
+  const now = new Date().toISOString();
+
+  for (const freshItem of fresh) {
+    const existingItem = findMatchingTournament(existingByKey, freshItem);
+    if (!existingItem) {
+      merged.push({ ...freshItem, syncStatus: "new", firstSeenAt: freshItem.firstSeenAt || now });
+      continue;
+    }
+    usedExistingIds.add(existingIdentity(existingItem));
+    merged.push(mergeTournamentRecord(existingItem, freshItem));
+  }
+
+  for (const existingItem of existing) {
+    if (usedExistingIds.has(existingIdentity(existingItem))) continue;
+    const sourceWasRefreshed = successfulSourceNames.has(existingItem.sourceName) ||
+      (!existingItem.sourceName && successfulSourceTypes.has(existingItem.sourceType));
+    if (!sourceWasRefreshed) {
+      merged.push(existingItem);
+      continue;
+    }
+    if (existingItem.syncStatus === "missing_from_latest_crawl") {
+      merged.push(existingItem);
+      continue;
+    }
+    merged.push({
+      ...existingItem,
+      syncStatus: "missing_from_latest_crawl",
+      missingDetectedAt: now,
+      updatedAt: now
+    });
+  }
+
+  return merged;
+}
+
+function buildTournamentLookup(tournaments) {
+  const lookup = new Map();
+  for (const tournament of tournaments) {
+    for (const key of tournamentMatchKeys(tournament)) {
+      if (!lookup.has(key)) lookup.set(key, tournament);
+    }
+  }
+  return lookup;
+}
+
+function findMatchingTournament(lookup, tournament) {
+  for (const key of tournamentMatchKeys(tournament)) {
+    const match = lookup.get(key);
+    if (match) return match;
+  }
+  return null;
+}
+
+function tournamentMatchKeys(tournament) {
+  return uniqueTexts([
+    tournament.duplicateKey && `duplicate:${tournament.duplicateKey}`,
+    tournament.sourceUrl && `url:${tournament.sourceUrl}`,
+    tournament.sourceType && tournament.sourceId && `source:${tournament.sourceType}:${tournament.sourceId}`,
+    tournament.sourceName && tournament.sourceId && `name-source:${tournament.sourceName}:${tournament.sourceId}`,
+    tournament.titleNormalized && tournament.startDate && `title-date:${tournament.titleNormalized}:${tournament.startDate}`
+  ]);
+}
+
+function existingIdentity(tournament) {
+  return tournament.id || tournament.sourceUrl || `${tournament.sourceType || ""}:${tournament.sourceId || ""}:${tournament.duplicateKey || ""}`;
+}
+
+function mergeTournamentRecord(existing, fresh) {
+  const merged = {
+    ...fresh,
+    firstSeenAt: existing.firstSeenAt || existing.crawledAt || fresh.crawledAt,
+    crawledAt: existing.crawledAt || fresh.crawledAt,
+    updatedAt: fresh.contentHash === existing.contentHash && existing.syncStatus !== "missing_from_latest_crawl"
+      ? existing.updatedAt
+      : fresh.updatedAt,
+    syncStatus: "seen"
+  };
+
+  preserveIfMissing(merged, existing, [
+    "venueName",
+    "feeText",
+    "prizeText",
+    "ballText",
+    "eligibilityText",
+    "inferredEligibilityText",
+    "applicationStartDate",
+    "applicationEndDate",
+    "participantCurrent",
+    "participantCapacity",
+    "applicationMethodText",
+    "detailText"
+  ]);
+
+  if (existing.extractionStatus === "ai" && fresh.extractionStatus !== "ai") {
+    preserveIfMissing(merged, existing, [
+      "extractionStatus",
+      "extractionModel",
+      "extractedDetails",
+      "registrationStatus",
+      "status"
+    ]);
+    if (existing.eligibilityText) merged.eligibilityText = existing.eligibilityText;
+    if (existing.inferredEligibilityText) merged.inferredEligibilityText = existing.inferredEligibilityText;
+    if (existing.feeText) merged.feeText = existing.feeText;
+    if ((existing.divisions || []).length) merged.divisions = existing.divisions;
+  } else if (!(fresh.divisions || []).length && (existing.divisions || []).length) {
+    merged.divisions = existing.divisions;
+  }
+
+  merged.attachments = uniqueObjectsByUrl([...(existing.attachments || []), ...(fresh.attachments || [])]);
+  merged.media = uniqueObjectsByUrl([...(existing.media || []), ...(fresh.media || [])]);
+  merged.alternateSources = uniqueObjectsByUrl([...(existing.alternateSources || []), ...(fresh.alternateSources || [])]);
+  merged.confidenceScore = calculateConfidenceScore(merged);
+  return merged;
+}
+
+function preserveIfMissing(target, source, keys) {
+  for (const key of keys) {
+    if (isEmptyValue(target[key]) && !isEmptyValue(source[key])) target[key] = source[key];
+  }
+}
+
+function isEmptyValue(value) {
+  return value === undefined || value === null || value === "" || (Array.isArray(value) && value.length === 0);
+}
+
+function uniqueObjectsByUrl(items) {
+  const seen = new Set();
+  return (items || []).filter((item) => {
+    const key = item?.url || item?.sourceUrl || item?.sourceId || JSON.stringify(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 async function crawlKta(source) {
@@ -492,11 +633,16 @@ async function crawlTennisTown(source) {
     const key = `${titleRaw}|${href}`;
     if (seen.has(key)) continue;
     seen.add(key);
+    const dateRange = normalizeDateRange(titleRaw, 2026);
+    const inferredDateRange = dateRange.startDate ? dateRange : inferCompactMonthDayRange(titleRaw, 2026);
+    const isPastTournament = dateRange.startDate && isPastDateValue(dateRange.endDate || dateRange.startDate);
+    const isInferredPastTournament = inferredDateRange.startDate && isPastDateValue(inferredDateRange.endDate || inferredDateRange.startDate);
+    const canAnalyzeByDate = !AI_ACTIVE_ONLY || (inferredDateRange.startDate && !isInferredPastTournament);
     let detail = { media: [], inferredEligibilityText: undefined, detailText: undefined };
-    if (tournaments.length < TENNISTOWN_DETAIL_LIMIT && shouldFetchTournamentDetail(titleRaw)) {
+    if (tournaments.length < TENNISTOWN_DETAIL_LIMIT && shouldFetchTournamentDetail(titleRaw) && canAnalyzeByDate) {
       try {
         await delay(REQUEST_DELAY_MS);
-        detail = await parseTennisTownDetail(await fetchText(href), href, titleRaw);
+        detail = await parseTennisTownDetail(await fetchText(href), href, titleRaw, { allowAi: canAnalyzeByDate });
       } catch {
         detail = { media: [], inferredEligibilityText: inferEligibilityText(titleRaw), detailText: undefined };
       }
@@ -928,7 +1074,7 @@ function isNonTournamentNoticeTitle(title = "") {
   return /(결과|영상|사진|공지사항|서버|시간|환불|취소|정정|변경|입상자|랭킹|순위|코트장\s*이용|강습|레슨)/i.test(title);
 }
 
-async function parseTennisTownDetail(html, sourceUrl, titleRaw) {
+async function parseTennisTownDetail(html, sourceUrl, titleRaw, { allowAi = true } = {}) {
   const media = [];
   const ogImage = (html.match(/<meta property="og:image" content="([^"]+)"/) || [])[1];
   if (ogImage) media.push({ url: absoluteUrl(sourceUrl, decodeEntities(ogImage)), alt: titleRaw, type: "image" });
@@ -945,16 +1091,17 @@ async function parseTennisTownDetail(html, sourceUrl, titleRaw) {
     .filter((item) => /notion\/image|oopy|attachment|amazonaws|cloudfront|lazyrockets|imgix|tennistown/i.test(item.url))
     .slice(0, 12);
   const text = cleanText(html);
+  const aiText = compactForAi(text, 1800);
   const base = {
     media: uniqueMedia,
     detailText: compact(text, 300),
     inferredEligibilityText: inferEligibilityText(`${titleRaw} ${text} ${uniqueMedia.map((item) => `${item.url} ${item.alt}`).join(" ")}`)
   };
-  const shouldAnalyze = shouldAnalyzeTournamentWithAi(`${titleRaw} ${text}`);
+  const shouldAnalyze = allowAi && shouldAnalyzeTournamentWithAi(`${titleRaw} ${aiText || text}`);
   const aiDetails = shouldAnalyze ? await extractTournamentDetailsWithAi({
     titleRaw,
     sourceUrl,
-    detailText: compact(text, 5000),
+    detailText: aiText,
     media: uniqueMedia
   }) : null;
   if (!aiDetails) return { ...base, extractionStatus: AI_EXTRACT_ENABLED ? "skipped" : "disabled" };
@@ -967,7 +1114,7 @@ async function parseTennisTownDetail(html, sourceUrl, titleRaw) {
       format: item.format || division.format,
       playDate: item.playDate,
       eligibilityText: item.eligibilityText,
-      feeText: details.feeText,
+      feeText: item.feeText || aiDetails.feeText,
       status: aiDetails.applicationStatus || "미상"
     };
   }).filter((item) => item.divisionName && item.divisionName !== "미상");
@@ -1082,9 +1229,29 @@ function shouldFetchTournamentDetail(text = "") {
 
 function shouldAnalyzeTournamentWithAi(text = "") {
   if (!AI_ACTIVE_ONLY) return true;
-  const range = normalizeDateRange(text, 2026);
+  const parsedRange = normalizeDateRange(text, 2026);
+  const range = parsedRange.startDate ? parsedRange : inferCompactMonthDayRange(text, 2026);
   if (!range.startDate) return true;
   return !isPastDateValue(range.endDate || range.startDate);
+}
+
+function inferCompactMonthDayRange(text = "", baseYear = 2026) {
+  const value = String(text || "");
+  const compactRange = value.match(/(?:^|\D+)(\d{2})(\d{2})\s*[/~-]\s*(\d{2})(\d{2})(?:$|\D+)/);
+  if (compactRange) {
+    return {
+      startDate: `${baseYear}-${compactRange[1]}-${compactRange[2]}`,
+      endDate: `${baseYear}-${compactRange[3]}-${compactRange[4]}`
+    };
+  }
+  const range = value.match(/(?:^|\D+)(\d{1,2})\s*[.\/-]\s*(\d{1,2})(?:\s*[/~-]\s*(\d{1,2})\s*[.\/-]\s*(\d{1,2}))?(?:$|\D+)/);
+  if (!range) return {};
+  return {
+    startDate: `${baseYear}-${String(range[1]).padStart(2, "0")}-${String(range[2]).padStart(2, "0")}`,
+    endDate: range[3]
+      ? `${baseYear}-${String(range[3]).padStart(2, "0")}-${String(range[4]).padStart(2, "0")}`
+      : `${baseYear}-${String(range[1]).padStart(2, "0")}-${String(range[2]).padStart(2, "0")}`
+  };
 }
 
 function isPastDateValue(dateValue) {
@@ -1296,7 +1463,7 @@ async function runCliJsonExtraction(job, execCli) {
   })) : [];
   const prompt = [
     "You are extracting structured data from Korean tennis tournament detail text and screenshots.",
-    "If local image paths are provided, inspect those screenshots/posters.",
+    "Inspect public image URLs and local image paths when provided; use poster images as the primary source for venue, fee, eligibility, and registration dates.",
     "Return only JSON. No markdown.",
     "Keys: venueName, venueAddress, regionSido, regionSigungu, applicationStatus, applicationStartDate, applicationEndDate, eligibilityText, feeText, divisions, confidence, evidence.",
     "applicationStatus must be one of: 접수중, 접수예정, 준비중, 접수마감, 대진오픈, 대회종료, 취소, 연기, 미상.",
@@ -1733,12 +1900,16 @@ function compact(text, limit) {
 }
 
 function compactForAi(text, limit) {
-  return compact(String(text)
-    .replace(/window\.__OOPY__[\s\S]*?(?=TTO|요강|대회|$)/, "")
-    .replace(/\.[a-z0-9_-]+\{[^}]*\}/gi, " ")
+  const cleaned = String(text || "")
+    .replace(/window\.__OOPY__[\s\S]*?(?=(?:TTO|대회|요강|접수|참가|장소|일시|$))/i, " ")
+    .replace(/\{[^{}]{0,1200}\}/g, " ")
+    .replace(/(?:display|position|padding|margin|background|border|font|width|height|max-width|min-width|line-height|z-index|opacity|color|overflow|align-items|justify-content|flex|grid|box-shadow|transform|transition)\s*:[^;]+;?/gi, " ")
+    .replace(/(?:^|\s)[.#][a-z0-9_-]+[a-z0-9_ .:#>\-[\]()="'%,]*\s/gi, " ")
     .replace(/https?:\/\/\S+/g, " ")
+    .replace(/\b(?:css|root|media|webkit|notion|oopy|lazyrockets|window|props|pageProps|recordMap)\b/gi, " ")
     .replace(/\s+/g, " ")
-    .trim(), limit) || "";
+    .trim();
+  return compact(cleaned, limit) || "";
 }
 
 function hashStable(value) {

@@ -62,6 +62,10 @@ async function main() {
         if (!details) continue;
         applyDetails(tournament, details);
         captured.push({ tournament, details });
+        if (captured.length % 10 === 0) {
+          await writeTournaments(tournaments);
+          console.log(`[tennistown-detail] captured=${captured.length}`);
+        }
         await backToList();
       }
 
@@ -70,12 +74,20 @@ async function main() {
     }
   }
 
+  if (captured.length) {
+    await writeTournaments(tournaments);
+  }
+
   if (!SKIP_AI && captured.length) {
     await analyzeBatches(captured);
   }
 
-  await fs.writeFile(DATA_FILE, `${JSON.stringify(tournaments, null, 2)}\n`, "utf8");
+  await writeTournaments(tournaments);
   console.log(`[tennistown-detail] captured=${captured.length} ai=${SKIP_AI ? "skipped" : "attempted"}`);
+}
+
+async function writeTournaments(tournaments) {
+  await fs.writeFile(DATA_FILE, `${JSON.stringify(tournaments, null, 2)}\n`, "utf8");
 }
 
 async function ensureListOpen() {
