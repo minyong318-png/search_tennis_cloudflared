@@ -98,6 +98,8 @@
     .crawl-status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
     .crawl-card{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
     .crawl-card.is-current{border-color:#b9dfac;background:#f4fbef}
+    .crawl-card.is-warning{border-color:#f3c86c;background:#fffaf0}
+    .crawl-card.is-error{border-color:#f3a2a2;background:#fff5f5}
     .crawl-city{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:950}
     .crawl-dot{width:8px;height:8px;border-radius:999px;background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.12)}
     .crawl-dot.is-warning{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.14)}
@@ -628,6 +630,66 @@
       return "yongin";
     }
 
+    function todayCompactKst() {
+      return ymd(todayKst());
+    }
+
+    function cityCrawlHealth(city, cityFacilities, availability, updatedMs, ageHours) {
+      const today = todayCompactKst();
+      let slotCount = 0;
+      let cacheRowCount = 0;
+      let futureDateCount = 0;
+      let nonEmptyFutureDays = 0;
+      let dateMin = "";
+      let dateMax = "";
+      const reasons = [];
+
+      cityFacilities.forEach(([cid]) => {
+        const byDate = availability[cid] || {};
+        Object.entries(byDate).forEach(([date, slots]) => {
+          const compact = String(date || "").replaceAll("-", "");
+          if (compact.length !== 8) return;
+          cacheRowCount += 1;
+          if (!dateMin || compact < dateMin) dateMin = compact;
+          if (!dateMax || compact > dateMax) dateMax = compact;
+          const count = Array.isArray(slots) ? slots.filter(slot => slot?.timeContent).length : 0;
+          slotCount += count;
+          if (compact >= today) {
+            futureDateCount += 1;
+            if (count > 0) nonEmptyFutureDays += 1;
+          }
+        });
+      });
+
+      if (!cityFacilities.length) reasons.push("시설 없음");
+      if (!cacheRowCount) reasons.push("수집 데이터 없음");
+      if (!Number.isFinite(updatedMs)) reasons.push("갱신 시간 없음");
+      if (Number.isFinite(ageHours) && ageHours > 36) reasons.push("36시간 이상 미갱신");
+      if (dateMax && dateMax < today) reasons.push("향후 날짜 없음");
+
+      let state = "ok";
+      if (reasons.length) {
+        state = "error";
+      } else if (ageHours > 18 || slotCount === 0 || futureDateCount === 0 || nonEmptyFutureDays === 0) {
+        state = "warning";
+        if (ageHours > 18) reasons.push("18시간 이상 경과");
+        if (slotCount === 0) reasons.push("잔여 슬롯 0개");
+        if (futureDateCount === 0) reasons.push("향후 캐시 없음");
+        if (nonEmptyFutureDays === 0) reasons.push("향후 잔여 슬롯 없음");
+      }
+
+      return {
+        state,
+        slotCount,
+        cacheRowCount,
+        nonEmptyFutureDays,
+        dateMin,
+        dateMax,
+        label: state === "ok" ? "정상" : state === "warning" ? "확인필요" : "오류",
+        reasonText: reasons.join(", ")
+      };
+    }
+
     function getCourtGroup(title) {
       const t = String(title || "").replace(/\[.*?\]/g, "").trim();
       if (currentCity === "goyang") return t.replace(/고양\s*(특례시)?\s*테니스협회/g, "").replace(/^고양\s+/, "").replace(/\s*\d+\s*코트\s*$/, "").replace(/\s*테니스장\s*$/, "").replace(/\s*코트\s*$/, "").replace(/\s+/g, " ").trim() || t;
@@ -1003,24 +1065,26 @@
 
       CITY_KEYS.forEach(city => {
         const cityFacilities = facilities.filter(([cid]) => cityOfFacilityId(cid) === city);
-        let slotCount = 0;
-        cityFacilities.forEach(([cid]) => {
-          const byDate = availability[cid] || {};
-          Object.entries(byDate).forEach(([, slots]) => {
-            const count = Array.isArray(slots) ? slots.filter(slot => slot?.timeContent).length : 0;
-            slotCount += count;
-          });
-        });
-        const state = !cityFacilities.length || !Number.isFinite(updatedMs) || ageHours > 36 ? "error" : slotCount > 0 && ageHours <= 18 ? "ok" : "warning";
+        const health = cityCrawlHealth(city, cityFacilities, availability, updatedMs, ageHours);
+        const state = health.state;
 
-        const card = node("button", city === currentCity ? "crawl-card is-current" : "crawl-card");
+        const card = node("button", [
+          "crawl-card",
+          city === currentCity ? "is-current" : "",
+          state === "warning" ? "is-warning" : "",
+          state === "error" ? "is-error" : ""
+        ].filter(Boolean).join(" "));
         card.type = "button";
+        card.title = `${CITY_LABELS[city]} ${health.label}${health.reasonText ? `: ${health.reasonText}` : ""}`;
         card.onclick = () => setCity(city);
         const top = node("div", "crawl-city");
         top.appendChild(node("span", "", CITY_LABELS[city]));
         top.appendChild(node("span", state === "ok" ? "crawl-dot" : state === "warning" ? "crawl-dot is-warning" : "crawl-dot is-error"));
         card.appendChild(top);
-        card.appendChild(node("div", "crawl-meta", DATA.updated_at ? formatUpdated(DATA.updated_at) : "No update time"));
+        const metaText = health.reasonText
+          ? `${health.label} · ${health.reasonText}`
+          : `${health.label} · ${health.nonEmptyFutureDays}일 잔여`;
+        card.appendChild(node("div", "crawl-meta", metaText));
         els.crawlStatusGrid.appendChild(card);
       });
     }
