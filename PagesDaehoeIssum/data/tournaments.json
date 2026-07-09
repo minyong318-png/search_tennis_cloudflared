@@ -5412,8 +5412,8 @@
     "duplicateKey": "년인천시협회장배전국|2026-02-26||인천열우물인천가좌시립보조경기장",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "facility_notice-isdc-370",
@@ -5437,13 +5437,14 @@
     "media": [],
     "divisions": [],
     "crawledAt": "2026-07-07T03:32:47.755Z",
-    "updatedAt": "2026-07-07T03:32:47.755Z",
+    "updatedAt": "2026-07-09T03:27:13.918Z",
     "contentHash": "b535c4725963aa676dd15378bfb29bb53c9f4e094d6e7f0dd56b3430ec441783",
     "duplicateKey": "양지장사용허가|2026-02-26|성남시|국민체육센터",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T03:32:47.755Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-09T03:27:13.918Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-2-26-db5edf9fc927",
@@ -5653,8 +5654,8 @@
     "duplicateKey": "대전명봉클럽배|2026-02-27||대전관저세천등",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-2-27-72c18c6ca402",
@@ -7580,8 +7581,8 @@
     "duplicateKey": "kims|2026-03-07||경북대학교유니버시아드두류군위종합",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "local_assoc-0026",
@@ -10799,8 +10800,8 @@
     "duplicateKey": "인천itf주니어대회기념|2026-03-19||인천열우물경기장가좌시립경기장",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-3-19-f9b758d40580",
@@ -11019,8 +11020,8 @@
     "duplicateKey": "천안시장배전국|2026-03-20||천안종합운동장",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-3-20-1df15dd1b4b7",
@@ -13173,8 +13174,8 @@
     "duplicateKey": "수원홍재배전국어머니|2026-03-25|수원시|수원만석공원",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-3-25-1d4ea08b3348",
@@ -16473,8 +16474,8 @@
     "duplicateKey": "kato나사라배|2026-04-10|파주시|파주관내시립",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-4-10-57536fae710d",
@@ -19765,8 +19766,8 @@
     "duplicateKey": "창원특례시군항제기념|2026-04-18|창원시|창원시립",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kato-kato-0282",
@@ -19831,8 +19832,8 @@
     "duplicateKey": "음성군수배|2026-04-18|음성군|음성전천후",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-4-18-81f9871253b5",
@@ -24072,8 +24073,8 @@
     "duplicateKey": "임사단배|2026-05-06||오산시립충주탄금대순천팔마보조",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "facility_notice-isdc-382",
@@ -24237,8 +24238,8 @@
     "duplicateKey": "보령머드배전국|2026-05-07|보령시|보령남포보조경기장",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-5-7-0711d3748c73",
@@ -24471,8 +24472,8 @@
     "duplicateKey": "이천도자기배|2026-05-08|이천시|이천시설봉공원",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-5-8-9166ae0315c7",
@@ -24846,8 +24847,8 @@
     "duplicateKey": "춘천시협회장배전국|2026-05-09|춘천시|춘천송암스포츠타운",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "local_assoc--comp-41",
@@ -31584,8 +31585,8 @@
     "duplicateKey": "한산모시배kato|2026-06-05|서천군|서천군레포츠공원보조",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-6-5-d048f6e1baf0",
@@ -34289,8 +34290,8 @@
     "duplicateKey": "성남철쭉배|2026-06-09|성남시|성남양지시립",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-6-9-f27b3b29fcdc",
@@ -34627,8 +34628,8 @@
     "duplicateKey": "논산시육군병장배전국|2026-06-12|논산시|논산연합",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kata-1047293b-6530-4e4a-9bc8-212b62fc9a97",
@@ -38662,6 +38663,34 @@
     "missingDetectedAt": "2026-07-07T23:19:51.324Z"
   },
   {
+    "id": "facility_notice-isdc-413",
+    "sourceType": "FACILITY_NOTICE",
+    "sourceName": "성남 시설공지",
+    "sourceUrl": "https://res.isdc.co.kr/noticeDetail.do?idx=413",
+    "sourceId": "isdc-413",
+    "titleRaw": "제25회 중원구청장배 생활체육 테니스대회 사용허가 변경 알림(26.7.11.~7.12.)",
+    "titleNormalized": "중원구청장배사용허가변경알림",
+    "tournamentScope": "시설",
+    "tournamentType": "생활체육",
+    "organizer": "성남도시개발공사",
+    "startDate": "2026-07-08",
+    "endDate": "2026-07-08",
+    "status": "대회종료",
+    "venueName": "국민체육센터",
+    "applicationMethodText": "시설 공지 원문 확인",
+    "attachments": [],
+    "media": [],
+    "divisions": [],
+    "crawledAt": "2026-07-09T03:26:28.422Z",
+    "updatedAt": "2026-07-09T03:26:28.422Z",
+    "contentHash": "3c9970cf07f2f87ba44bdd33747022e0d944a4c197c6360c03670149b80a6a93",
+    "duplicateKey": "중원구청장배사용허가변경알림|2026-07-08||국민체육센터",
+    "confidenceScore": 65,
+    "alternateSources": [],
+    "syncStatus": "new",
+    "firstSeenAt": "2026-07-09T03:27:13.918Z"
+  },
+  {
     "id": "tennistown_app-tennistown-adb-2026-7-8-a063034e96da",
     "sourceType": "TENNISTOWN_APP",
     "sourceName": "TennisTown App",
@@ -39485,7 +39514,7 @@
     "organizer": "성남시테니스협회",
     "startDate": "2026-07-11",
     "endDate": "2026-07-12",
-    "status": "접수중",
+    "status": "접수마감",
     "venueName": "성남시 관내 테니스장",
     "applicationMethodText": "원문 확인",
     "attachments": [],
@@ -39498,7 +39527,7 @@
         "format": "혼합복식",
         "playDate": "2026-07-11",
         "applicationUrl": "https://www.sntennis.com/competitionView/0028",
-        "status": "접수중"
+        "status": "접수마감"
       },
       {
         "divisionName": "동배부",
@@ -39507,7 +39536,7 @@
         "format": "복식",
         "playDate": "2026-07-11",
         "applicationUrl": "https://www.sntennis.com/competitionView/0028",
-        "status": "접수중"
+        "status": "접수마감"
       },
       {
         "divisionName": "금배부",
@@ -39516,7 +39545,7 @@
         "format": "복식",
         "playDate": "2026-07-11",
         "applicationUrl": "https://www.sntennis.com/competitionView/0028",
-        "status": "접수중"
+        "status": "접수마감"
       }
     ],
     "crawledAt": "2026-07-07T03:27:21.682Z",
@@ -48564,6 +48593,66 @@
         "status": "미상"
       },
       {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-07",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-07",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-07",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-08",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-08",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-08",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
         "divisionName": "챌린저부",
         "gender": "무관",
         "level": "챌린저",
@@ -49247,6 +49336,82 @@
     "syncStatus": "seen"
   },
   {
+    "id": "kato-kato-0300",
+    "sourceType": "KATO",
+    "sourceName": "KATO",
+    "sourceUrl": "https://kato.kr/openGame/0300",
+    "sourceId": "kato-0300",
+    "titleRaw": "2026 서천 맥문동배 전국동호인테니스대회",
+    "titleNormalized": "서천맥문동배",
+    "regionSido": "충청남도",
+    "regionSigungu": "서천군",
+    "tournamentScope": "전국",
+    "tournamentType": "동호인대회",
+    "organizer": "서천군테니스협회",
+    "host": "서천군테니스협회, (사)한국테니스발전협의회(KATO)",
+    "startDate": "2026-08-14",
+    "endDate": "2026-08-17",
+    "status": "미상",
+    "venueName": "서천군 레포츠공원 테니스코트외 보조코트",
+    "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+    "prizeText": "◈ 우 승 : 상패 및 상금 100만원 ◈ 준우승 : 상패 및 상금 60만원 ◈ 공동 3위 : 상패 및 상금 40만원 ◈ 8강 : 지역특산품 ◈참가팀수 미달 시 상금조정(각부 70팀 이하시)",
+    "ballText": "낫소 짜르투어 테니스볼",
+    "applicationMethodText": "KATO 원문 신청 페이지 확인",
+    "detailText": "개회식 : 8월 14일(금) 오전 9시",
+    "attachments": [],
+    "media": [],
+    "divisions": [
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-14",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "혼합복식부",
+        "gender": "혼합",
+        "level": "미상",
+        "format": "혼합복식",
+        "playDate": "2026-08-15",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-16",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "베테랑부",
+        "gender": "무관",
+        "level": "시니어",
+        "format": "복식",
+        "playDate": "2026-08-17",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      }
+    ],
+    "crawledAt": "2026-07-09T03:20:55.665Z",
+    "updatedAt": "2026-07-09T03:20:55.665Z",
+    "contentHash": "8aef046904a7d2de806d0a57906f8f0f4fff05d787ca9b7f3d76ecb01a775018",
+    "duplicateKey": "서천맥문동배|2026-08-14|서천군|서천군레포츠공원보조",
+    "confidenceScore": 100,
+    "alternateSources": [],
+    "syncStatus": "new",
+    "firstSeenAt": "2026-07-09T03:27:13.918Z"
+  },
+  {
     "id": "tennistown-tennistown-ca866270759f",
     "sourceType": "TENNISTOWN",
     "sourceName": "테니스타운",
@@ -49536,8 +49701,8 @@
     "duplicateKey": "광주시협회장배여성전국|2026-09-02|광주시|광주시양벌",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-2-cd7ce851ab43",
@@ -49911,6 +50076,82 @@
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T03:26:28.636Z",
     "syncStatus": "seen"
+  },
+  {
+    "id": "kato-kato-0301",
+    "sourceType": "KATO",
+    "sourceName": "KATO",
+    "sourceUrl": "https://kato.kr/openGame/0301",
+    "sourceId": "kato-0301",
+    "titleRaw": "제 5 회 마산 365병원장배 전국 동호인테니스대회",
+    "titleNormalized": "마산365병원장배전국",
+    "regionSido": "경상남도",
+    "regionSigungu": "창원시",
+    "tournamentScope": "전국",
+    "tournamentType": "동호인대회",
+    "organizer": "창원시 테니스협회, 마산 365병원",
+    "host": "창원시 테니스협회.(사)한국테니스발전협의회(KATO)",
+    "startDate": "2026-09-12",
+    "endDate": "2026-09-13",
+    "status": "미상",
+    "venueName": "창원 시립테니스장",
+    "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+    "prizeText": "< 개나리부/ 챌린저부> ◈ 우 승 : 상패 및 상금 160만원 ◈ 준우승 : 상패 및 상금 80만원 ◈ 공동 3위 : 상패 및 상금 50만원 ◈ 8강 : 상금 10만원 (참가팀수 미달 시 상금조정: 개나리부/챌린저부 100팀 이하시) <마스터스부> ◈ 우 승 :상패 및 상금 100만원 ◈ 준우승 :상패 및 상금 60만원...",
+    "ballText": "낫소 짜르투어 테니스볼",
+    "applicationMethodText": "KATO 원문 신청 페이지 확인",
+    "detailText": ".",
+    "attachments": [],
+    "media": [],
+    "divisions": [
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-09-12",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "마스터스부",
+        "gender": "무관",
+        "level": "마스터스",
+        "format": "복식",
+        "playDate": "2026-09-12",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-09-13",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "여자퓨처스부",
+        "gender": "여성",
+        "level": "미상",
+        "format": "복식",
+        "playDate": "2026-09-13",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      }
+    ],
+    "crawledAt": "2026-07-09T03:20:58.923Z",
+    "updatedAt": "2026-07-09T03:20:58.923Z",
+    "contentHash": "53dd002a234c7926cf3a1324a95d7016c2fb7963d2636b87cbf13e3dce5de888",
+    "duplicateKey": "마산365병원장배전국|2026-09-12|창원시|창원시립",
+    "confidenceScore": 100,
+    "alternateSources": [],
+    "syncStatus": "new",
+    "firstSeenAt": "2026-07-09T03:27:13.918Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-12-70aeaf937d76",
