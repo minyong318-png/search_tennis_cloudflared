@@ -31,7 +31,7 @@ const TENNISTOWN_ADB_ENABLED = process.env.DAEHOE_TENNISTOWN_ADB === "1";
 const TENNISTOWN_ADB_PATH = process.env.DAEHOE_TENNISTOWN_ADB_PATH || ".tools\\android-platform-tools\\platform-tools\\adb.exe";
 const TENNISTOWN_ADB_SERIAL = process.env.DAEHOE_TENNISTOWN_ADB_SERIAL || "";
 const TENNISTOWN_ADB_YEAR = Number(process.env.DAEHOE_TENNISTOWN_ADB_YEAR || 2026);
-const TENNISTOWN_ADB_MAX_SWIPES = Number(process.env.DAEHOE_TENNISTOWN_ADB_MAX_SWIPES || 25);
+const TENNISTOWN_ADB_MAX_SWIPES = Number(process.env.DAEHOE_TENNISTOWN_ADB_MAX_SWIPES || 80);
 const TENNISTOWN_ADB_RESUME = process.env.DAEHOE_TENNISTOWN_ADB_RESUME !== "0";
 const TENNISTOWN_ADB_RESET_CHECKPOINT = process.env.DAEHOE_TENNISTOWN_ADB_RESET_CHECKPOINT === "1";
 const SOURCE_TYPE_FILTER = new Set((process.env.DAEHOE_SOURCE_TYPES || "")
@@ -812,7 +812,8 @@ async function crawlTennisTownAppWithAdb(source) {
     await writeTennisTownAppCheckpoint(checkpoint);
     const beforeMonthCount = tournaments.length;
     await moveTennisTownMonth(month);
-    const items = await scrapeVisibleTennisTownMonth(month, async (partialItems, progress) => {
+    await resetTennisTownMonthScroll();
+    const scrapeResult = await scrapeVisibleTennisTownMonth(month, async (partialItems, progress) => {
       checkpoint.months[monthKey] = {
         ...checkpoint.months[monthKey],
         year: TENNISTOWN_ADB_YEAR,
@@ -824,6 +825,7 @@ async function crawlTennisTownAppWithAdb(source) {
       };
       await writeTennisTownAppCheckpoint(checkpoint);
     });
+    const items = scrapeResult.items;
     for (const item of items) {
       const dateText = `${TENNISTOWN_ADB_YEAR}-${String(month).padStart(2, "0")}-${String(item.day).padStart(2, "0")}`;
       const sourceId = `tennistown-adb-${TENNISTOWN_ADB_YEAR}-${month}-${item.day}-${hashShort(`${item.titleRaw}|${item.divisionName}|${item.venueName}`)}`;
@@ -867,15 +869,16 @@ async function crawlTennisTownAppWithAdb(source) {
     checkpoint.months[monthKey] = {
       ...checkpoint.months[monthKey],
       year: TENNISTOWN_ADB_YEAR,
-      status: "complete",
+      status: scrapeResult.reachedMaxSwipes ? "incomplete_max_swipes" : "complete",
       completedAt: new Date().toISOString(),
+      reachedMaxSwipes: scrapeResult.reachedMaxSwipes,
       itemCount: items.length,
       tournamentCount: monthTournaments.length,
       partialItems: items,
       tournaments: monthTournaments
     };
     await writeTennisTownAppCheckpoint(checkpoint);
-    console.log(`[daehoe][tennistown-app] month ${month} saved ${monthTournaments.length} tournaments`);
+    console.log(`[daehoe][tennistown-app] month ${month} saved ${monthTournaments.length} tournaments${scrapeResult.reachedMaxSwipes ? " (incomplete: max swipes reached)" : ""}`);
     if (tournaments.length >= TENNISTOWN_LIMIT) return tournaments;
   }
   return tournaments;
@@ -899,11 +902,22 @@ async function moveTennisTownMonth(targetMonth) {
   throw new Error(`TennisTown ADB crawler could not move to month ${targetMonth}`);
 }
 
+async function resetTennisTownMonthScroll() {
+  for (let i = 0; i < 18; i += 1) {
+    await adb("shell", "input", "swipe", "540", "650", "540", "1750", "350");
+    await delay(350);
+  }
+  await delay(1000);
+}
+
 async function scrapeVisibleTennisTownMonth(month, onProgress = null) {
   const items = [];
   const seen = new Set();
   const dumpKeys = new Set();
+  let reachedMaxSwipes = false;
+  let repeatedDumps = 0;
   for (let swipe = 0; swipe <= TENNISTOWN_ADB_MAX_SWIPES; swipe += 1) {
+    if (swipe === TENNISTOWN_ADB_MAX_SWIPES) reachedMaxSwipes = true;
     let values = [];
     try {
       values = await dumpTennisTownUiValues();
@@ -912,7 +926,14 @@ async function scrapeVisibleTennisTownMonth(month, onProgress = null) {
       throw error;
     }
     const dumpKey = values.join("|");
-    if (dumpKeys.has(dumpKey) && swipe > 0) break;
+    if (dumpKeys.has(dumpKey) && swipe > 0) {
+      repeatedDumps += 1;
+      if (repeatedDumps >= 3) break;
+      await adb("shell", "input", "swipe", "540", "1850", "540", "430", "750");
+      await delay(1600);
+      continue;
+    }
+    repeatedDumps = 0;
     dumpKeys.add(dumpKey);
     for (const item of parseTennisTownUiItems(values)) {
       const key = `${month}-${item.day}-${item.titleRaw}-${item.divisionName}-${item.venueName}`;
@@ -921,10 +942,10 @@ async function scrapeVisibleTennisTownMonth(month, onProgress = null) {
       items.push(item);
     }
     if (onProgress) await onProgress([...items], { swipe });
-    await adb("shell", "input", "swipe", "540", "1700", "540", "650", "500");
-    await delay(1200);
+    await adb("shell", "input", "swipe", "540", "1850", "540", "430", "750");
+    await delay(1600);
   }
-  return items;
+  return { items, reachedMaxSwipes };
 }
 
 function parseTennisTownUiItems(values) {
