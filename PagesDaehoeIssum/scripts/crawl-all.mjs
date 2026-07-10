@@ -11,6 +11,13 @@ import {
   normalizeStatus,
   normalizeTitle
 } from "../src/tournament-utils.js";
+import {
+  isTennisTownSource,
+  isTournamentInRefreshScope,
+  monthTarget,
+  resolveTennisTownRefreshPlan
+} from "../src/tournament-sync.js";
+import { readFreshUiValues } from "../src/adb-ui-dump.js";
 
 const OUT_DIR = new URL("../data/", import.meta.url);
 const GEMINI_QUEUE_FILE = new URL("../../.daehoe-gemini-extract-queue.jsonl", import.meta.url);
@@ -20,7 +27,7 @@ const REQUEST_DELAY_MS = Number(process.env.DAEHOE_REQUEST_DELAY_MS || 900);
 const KATO_DETAIL_LIMIT = Number(process.env.DAEHOE_KATO_DETAIL_LIMIT || 40);
 const TENNISTOWN_LIMIT = Number(process.env.DAEHOE_TENNISTOWN_LIMIT || 5000);
 const TENNISTOWN_DETAIL_LIMIT = Number(process.env.DAEHOE_TENNISTOWN_DETAIL_LIMIT || TENNISTOWN_LIMIT);
-const TENNISTOWN_APP_MONTHS = (process.env.DAEHOE_TENNISTOWN_APP_MONTHS || "1,2,3,4,5,6,7,8,9,10,11,12")
+const EXPLICIT_TENNISTOWN_APP_MONTHS = (process.env.DAEHOE_TENNISTOWN_APP_MONTHS || "")
   .split(",")
   .map((value) => Number(value.trim()))
   .filter((value) => value >= 1 && value <= 12);
@@ -34,6 +41,12 @@ const TENNISTOWN_ADB_YEAR = Number(process.env.DAEHOE_TENNISTOWN_ADB_YEAR || 202
 const TENNISTOWN_ADB_MAX_SWIPES = Number(process.env.DAEHOE_TENNISTOWN_ADB_MAX_SWIPES || 80);
 const TENNISTOWN_ADB_RESUME = process.env.DAEHOE_TENNISTOWN_ADB_RESUME !== "0";
 const TENNISTOWN_ADB_RESET_CHECKPOINT = process.env.DAEHOE_TENNISTOWN_ADB_RESET_CHECKPOINT === "1";
+const SUPABASE_URL = String(process.env.SUPABASE_URL || "").replace(/\/$/, "");
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "";
+const SUPABASE_TOURNAMENT_TABLE = process.env.DAEHOE_SUPABASE_TOURNAMENT_TABLE || "daehoe_tournaments";
+const SUPABASE_STATE_TABLE = process.env.DAEHOE_SUPABASE_STATE_TABLE || "daehoe_sync_state";
+const INITIAL_REFRESH_STATE_KEY = "tennistown_initial_refresh";
+const REQUIRE_SUPABASE = process.env.DAEHOE_REQUIRE_SUPABASE === "1";
 const SOURCE_TYPE_FILTER = new Set((process.env.DAEHOE_SOURCE_TYPES || "")
   .split(",")
   .map((value) => value.trim())
@@ -53,6 +66,7 @@ const GEMINI_CLI_COMMAND = process.env.GEMINI_CLI_COMMAND || "npx";
 const ANTIGRAVITY_CLI_COMMAND = process.env.ANTIGRAVITY_CLI_COMMAND || (process.env.LOCALAPPDATA ? `${process.env.LOCALAPPDATA}\\agy\\bin\\agy.exe` : "agy");
 const execFileAsync = promisify(execFile);
 let geminiQueueAppended = false;
+let tennisTownRefreshPlan = { mode: "full", targets: [] };
 
 const SOURCE_PRIORITY = {
   KTA: 10,
@@ -107,6 +121,11 @@ async function main() {
     await processQueueOnly(startedAt);
     return;
   }
+  if (REQUIRE_SUPABASE && !isSupabaseConfigured()) {
+    throw new Error("Supabase is required: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
+  }
+  tennisTownRefreshPlan = await loadTennisTownRefreshPlan();
+  console.log(`[daehoe][tennistown] refresh=${tennisTownRefreshPlan.mode} months=${tennisTownRefreshPlan.targets.map((item) => item.key).join(",")}`);
   const sourceResults = [];
   const collected = [];
   const successfulSourceTypes = new Set();
@@ -155,33 +174,161 @@ async function main() {
   const freshTournaments = dedupe(collected);
   const existing = MERGE_EXISTING ? await readExistingTournaments() : [];
   const tournaments = (MERGE_EXISTING
-    ? mergeExistingTournaments(existing, freshTournaments, { successfulSourceNames, successfulSourceTypes })
+    ? mergeExistingTournaments(existing, freshTournaments, {
+      successfulSourceNames,
+      successfulSourceTypes,
+      tennisTownRefreshScope: new Set(tennisTownRefreshPlan.targets.map((item) => item.key))
+    })
     : freshTournaments).sort(sortForOutput);
   await fs.mkdir(OUT_DIR, { recursive: true });
   if (!geminiQueueAppended) {
     await applyQueuedGeminiExtractions(tournaments);
   }
-  await fs.writeFile(new URL("tournaments.json", OUT_DIR), `${JSON.stringify(tournaments, null, 2)}\n`, "utf8");
+  const persistedTournaments = await syncTournamentsWithSupabase(tournaments, startedAt, successfulSourceTypes);
+  const outputTournaments = persistedTournaments || tournaments.filter((item) => item.syncStatus !== "missing_from_latest_crawl");
+  await fs.writeFile(new URL("tournaments.json", OUT_DIR), `${JSON.stringify(outputTournaments, null, 2)}\n`, "utf8");
   await fs.writeFile(new URL("crawl-meta.json", OUT_DIR), `${JSON.stringify({
     sourceName: summarizeSources(sourceResults),
     sourceUrl: "multiple",
     startedAt,
     finishedAt: new Date().toISOString(),
     listCount: collected.length,
-    detailCount: tournaments.length,
+    detailCount: outputTournaments.length,
     errorCount: sourceResults.filter((item) => item.status === "failed").length,
+    refreshMode: tennisTownRefreshPlan.mode,
+    refreshedMonths: tennisTownRefreshPlan.targets.map((item) => item.key),
     sources: sourceResults
   }, null, 2)}\n`, "utf8");
 
-  console.log(`[daehoe] total raw=${collected.length} deduped=${tournaments.length}`);
+  console.log(`[daehoe] total raw=${collected.length} deduped=${outputTournaments.length}`);
 }
 
 async function readExistingTournaments() {
+  if (isSupabaseConfigured()) {
+    const persisted = await readSupabaseTournamentPayloads();
+    if (persisted.length) return persisted;
+  }
   try {
     return JSON.parse(await fs.readFile(new URL("tournaments.json", OUT_DIR), "utf8"));
   } catch {
     return [];
   }
+}
+
+async function loadTennisTownRefreshPlan() {
+  if (EXPLICIT_TENNISTOWN_APP_MONTHS.length) {
+    const automaticTargets = resolveTennisTownRefreshPlan({ initialized: true }).targets;
+    return {
+      mode: "custom",
+      targets: EXPLICIT_TENNISTOWN_APP_MONTHS.map((month) =>
+        automaticTargets.find((target) => target.month === month) || monthTarget(TENNISTOWN_ADB_YEAR, month)
+      )
+    };
+  }
+
+  let initialized = false;
+  if (isSupabaseConfigured()) {
+    const rows = await supabaseRequest(
+      `${SUPABASE_STATE_TABLE}?key=eq.${encodeURIComponent(INITIAL_REFRESH_STATE_KEY)}&select=value&limit=1`
+    );
+    initialized = Boolean(rows?.[0]?.value?.completedAt);
+  } else {
+    const existing = await readExistingTournaments();
+    const plan = resolveTennisTownRefreshPlan({ initialized: false });
+    const expected = new Set(plan.targets.map((item) => item.key));
+    const present = new Set(existing
+      .filter(isTennisTownSource)
+      .map((item) => String(item.startDate || "").slice(0, 7))
+      .filter((key) => expected.has(key)));
+    initialized = present.size === expected.size;
+  }
+  return resolveTennisTownRefreshPlan({ initialized });
+}
+
+async function syncTournamentsWithSupabase(tournaments, startedAt, successfulSourceTypes) {
+  if (!isSupabaseConfigured()) {
+    console.warn("[daehoe][supabase] skipped: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const rows = tournaments.map((tournament) => ({
+    id: tournament.id,
+    source_type: tournament.sourceType,
+    source_id: tournament.sourceId || null,
+    start_date: tournament.startDate || null,
+    end_date: tournament.endDate || null,
+    active: tournament.syncStatus !== "missing_from_latest_crawl",
+    sync_status: tournament.syncStatus || "seen",
+    payload: tournament,
+    crawled_at: tournament.crawledAt || now,
+    updated_at: tournament.updatedAt || now
+  }));
+
+  for (let index = 0; index < rows.length; index += 200) {
+    await supabaseRequest(`${SUPABASE_TOURNAMENT_TABLE}?on_conflict=id`, {
+      method: "POST",
+      body: rows.slice(index, index + 200),
+      prefer: "resolution=merge-duplicates,return=minimal"
+    });
+  }
+
+  if (tennisTownRefreshPlan.mode === "full" && successfulSourceTypes.has("TENNISTOWN_APP")) {
+    await supabaseRequest(`${SUPABASE_STATE_TABLE}?on_conflict=key`, {
+      method: "POST",
+      body: [{
+        key: INITIAL_REFRESH_STATE_KEY,
+        value: { completedAt: now, startedAt, months: tennisTownRefreshPlan.targets.map((item) => item.key) },
+        updated_at: now
+      }],
+      prefer: "resolution=merge-duplicates,return=minimal"
+    });
+  }
+
+  const persisted = await readSupabaseTournamentPayloads({ activeOnly: true });
+  console.log(`[daehoe][supabase] upserted=${rows.length} active=${persisted.length}`);
+  return persisted.sort(sortForOutput);
+}
+
+async function readSupabaseTournamentPayloads({ activeOnly = false } = {}) {
+  const persisted = [];
+  const activeFilter = activeOnly ? "&active=eq.true" : "";
+  for (let offset = 0; ; offset += 1000) {
+    const batch = await supabaseRequest(
+      `${SUPABASE_TOURNAMENT_TABLE}?select=payload${activeFilter}&order=start_date.asc.nullslast`,
+      { range: `${offset}-${offset + 999}` }
+    );
+    persisted.push(...batch.map((row) => row.payload).filter(Boolean));
+    if (batch.length < 1000) break;
+  }
+  return persisted;
+}
+
+function isSupabaseConfigured() {
+  return Boolean(SUPABASE_URL && SUPABASE_SERVICE_KEY);
+}
+
+async function supabaseRequest(path, { method = "GET", body, prefer, range } = {}) {
+  const headers = {
+    apikey: SUPABASE_SERVICE_KEY,
+    authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+    accept: "application/json"
+  };
+  if (body !== undefined) headers["content-type"] = "application/json";
+  if (prefer) headers.prefer = prefer;
+  if (range) headers.range = range;
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body)
+  });
+  if (!response.ok) {
+    const detail = compact(await response.text(), 500);
+    throw new Error(`Supabase ${method} ${response.status}: ${detail}`);
+  }
+  if (response.status === 204) return [];
+  const text = await response.text();
+  return text ? JSON.parse(text) : [];
 }
 
 async function readTennisTownAppCheckpoint() {
@@ -221,7 +368,7 @@ async function processQueueOnly(startedAt) {
   console.log(`[daehoe][queue] processed queued Gemini extractions startedAt=${startedAt}`);
 }
 
-function mergeExistingTournaments(existing, fresh, { successfulSourceNames, successfulSourceTypes }) {
+function mergeExistingTournaments(existing, fresh, { successfulSourceNames, successfulSourceTypes, tennisTownRefreshScope }) {
   const existingByKey = buildTournamentLookup(existing);
   const usedExistingIds = new Set();
   const merged = [];
@@ -242,6 +389,10 @@ function mergeExistingTournaments(existing, fresh, { successfulSourceNames, succ
     const sourceWasRefreshed = successfulSourceNames.has(existingItem.sourceName) ||
       (!existingItem.sourceName && successfulSourceTypes.has(existingItem.sourceType));
     if (!sourceWasRefreshed) {
+      merged.push(existingItem);
+      continue;
+    }
+    if (isTennisTownSource(existingItem) && !isTournamentInRefreshScope(existingItem, tennisTownRefreshScope)) {
       merged.push(existingItem);
       continue;
     }
@@ -714,13 +865,13 @@ async function crawlTennisTownApp(source) {
   const token = await getTennisTownAppToken();
   if (!token) {
     if (TENNISTOWN_ADB_ENABLED) return crawlTennisTownAppWithAdb(source);
-    console.warn("[daehoe][tennistown-app] skipped: set TENNISTOWN_APP_TOKEN or TENNISTOWN_APP_USER/TENNISTOWN_APP_PASSWORD");
-    return [];
+    throw new Error("set TENNISTOWN_APP_TOKEN or TENNISTOWN_APP_USER/TENNISTOWN_APP_PASSWORD");
   }
 
   const tournaments = [];
   const seen = new Set();
-  for (const month of TENNISTOWN_APP_MONTHS) {
+  for (const target of tennisTownRefreshPlan.targets) {
+    const { month } = target;
     await delay(REQUEST_DELAY_MS);
     const data = await fetchTennisTownAppJson("/competition/list/v3", {
       method: "POST",
@@ -783,12 +934,14 @@ async function crawlTennisTownAppWithAdb(source) {
 
   const tournaments = [];
   const seen = new Set();
-  for (const month of TENNISTOWN_APP_MONTHS) {
-    const monthKey = String(month);
-    const cachedMonth = checkpoint.months?.[monthKey];
+  for (const target of tennisTownRefreshPlan.targets) {
+    const { year, month, key: monthKey } = target;
+    const cachedMonth = checkpoint.months?.[monthKey] ||
+      (year === checkpoint.year ? checkpoint.months?.[String(month)] : null);
     const canReuseMonth = TENNISTOWN_ADB_RESUME &&
+      tennisTownRefreshPlan.mode !== "incremental" &&
       cachedMonth?.status === "complete" &&
-      cachedMonth.year === TENNISTOWN_ADB_YEAR &&
+      cachedMonth.year === year &&
       Array.isArray(cachedMonth.tournaments);
     if (canReuseMonth) {
       for (const tournament of cachedMonth.tournaments) {
@@ -803,7 +956,7 @@ async function crawlTennisTownAppWithAdb(source) {
     console.log(`[daehoe][tennistown-app] month ${month} crawl started`);
     checkpoint.months[monthKey] = {
       ...(checkpoint.months[monthKey] || {}),
-      year: TENNISTOWN_ADB_YEAR,
+      year,
       status: "in_progress",
       startedAt: new Date().toISOString(),
       partialItems: checkpoint.months[monthKey]?.partialItems || [],
@@ -816,7 +969,7 @@ async function crawlTennisTownAppWithAdb(source) {
     const scrapeResult = await scrapeVisibleTennisTownMonth(month, async (partialItems, progress) => {
       checkpoint.months[monthKey] = {
         ...checkpoint.months[monthKey],
-        year: TENNISTOWN_ADB_YEAR,
+        year,
         status: "in_progress",
         updatedAt: new Date().toISOString(),
         swipe: progress.swipe,
@@ -827,8 +980,8 @@ async function crawlTennisTownAppWithAdb(source) {
     });
     const items = scrapeResult.items;
     for (const item of items) {
-      const dateText = `${TENNISTOWN_ADB_YEAR}-${String(month).padStart(2, "0")}-${String(item.day).padStart(2, "0")}`;
-      const sourceId = `tennistown-adb-${TENNISTOWN_ADB_YEAR}-${month}-${item.day}-${hashShort(`${item.titleRaw}|${item.divisionName}|${item.venueName}`)}`;
+      const dateText = `${year}-${String(month).padStart(2, "0")}-${String(item.day).padStart(2, "0")}`;
+      const sourceId = `tennistown-adb-${year}-${month}-${item.day}-${hashShort(`${item.titleRaw}|${item.divisionName}|${item.venueName}`)}`;
       if (seen.has(sourceId)) continue;
       seen.add(sourceId);
       const participant = item.participant || parseParticipantCount(item.status);
@@ -868,7 +1021,7 @@ async function crawlTennisTownAppWithAdb(source) {
     const monthTournaments = tournaments.slice(beforeMonthCount);
     checkpoint.months[monthKey] = {
       ...checkpoint.months[monthKey],
-      year: TENNISTOWN_ADB_YEAR,
+      year,
       status: scrapeResult.reachedMaxSwipes ? "incomplete_max_swipes" : "complete",
       completedAt: new Date().toISOString(),
       reachedMaxSwipes: scrapeResult.reachedMaxSwipes,
@@ -1014,25 +1167,7 @@ function readVisibleMonth(values) {
 }
 
 async function dumpTennisTownUiValues() {
-  let dumpError = null;
-  try {
-    await adb("shell", "timeout", "12", "uiautomator", "dump", "/sdcard/tt-window.xml");
-  } catch (error) {
-    dumpError = error;
-  }
-
-  try {
-    const { stdout } = await adb("exec-out", "cat", "/sdcard/tt-window.xml");
-    const values = decodeUiXmlValues(stdout);
-    if (values.length || !dumpError) return values;
-  } catch (readError) {
-    if (dumpError) {
-      throw dumpError;
-    }
-    throw readError;
-  }
-
-  throw dumpError;
+  return readFreshUiValues({ runAdb: adb, decode: decodeUiXmlValues, wait: delay });
 }
 
 function decodeUiXmlValues(xml) {

@@ -139,8 +139,8 @@ function render() {
   const filtered = state.tournaments.filter((item) => {
     const keyword = normalizeSearchValue(els.keywordFilter?.value || "");
     const organizer = els.organizerFilter?.value || "";
-    if (els.sourceFilter.value === "tennistown" && item.sourceType !== "TENNISTOWN_APP") return false;
-    if (els.sourceFilter.value === "official" && item.sourceType === "TENNISTOWN_APP") return false;
+    if (els.sourceFilter.value === "tennistown" && !isTennisTownTournament(item)) return false;
+    if (els.sourceFilter.value === "official" && isTennisTownTournament(item)) return false;
     if (els.regionFilter.value && item.regionLabel !== els.regionFilter.value) return false;
     if (organizer && !organizerFilterValues(item).includes(organizer)) return false;
     if (keyword && !normalizeSearchValue(searchableText(item)).includes(keyword)) return false;
@@ -169,7 +169,7 @@ function syncViewControls() {
 
 function renderStats(month) {
   const active = state.activeMonthItems.filter((item) => !isInactiveTournament(item));
-  const tennistown = state.activeMonthItems.filter((item) => item.sourceType === "TENNISTOWN_APP");
+  const tennistown = state.activeMonthItems.filter(isTennisTownTournament);
   const openCapacity = state.activeMonthItems.filter(hasOpenCapacity);
   const closed = state.activeMonthItems.filter(isInactiveTournament);
   const updatedAt = latestDate(state.activeMonthItems.map((item) => item.updatedAt || item.crawledAt));
@@ -641,6 +641,10 @@ function getDisplayStatus(tournament) {
 
 function isInactiveTournament(tournament) {
   return isPastTournament(tournament) || CLOSED_STATUSES.has(normalizeStatus(getDisplayStatus(tournament)));
+}
+
+function isTennisTownTournament(tournament) {
+  return tournament.sourceType === "TENNISTOWN_APP" || tournament.sourceType === "TENNISTOWN";
 }
 
 function isPastTournament(tournament) {
