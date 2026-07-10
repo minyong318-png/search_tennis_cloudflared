@@ -5412,8 +5412,8 @@
     "duplicateKey": "년인천시협회장배전국|2026-02-26||인천열우물인천가좌시립보조경기장",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "facility_notice-isdc-370",
@@ -5437,13 +5437,14 @@
     "media": [],
     "divisions": [],
     "crawledAt": "2026-07-07T03:32:47.755Z",
-    "updatedAt": "2026-07-07T03:32:47.755Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "b535c4725963aa676dd15378bfb29bb53c9f4e094d6e7f0dd56b3430ec441783",
     "duplicateKey": "양지장사용허가|2026-02-26|성남시|국민체육센터",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T03:32:47.755Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-2-26-db5edf9fc927",
@@ -5653,8 +5654,8 @@
     "duplicateKey": "대전명봉클럽배|2026-02-27||대전관저세천등",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-2-27-72c18c6ca402",
@@ -7580,8 +7581,8 @@
     "duplicateKey": "kims|2026-03-07||경북대학교유니버시아드두류군위종합",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "local_assoc-0026",
@@ -10799,8 +10800,8 @@
     "duplicateKey": "인천itf주니어대회기념|2026-03-19||인천열우물경기장가좌시립경기장",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-3-19-f9b758d40580",
@@ -11019,8 +11020,8 @@
     "duplicateKey": "천안시장배전국|2026-03-20||천안종합운동장",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-3-20-1df15dd1b4b7",
@@ -13173,8 +13174,8 @@
     "duplicateKey": "수원홍재배전국어머니|2026-03-25|수원시|수원만석공원",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-3-25-1d4ea08b3348",
@@ -16473,8 +16474,8 @@
     "duplicateKey": "kato나사라배|2026-04-10|파주시|파주관내시립",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-4-10-57536fae710d",
@@ -19765,8 +19766,8 @@
     "duplicateKey": "창원특례시군항제기념|2026-04-18|창원시|창원시립",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kato-kato-0282",
@@ -19831,8 +19832,8 @@
     "duplicateKey": "음성군수배|2026-04-18|음성군|음성전천후",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-4-18-81f9871253b5",
@@ -24072,8 +24073,8 @@
     "duplicateKey": "임사단배|2026-05-06||오산시립충주탄금대순천팔마보조",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "facility_notice-isdc-382",
@@ -24237,8 +24238,8 @@
     "duplicateKey": "보령머드배전국|2026-05-07|보령시|보령남포보조경기장",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-5-7-0711d3748c73",
@@ -24471,8 +24472,8 @@
     "duplicateKey": "이천도자기배|2026-05-08|이천시|이천시설봉공원",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-5-8-9166ae0315c7",
@@ -24846,8 +24847,8 @@
     "duplicateKey": "춘천시협회장배전국|2026-05-09|춘천시|춘천송암스포츠타운",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "local_assoc--comp-41",
@@ -31584,8 +31585,8 @@
     "duplicateKey": "한산모시배kato|2026-06-05|서천군|서천군레포츠공원보조",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-6-5-d048f6e1baf0",
@@ -34289,8 +34290,8 @@
     "duplicateKey": "성남철쭉배|2026-06-09|성남시|성남양지시립",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-6-9-f27b3b29fcdc",
@@ -34627,8 +34628,8 @@
     "duplicateKey": "논산시육군병장배전국|2026-06-12|논산시|논산연합",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kata-1047293b-6530-4e4a-9bc8-212b62fc9a97",
@@ -38302,7 +38303,7 @@
     "organizer": "대한테니스협회",
     "startDate": "2026-07-02",
     "endDate": "2026-07-09",
-    "status": "대회진행중",
+    "status": "대회종료",
     "venueName": "양구",
     "applicationMethodText": "대한테니스협회 국내대회 일정 페이지 확인",
     "attachments": [],
@@ -38332,7 +38333,7 @@
     "organizer": "대한테니스협회",
     "startDate": "2026-07-03",
     "endDate": "2026-07-09",
-    "status": "대회진행중",
+    "status": "대회종료",
     "venueName": "춘천",
     "applicationMethodText": "대한테니스협회 국내대회 일정 페이지 확인",
     "attachments": [],
@@ -38660,6 +38661,34 @@
     "participantCurrent": 15,
     "participantCapacity": 16,
     "missingDetectedAt": "2026-07-07T23:19:51.324Z"
+  },
+  {
+    "id": "facility_notice-isdc-413",
+    "sourceType": "FACILITY_NOTICE",
+    "sourceName": "성남 시설공지",
+    "sourceUrl": "https://res.isdc.co.kr/noticeDetail.do?idx=413",
+    "sourceId": "isdc-413",
+    "titleRaw": "제25회 중원구청장배 생활체육 테니스대회 사용허가 변경 알림(26.7.11.~7.12.)",
+    "titleNormalized": "중원구청장배사용허가변경알림",
+    "tournamentScope": "시설",
+    "tournamentType": "생활체육",
+    "organizer": "성남도시개발공사",
+    "startDate": "2026-07-08",
+    "endDate": "2026-07-08",
+    "status": "대회종료",
+    "venueName": "국민체육센터",
+    "applicationMethodText": "시설 공지 원문 확인",
+    "attachments": [],
+    "media": [],
+    "divisions": [],
+    "crawledAt": "2026-07-10T03:28:06.922Z",
+    "updatedAt": "2026-07-10T03:28:06.922Z",
+    "contentHash": "3c9970cf07f2f87ba44bdd33747022e0d944a4c197c6360c03670149b80a6a93",
+    "duplicateKey": "중원구청장배사용허가변경알림|2026-07-08||국민체육센터",
+    "confidenceScore": 65,
+    "alternateSources": [],
+    "syncStatus": "new",
+    "firstSeenAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-7-8-a063034e96da",
@@ -39596,7 +39625,7 @@
     "organizer": "성남시테니스협회",
     "startDate": "2026-07-11",
     "endDate": "2026-07-12",
-    "status": "접수중",
+    "status": "접수마감",
     "venueName": "성남시 관내 테니스장",
     "applicationMethodText": "원문 확인",
     "attachments": [],
@@ -39609,7 +39638,7 @@
         "format": "혼합복식",
         "playDate": "2026-07-11",
         "applicationUrl": "https://www.sntennis.com/competitionView/0028",
-        "status": "접수중"
+        "status": "접수마감"
       },
       {
         "divisionName": "동배부",
@@ -39618,7 +39647,7 @@
         "format": "복식",
         "playDate": "2026-07-11",
         "applicationUrl": "https://www.sntennis.com/competitionView/0028",
-        "status": "접수중"
+        "status": "접수마감"
       },
       {
         "divisionName": "금배부",
@@ -39627,7 +39656,7 @@
         "format": "복식",
         "playDate": "2026-07-11",
         "applicationUrl": "https://www.sntennis.com/competitionView/0028",
-        "status": "접수중"
+        "status": "접수마감"
       }
     ],
     "crawledAt": "2026-07-07T03:27:21.682Z",
@@ -40942,7 +40971,7 @@
     "organizer": "KATA",
     "startDate": "2026-07-12",
     "endDate": "2026-07-12",
-    "status": "접수중",
+    "status": "접수예정",
     "applicationMethodText": "KATA 공식 일정 확인 후 베이스라인 앱에서 참가 신청",
     "attachments": [],
     "media": [],
@@ -40954,7 +40983,7 @@
         "format": "복식",
         "playDate": "2026-07-12",
         "applicationUrl": "https://baceline.onelink.me/Q7gp/2wkejwgx",
-        "status": "접수중"
+        "status": "접수예정"
       }
     ],
     "crawledAt": "2026-07-07T03:27:18.849Z",
@@ -49778,13 +49807,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.506Z",
-    "updatedAt": "2026-07-09T04:32:17.832Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "d994cb5888b55fc51df16367e03cceb29a93a8afdc5094a743a5503625f80c45",
     "duplicateKey": "TENNISTOWN_APP|simpleopen남자복식|2026-08-01|김포시|남자복식아이언",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-e4e6ab1291ac",
@@ -49828,13 +49858,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.506Z",
-    "updatedAt": "2026-07-09T04:32:17.833Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "8ced5cd55b1155a46d3b4508041cd88e1edc185c67b949556cb45fe182354a24",
     "duplicateKey": "TENNISTOWN_APP|simpleopen혼합복식|2026-08-01|김포시|혼합복식아이언",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-4722e22d9c09",
@@ -49879,13 +49910,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.506Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "605ab1c1011f7dec1b1896abf8cfe59ebc7a29d45ceb8c3597464a9ba2834f31",
     "duplicateKey": "TENNISTOWN_APP|여자복식acecup|2026-08-01|인천중구|여자복식합산48개월",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-32d01d475cd1",
@@ -49929,13 +49961,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.507Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "ec76d77f0fea10f463fbf58dba78d07caff4a66e3ed5a4751af67db2fb65e1d9",
     "duplicateKey": "TENNISTOWN_APP|simpleopen여자복식|2026-08-01|김포시|여자복식아이언",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-e6e72bc1a157",
@@ -49969,13 +50002,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.397Z",
-    "updatedAt": "2026-07-09T04:32:17.833Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "986e98fb9eab74bd8cc603746387393c16b9720842e2258d9c1f5ab1a1cb2dff",
     "duplicateKey": "TENNISTOWN_APP|입상전원트로피2년남단위닝컵x프렌즈아레나|2026-08-01|평택시|2년남단",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-b2ece0cb6447",
@@ -50019,13 +50053,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.505Z",
-    "updatedAt": "2026-07-09T04:32:17.831Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "640095043c4c0158dce0590a4678d1dc0f69cb129ad6b079f29311d09cffa8b1",
     "duplicateKey": "TENNISTOWN_APP|입상전원트로피남단브론즈위닝컵한양대에리카|2026-08-01|안산시상록구|남단브론즈",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-a1cfaaf14e84",
@@ -50061,13 +50096,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.395Z",
-    "updatedAt": "2026-07-09T04:32:17.831Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "703445d16af675e7e3d4040072edbe717847322677878c8cf0dbcf46e6b66f51",
     "duplicateKey": "TENNISTOWN_APP|입상전원트로피여단브론즈위닝컵화성엘리장|2026-08-01|화성시|여단브론즈",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-d27d5c3239b2",
@@ -50101,13 +50137,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.396Z",
-    "updatedAt": "2026-07-09T04:32:17.833Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "3bab02ef357fe1ba34031467ee0ccc9971f7a2db4c7290f95d5a6e8234ae59b5",
     "duplicateKey": "TENNISTOWN_APP|입상전원트로피여복개나리부위닝컵한양대에리카|2026-08-01|안산시상록구|여복개나리부",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-5e44c1ae007f",
@@ -50152,13 +50189,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.505Z",
-    "updatedAt": "2026-07-09T04:32:17.829Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "a50722df9528e8ab51e50c98d4a577ea88f78ee69aee03c7024b7912085e01d8",
     "duplicateKey": "TENNISTOWN_APP|트로피남자복식acecup|2026-08-01|인천중구|남자복식합산48개월",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-55db1a349b90",
@@ -50203,13 +50241,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.506Z",
-    "updatedAt": "2026-07-09T04:32:17.833Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "e2f3802b69d5ef51c665f1de5489055b1e0f026464528fc1fbd7853026c5b5b8",
     "duplicateKey": "TENNISTOWN_APP|트로피혼합복식acecup|2026-08-01|인천중구|혼합복식합산48개월",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-74e400f233db",
@@ -50253,13 +50292,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.506Z",
-    "updatedAt": "2026-07-09T04:32:17.833Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "16324074b0926da8f303ee336599997beb4119dff739c515ad3f18aff78ca6f9",
     "duplicateKey": "TENNISTOWN_APP|테슬라배야간대회31회신인부|2026-08-01|의령군|신인부",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-8b403ae89e09",
@@ -50289,13 +50329,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.396Z",
-    "updatedAt": "2026-07-09T04:32:17.832Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "8c8f7648254f6875550104a16aab94b66a6286630b4c607d7d1af745574c7e51",
     "duplicateKey": "TENNISTOWN_APP|순창배챌린저부순창군|2026-08-01|/96|114",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-06d20bad939d",
@@ -50390,7 +50431,7 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.505Z",
-    "updatedAt": "2026-07-09T04:32:17.830Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "5c0a1d90405701e57ebbff26c7eaa15c5a26ccd0876ec02db599b9905c07005b",
     "duplicateKey": "TENNISTOWN_APP|포레스트오픈|2026-08-01|안성시|남복브론즈",
     "confidenceScore": 85,
@@ -50409,7 +50450,8 @@
       }
     ],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-f928ad747d00",
@@ -50445,13 +50487,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:10.884Z",
-    "updatedAt": "2026-07-09T04:32:17.833Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "13f0bb1f28b03c0d6557a67b11a1f016552dc06cdf53b6839702486435d8a553",
     "duplicateKey": "TENNISTOWN_APP|포레스트오픈|2026-08-01|안성시|여복브론즈",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-ebd95d12d8d3",
@@ -50487,13 +50530,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:10.884Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "48c194579f1addb5940c0d1d86b13c78066f4bbe799f5f0ed3947e7f417a289f",
     "duplicateKey": "TENNISTOWN_APP|포레스트오픈|2026-08-01|안성시|혼복브론즈",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-1-994f98ac55a4",
@@ -50539,13 +50583,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.506Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "0d65401e51b0a1f0671aca02a43f0f98bf6e2304951216d471a14171c34afdd7",
     "duplicateKey": "TENNISTOWN_APP|kcp오픈|2026-08-01|화성시|남자복식합산16개월이하(비입상)",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-5b549eab99ff",
@@ -50589,13 +50634,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.507Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "e609334694abfee1b7ac10f7b20399f2966e2d3dd8a535d14421db9cc548dd6b",
     "duplicateKey": "TENNISTOWN_APP|여자복식acecup|2026-08-02|김포시|여자복식18개월",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-0187cec1fa29",
@@ -50639,13 +50685,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.507Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "09346919dbc6f52cfd2410ac5a803351a8743acc83eea0d51d3817693340eb0f",
     "duplicateKey": "TENNISTOWN_APP|총상금160만원남복브론즈빅매치위닝컵|2026-08-02|안산시상록구|남복브론즈",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-4fdc701b16cb",
@@ -50679,13 +50726,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.398Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "baea75a1934df866c0ca55530503c47650628a76406c0260f1398a539751c94b",
     "duplicateKey": "TENNISTOWN_APP|총상금160만원남복아이언빅매치위닝컵|2026-08-02|안산시상록구|남복아이언",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-9513f8726496",
@@ -50729,7 +50777,7 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.507Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "1a9052a066f317bc942f58aa768d243e2f3414b0d2c3a18b241b0acbfebdb6fb",
     "duplicateKey": "TENNISTOWN_APP|브론즈데이simpletennisopen|2026-08-02|김포시|여자복식브론즈",
     "confidenceScore": 75,
@@ -50742,7 +50790,8 @@
       }
     ],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-b452c3a52111",
@@ -50776,13 +50825,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:10.885Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "d493e74159607043252f821d3df5c34ededb01c9aa2d612a88ba7f62702d02e4",
     "duplicateKey": "TENNISTOWN_APP|브론즈데이simpletennisopen|2026-08-02|김포시|남자복식브론즈",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-5999b684f852",
@@ -50828,7 +50878,7 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.507Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "6858cd2a4b3b027cd34b13b8a03cd0dad68a35036b8a39e6bef69d515386511d",
     "duplicateKey": "TENNISTOWN_APP|포레스트오픈|2026-08-02|안성시|남복합산48개월",
     "confidenceScore": 85,
@@ -50847,7 +50897,8 @@
       }
     ],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-d4efce006e2f",
@@ -50883,13 +50934,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:10.885Z",
-    "updatedAt": "2026-07-09T04:32:17.834Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "349acc945702fef62bf2de71e081f71e1ca16faffa894cb3f3c60098a3d9e466",
     "duplicateKey": "TENNISTOWN_APP|포레스트오픈|2026-08-02|안성시|여복합산48개월",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-2-2db1847c3cac",
@@ -50925,13 +50977,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:10.885Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "820967301758f3b08aa4eb8172650ec34c3a05a4191f71ca9394ea0557d02ed9",
     "duplicateKey": "TENNISTOWN_APP|포레스트오픈|2026-08-02|안성시|혼복합산48개월",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown-tennistown-c7ebd23401a2",
@@ -51281,6 +51334,66 @@
         "status": "미상"
       },
       {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-07",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-07",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-07",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-08",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-08",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-08",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
         "divisionName": "챌린저부",
         "gender": "무관",
         "level": "챌린저",
@@ -51360,13 +51473,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.508Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "8fbea9c5468a8d783ba5a324a188d554caef5c6f17c1e3ca5ca3ecadf564f83b",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배국화부공주시|2026-08-06|/96|0",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "kta-kta-18-4687bb50cb86",
@@ -51526,13 +51640,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.399Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "2b6e066c773d9fd30a7c199dc166c495f634d2e51ac752676b3bfe019fbde82f",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배개나리부부여군|2026-08-07|/50|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-7-86ff810ca9f8",
@@ -51611,13 +51726,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.399Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "c6145af6757f613a7793b6f1dfaa8368af9347c9e0554fed6907f46b396ddbe7",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배개나리부공주시|2026-08-07|/60|0",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-7-3686d50ae3f1",
@@ -51649,13 +51765,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.399Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "da1b6e766a6df5a2e9e3db3acdf4fe42f3d4c7d0ec1405dd8c0d84b0688b67ef",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배개나리부보령시|2026-08-07|/54|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-7-836f502e08cc",
@@ -51685,13 +51802,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.399Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "7a21baf2342c454dbac5060ef56b5604843227f9d3124c9830945a66bab80e7f",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배개나리부서산시|2026-08-07|/55|0",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-8-ed11edfea960",
@@ -51721,13 +51839,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.399Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "01f090b85e2a9efe294b346e9ce57f65305dbc4c45f6f982e3b841b4e24d71ea",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배챌린저부공주시|2026-08-08|/60|0",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-8-c40bf8b38ad4",
@@ -51796,13 +51915,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.399Z",
-    "updatedAt": "2026-07-09T04:32:17.836Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "ab6e2e59783d35fcc7931fc72af26dd85d204fc9fbfa2e573dbb187e3d97153a",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배챌린저부보령시|2026-08-08|/54|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-8-e4c60073f31f",
@@ -51834,13 +51954,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.400Z",
-    "updatedAt": "2026-07-09T04:32:17.836Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "8a6688d851a8fc4c37d4a0d5e773bd7705c6f1a2c8894416a27aed1416634503",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배챌린저부부여군|2026-08-08|/50|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-8-d24628e747c8",
@@ -51870,13 +51991,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.399Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "efd787f1af8e3f5698172d85fc9472ebcba83f276bf7a662e415d4627b330c76",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배챌린저부서산시|2026-08-08|/55|0",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-8-f0e82f437966",
@@ -51971,13 +52093,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.508Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "f8e9aca445e2f52db19ebbbfdd7ba0844bd69e47e3be85d2a5a072c5436694ac",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-08-08|화성시|여복골드",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-8-204edccd2a5e",
@@ -52021,13 +52144,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.509Z",
-    "updatedAt": "2026-07-09T04:32:17.836Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "105a9ed9a2d793e8a22c4cde68c6d062805756e92857a0e714a1ee5673359d65",
     "duplicateKey": "TENNISTOWN_APP|테슬라배야간대회32회개나리부|2026-08-08|의령군|개나리부",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-9-16037efe7322",
@@ -52069,13 +52193,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.509Z",
-    "updatedAt": "2026-07-09T04:32:17.836Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "63360684f2765503e334698673631ecfcfc21c3c5029945ba201082b73e7084b",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배마스터스부공주시|2026-08-09|/96|0",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-9-97e6dadf6562",
@@ -52117,13 +52242,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.509Z",
-    "updatedAt": "2026-07-09T04:32:17.836Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "1498109c9abe7074b0c4bd2b4e44c817d23cb674d8b9ca7f95ae3774e26c1c30",
     "duplicateKey": "TENNISTOWN_APP|낫소kato회장배베테랑부서산시|2026-08-09|/96|0",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-9-cfefeb677335",
@@ -52169,13 +52295,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.508Z",
-    "updatedAt": "2026-07-09T04:32:17.835Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "d2d61c13a33a8d232ba61391a2f844514a3214d5125eaa0bbf3bb79edac2707a",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-08-09|화성시|남복골드",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown-tennistown-f7b9beb77124",
@@ -52254,6 +52381,82 @@
     "syncStatus": "seen"
   },
   {
+    "id": "kato-kato-0300",
+    "sourceType": "KATO",
+    "sourceName": "KATO",
+    "sourceUrl": "https://kato.kr/openGame/0300",
+    "sourceId": "kato-0300",
+    "titleRaw": "2026 서천 맥문동배 전국동호인테니스대회",
+    "titleNormalized": "서천맥문동배",
+    "regionSido": "충청남도",
+    "regionSigungu": "서천군",
+    "tournamentScope": "전국",
+    "tournamentType": "동호인대회",
+    "organizer": "서천군테니스협회",
+    "host": "서천군테니스협회, (사)한국테니스발전협의회(KATO)",
+    "startDate": "2026-08-14",
+    "endDate": "2026-08-17",
+    "status": "미상",
+    "venueName": "서천군 레포츠공원 테니스코트외 보조코트",
+    "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+    "prizeText": "◈ 우 승 : 상패 및 상금 100만원 ◈ 준우승 : 상패 및 상금 60만원 ◈ 공동 3위 : 상패 및 상금 40만원 ◈ 8강 : 지역특산품 ◈참가팀수 미달 시 상금조정(각부 70팀 이하시)",
+    "ballText": "낫소 짜르투어 테니스볼",
+    "applicationMethodText": "KATO 원문 신청 페이지 확인",
+    "detailText": "개회식 : 8월 14일(금) 오전 9시",
+    "attachments": [],
+    "media": [],
+    "divisions": [
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-14",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "혼합복식부",
+        "gender": "혼합",
+        "level": "미상",
+        "format": "혼합복식",
+        "playDate": "2026-08-15",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-16",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "베테랑부",
+        "gender": "무관",
+        "level": "시니어",
+        "format": "복식",
+        "playDate": "2026-08-17",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금]",
+        "status": "미상"
+      }
+    ],
+    "crawledAt": "2026-07-10T03:22:40.549Z",
+    "updatedAt": "2026-07-10T03:22:40.549Z",
+    "contentHash": "8aef046904a7d2de806d0a57906f8f0f4fff05d787ca9b7f3d76ecb01a775018",
+    "duplicateKey": "서천맥문동배|2026-08-14|서천군|서천군레포츠공원보조",
+    "confidenceScore": 100,
+    "alternateSources": [],
+    "syncStatus": "new",
+    "firstSeenAt": "2026-07-10T03:28:46.929Z"
+  },
+  {
     "id": "tennistown_app-tennistown-adb-2026-8-14-b34307c09605",
     "sourceType": "TENNISTOWN_APP",
     "sourceName": "TennisTown App",
@@ -52283,13 +52486,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.400Z",
-    "updatedAt": "2026-07-09T04:32:17.836Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "345509e2526d2b7462d509d224299b5d1b98b0f529b2841b32d331c08f90082b",
     "duplicateKey": "TENNISTOWN_APP|서천맥문동배개나리부서천군|2026-08-14|/96|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-15-f6c51182517b",
@@ -52321,13 +52525,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.400Z",
-    "updatedAt": "2026-07-09T04:32:17.836Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "89cd9976dc21a6f69276d4ec8276cafbe42680fdd920052ebb68f6d5ab1171cb",
     "duplicateKey": "TENNISTOWN_APP|서천맥문동배혼합복식부서천군|2026-08-15|/96|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown-tennistown-ca866270759f",
@@ -52419,13 +52624,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.400Z",
-    "updatedAt": "2026-07-09T04:32:17.837Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "effa5c681b3f9e0a66bb2596fb46f31fc258573026a2389eafc6fca1e8250bc9",
     "duplicateKey": "TENNISTOWN_APP|서천맥문동배챌린저부서천군|2026-08-16|/96|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-17-89a2b9c39f3d",
@@ -52457,13 +52663,88 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:13.400Z",
-    "updatedAt": "2026-07-09T04:32:17.837Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "4b6c02425291ac60e0ce56cddc1ecb0c12a0daf302a663d90a060259dde934c4",
     "duplicateKey": "TENNISTOWN_APP|서천맥문동배베테랑부서천군|2026-08-17|/96|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
+  },
+  {
+    "id": "kato-kato-0303",
+    "sourceType": "KATO",
+    "sourceName": "KATO",
+    "sourceUrl": "https://kato.kr/openGame/0303",
+    "sourceId": "kato-0303",
+    "titleRaw": "제 11 회 청양고추 구기자배 전국동호인테니스대회",
+    "titleNormalized": "청양고추구기자배",
+    "tournamentScope": "전국",
+    "tournamentType": "동호인대회",
+    "organizer": "청양군, 청양군테니스협회",
+    "host": "청양군 테니스협회 , (사)한국테니스발전협의회(KATO)",
+    "startDate": "2026-08-21",
+    "endDate": "2026-08-23",
+    "status": "미상",
+    "venueName": "청양공설운동장 테니스코트 외 보조코트",
+    "feeText": ".",
+    "prizeText": ".",
+    "ballText": "낫소 짜르투어 테니스볼",
+    "applicationMethodText": "KATO 원문 신청 페이지 확인",
+    "detailText": ".",
+    "attachments": [],
+    "media": [],
+    "divisions": [
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-08-21",
+        "startTime": "09:00",
+        "feeText": ".",
+        "status": "미상"
+      },
+      {
+        "divisionName": "국화부",
+        "gender": "여성",
+        "level": "국화",
+        "format": "복식",
+        "playDate": "2026-08-22",
+        "startTime": "09:00",
+        "feeText": ".",
+        "status": "미상"
+      },
+      {
+        "divisionName": "베테랑부",
+        "gender": "무관",
+        "level": "시니어",
+        "format": "복식",
+        "playDate": "2026-08-22",
+        "startTime": "09:00",
+        "feeText": ".",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-08-23",
+        "startTime": "09:00",
+        "feeText": ".",
+        "status": "미상"
+      }
+    ],
+    "crawledAt": "2026-07-10T03:22:42.077Z",
+    "updatedAt": "2026-07-10T03:22:42.077Z",
+    "contentHash": "7fe88cda7cdb9c2c3ecccede40b3638ff30f5bafca28f39ea835c48c3b4fe7a4",
+    "duplicateKey": "청양고추구기자배|2026-08-21||청양공설운동장보조",
+    "confidenceScore": 90,
+    "alternateSources": [],
+    "syncStatus": "new",
+    "firstSeenAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-22-d2fba0f8f0e6",
@@ -52509,13 +52790,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.510Z",
-    "updatedAt": "2026-07-09T04:32:17.837Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "a857d1941e7508281a4cf1dbbb4388e6e32142d4225b7a0722fadd1737cea406",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-08-22|화성시|여복브론즈",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-23-399c4061767c",
@@ -52561,13 +52843,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.510Z",
-    "updatedAt": "2026-07-09T04:32:17.837Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "10a3997da68aa119e360316d6e5cfb95c15dcc96c9846e5340f684afbd0c2bee",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-08-23|화성시|남복브론즈",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-8-29-6ea458bb8988",
@@ -52601,13 +52884,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:41.511Z",
-    "updatedAt": "2026-07-09T04:32:17.837Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "5aa5faefffd15e5f419cfd77f2f60f869e233e0c1321d690afe152b6836beb7d",
     "duplicateKey": "TENNISTOWN_APP|테슬라배30회3년미만남복|2026-08-29|김해시|3년미만남복",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "local_assoc-gunpo-c30bb029ca90",
@@ -52692,8 +52976,8 @@
     "duplicateKey": "광주시협회장배여성전국|2026-09-02|광주시|광주시양벌",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-08T02:50:41.548Z"
+    "firstSeenAt": "2026-07-08T02:50:41.548Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-2-cd7ce851ab43",
@@ -52739,13 +53023,14 @@
       }
     ],
     "crawledAt": "2026-07-07T03:27:17.402Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "1a2955b367e3189e4cc40ea2d6dd9b89bb47a7facd73c0ebeb02954a61e939be",
     "duplicateKey": "TENNISTOWN_APP|광주시협회장배여성전국|2026-09-02|광주시|개나리부",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T03:27:17.402Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown-tennistown-57fc4701b916",
@@ -52868,13 +53153,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:33.089Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "a83e35c65f79b0062088fb5b0cc5ce459eb0897bbd178366e3fc5bd44f26bd57",
     "duplicateKey": "TENNISTOWN_APP|광주시협회장배여성전국국화부광주시|2026-09-03|/100|118",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-3-d5b7a340f4e3",
@@ -53106,6 +53392,82 @@
     "syncStatus": "seen"
   },
   {
+    "id": "kato-kato-0301",
+    "sourceType": "KATO",
+    "sourceName": "KATO",
+    "sourceUrl": "https://kato.kr/openGame/0301",
+    "sourceId": "kato-0301",
+    "titleRaw": "제 5 회 마산 365병원장배 전국 동호인테니스대회",
+    "titleNormalized": "마산365병원장배전국",
+    "regionSido": "경상남도",
+    "regionSigungu": "창원시",
+    "tournamentScope": "전국",
+    "tournamentType": "동호인대회",
+    "organizer": "창원시 테니스협회, 마산 365병원",
+    "host": "창원시 테니스협회.(사)한국테니스발전협의회(KATO)",
+    "startDate": "2026-09-12",
+    "endDate": "2026-09-13",
+    "status": "미상",
+    "venueName": "창원 시립테니스장",
+    "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+    "prizeText": "< 개나리부/ 챌린저부> ◈ 우 승 : 상패 및 상금 160만원 ◈ 준우승 : 상패 및 상금 80만원 ◈ 공동 3위 : 상패 및 상금 50만원 ◈ 8강 : 상금 10만원 (참가팀수 미달 시 상금조정: 개나리부/챌린저부 100팀 이하시) <마스터스부> ◈ 우 승 :상패 및 상금 100만원 ◈ 준우승 :상패 및 상금 60만원...",
+    "ballText": "낫소 짜르투어 테니스볼",
+    "applicationMethodText": "KATO 원문 신청 페이지 확인",
+    "detailText": ".",
+    "attachments": [],
+    "media": [],
+    "divisions": [
+      {
+        "divisionName": "개나리부",
+        "gender": "여성",
+        "level": "개나리",
+        "format": "복식",
+        "playDate": "2026-09-12",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "마스터스부",
+        "gender": "무관",
+        "level": "마스터스",
+        "format": "복식",
+        "playDate": "2026-09-12",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "챌린저부",
+        "gender": "무관",
+        "level": "챌린저",
+        "format": "복식",
+        "playDate": "2026-09-13",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      },
+      {
+        "divisionName": "여자퓨처스부",
+        "gender": "여성",
+        "level": "미상",
+        "format": "복식",
+        "playDate": "2026-09-13",
+        "startTime": "09:00",
+        "feeText": "개인복식 팀당 64,000원 [팀당 4천원 - 꿈나무육성기금 포함]",
+        "status": "미상"
+      }
+    ],
+    "crawledAt": "2026-07-10T03:22:45.104Z",
+    "updatedAt": "2026-07-10T03:22:45.104Z",
+    "contentHash": "53dd002a234c7926cf3a1324a95d7016c2fb7963d2636b87cbf13e3dce5de888",
+    "duplicateKey": "마산365병원장배전국|2026-09-12|창원시|창원시립",
+    "confidenceScore": 100,
+    "alternateSources": [],
+    "syncStatus": "new",
+    "firstSeenAt": "2026-07-10T03:28:46.929Z"
+  },
+  {
     "id": "tennistown_app-tennistown-adb-2026-9-12-70aeaf937d76",
     "sourceType": "TENNISTOWN_APP",
     "sourceName": "TennisTown App",
@@ -53149,13 +53511,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:55.273Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "1b08f274ee25a2ac3b41fc7628aeeb8ed5a6f6dc5af84ee720748f00be078630",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-09-12|화성시|남복실버",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-12-d5713d42d50d",
@@ -53187,13 +53550,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:33.089Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "f0ee5a307f5bcf72f946c9f1e63c42c22854a6470a054ec2f870686077a94ccc",
     "duplicateKey": "TENNISTOWN_APP|마산365병원장배전국개나리부창원시성산구|2026-09-12|/200|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-12-6e96dd80a452",
@@ -53225,13 +53589,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:33.089Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "6f31e327c4bae376f2431553ceef2c08ccb9471a44a67753199f4cb0bb0766ce",
     "duplicateKey": "TENNISTOWN_APP|마산365병원장배전국마스터스부창원시성산구|2026-09-12|/120|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-13-c5cac537bbd2",
@@ -53277,13 +53642,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:53:55.273Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "da505fb2bf08e37a0ec31661cd5acdd8a8216d0b4ff7e5d198c20a9266719036",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-09-13|화성시|여복실버",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-13-07d1ecb6ea6c",
@@ -53315,13 +53681,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:33.089Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "411be68a30ae9f39429264f70e17dee1a7c4f5803a2b669563f685a1ca9f9d00",
     "duplicateKey": "TENNISTOWN_APP|마산365병원장배전국여자퓨처스부창원시성산구|2026-09-13|/60|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-9-13-9f857d189b36",
@@ -53353,13 +53720,14 @@
       }
     ],
     "crawledAt": "2026-07-09T04:20:33.089Z",
-    "updatedAt": "2026-07-09T04:33:16.736Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "4664a44b970746aab5ce8968effca56efe93b286baa015fb72e453c13318b837",
     "duplicateKey": "TENNISTOWN_APP|마산365병원장배전국챌린저부창원시성산구|2026-09-13|/180|0",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-09T04:21:19.681Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "kta-kta-20-2448fba69ce8",
@@ -53487,13 +53855,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:54:13.380Z",
-    "updatedAt": "2026-07-09T04:34:14.106Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "0862e82c574c244d6d549848c1cf23ad6ca2f33c09328cb125b18be5f69e1ddf",
     "duplicateKey": "TENNISTOWN_APP|공지대회신청전필수사항안내대회신청을하시려면최신버전앱으로업데이트후|2026-10-01|최신버전앱으로업데이트|ktaid를연동해야합니다.",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "kta-kta-22-6204da12dc5e",
@@ -53899,7 +54268,7 @@
       }
     ],
     "crawledAt": "2026-07-07T14:54:13.379Z",
-    "updatedAt": "2026-07-09T04:34:14.105Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "2ad5974bedd611993c53dd67de6eb60239e87c79dc3a439af8cb001b2af5ab4f",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-10-17|화성시|남복브론즈",
     "confidenceScore": 85,
@@ -53918,7 +54287,8 @@
       }
     ],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-10-17-70aeaf937d76",
@@ -53950,13 +54320,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:41.734Z",
-    "updatedAt": "2026-07-09T04:34:14.105Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "f9a74e17c8d8f9263ab1e4a8fc1a2f6d20c69790abfc7bc7fc2e40620f958b09",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-10-17|화성시|남복실버",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-10-17-cfefeb677335",
@@ -53988,13 +54359,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:41.734Z",
-    "updatedAt": "2026-07-09T04:34:14.105Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "8bff93ab4ff0b7cc0fc989ee135ccf2ea84388cd1ff47faf881e7db5a0b7cc93",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-10-17|화성시|남복골드",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-10-18-d2fba0f8f0e6",
@@ -54038,7 +54410,7 @@
       }
     ],
     "crawledAt": "2026-07-07T14:54:13.379Z",
-    "updatedAt": "2026-07-09T04:34:14.105Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "5253cd6e6eebaf2ab45a295ccc9c5b9a6364236b6e5aa62bd7050c3a1f6d76cc",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-10-18|화성시|여복브론즈",
     "confidenceScore": 85,
@@ -54057,7 +54429,8 @@
       }
     ],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-10-18-c5cac537bbd2",
@@ -54089,13 +54462,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:41.734Z",
-    "updatedAt": "2026-07-09T04:34:14.105Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "8585ef365437dca486716a49b3b21858ecd71ec448d6b50517de63775166623b",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-10-18|화성시|여복실버",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "tennistown_app-tennistown-adb-2026-10-18-858161b380e2",
@@ -54127,13 +54501,14 @@
       }
     ],
     "crawledAt": "2026-07-07T23:29:41.734Z",
-    "updatedAt": "2026-07-09T04:34:14.106Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "d0f33db667e5d6e7d75ecc2614260bcb4d6feea6554bc9b814b2c18c369e2eb3",
     "duplicateKey": "TENNISTOWN_APP|던롭xopen|2026-10-18|화성시|여복골드",
     "confidenceScore": 85,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T23:35:04.985Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "local_assoc-yitc-23-a0c3172f6d13",
@@ -54757,13 +55132,14 @@
       }
     ],
     "crawledAt": "2026-07-07T14:54:39.354Z",
-    "updatedAt": "2026-07-09T04:35:56.923Z",
+    "updatedAt": "2026-07-10T03:28:46.929Z",
     "contentHash": "8b73a51f7a0038c53f2364f0317306fb82d2677df26d5303b882d295f2d7c5c9",
     "duplicateKey": "TENNISTOWN_APP|단체전test단체전|2026-12-01|대진오픈|안산시상록구",
     "confidenceScore": 75,
     "alternateSources": [],
     "firstSeenAt": "2026-07-07T14:54:39.364Z",
-    "syncStatus": "seen"
+    "syncStatus": "missing_from_latest_crawl",
+    "missingDetectedAt": "2026-07-10T03:28:46.929Z"
   },
   {
     "id": "kta-kta-27-4cd68076a9b2",

@@ -1,20 +1,410 @@
 {
-  "sourceName": "TennisTown App 수집",
+  "sourceName": "KTA 국내대회, KATO, KATA, 성남시테니스협회, 서울시테니스협회, 강남구테니스협회, 도봉구테니스협회, 성남 시설공지, 테니스타운, 용인시테니스협회 수집",
   "sourceUrl": "multiple",
-  "startedAt": "2026-07-09T04:30:25.538Z",
-  "finishedAt": "2026-07-09T04:35:57.019Z",
-  "listCount": 61,
-  "detailCount": 1488,
-  "errorCount": 0,
+  "startedAt": "2026-07-10T03:21:50.265Z",
+  "finishedAt": "2026-07-10T03:28:46.995Z",
+  "listCount": 327,
+  "detailCount": 1492,
+  "errorCount": 28,
   "sources": [
+    {
+      "sourceName": "KTA 국내대회",
+      "sourceType": "KTA",
+      "sourceUrl": "https://www.kortennis.or.kr/cmpt/92/cmptList.do",
+      "status": "success",
+      "startedAt": "2026-07-10T03:21:50.266Z",
+      "finishedAt": "2026-07-10T03:21:52.790Z",
+      "detailCount": 46,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "KATO",
+      "sourceType": "KATO",
+      "sourceUrl": "https://kato.kr/openList",
+      "status": "success",
+      "startedAt": "2026-07-10T03:21:52.790Z",
+      "finishedAt": "2026-07-10T03:22:45.104Z",
+      "detailCount": 32,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "KATA",
+      "sourceType": "KATA",
+      "sourceUrl": "https://kata-tennis.com/tournaments",
+      "status": "success",
+      "startedAt": "2026-07-10T03:22:45.104Z",
+      "finishedAt": "2026-07-10T03:22:46.562Z",
+      "detailCount": 30,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "성남시테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://www.sntennis.com/schedules",
+      "status": "success",
+      "startedAt": "2026-07-10T03:22:46.562Z",
+      "finishedAt": "2026-07-10T03:22:49.079Z",
+      "detailCount": 3,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "서울시테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://seoultennis.com/",
+      "status": "success",
+      "startedAt": "2026-07-10T03:22:49.079Z",
+      "finishedAt": "2026-07-10T03:22:51.672Z",
+      "detailCount": 3,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "강남구테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://bacving.com/org/gangnamgu-tennis/notice/NOTICE/list",
+      "status": "success",
+      "startedAt": "2026-07-10T03:22:51.672Z",
+      "finishedAt": "2026-07-10T03:22:53.627Z",
+      "detailCount": 4,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "도봉구테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "http://dbgta.or.kr/main.html",
+      "status": "success",
+      "startedAt": "2026-07-10T03:22:53.628Z",
+      "finishedAt": "2026-07-10T03:22:56.681Z",
+      "detailCount": 15,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "안양시테니스협회 공지",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://www.mdcare.co.kr/notice",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:22:56.681Z",
+      "finishedAt": "2026-07-10T03:23:08.376Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "수원시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%88%98%EC%9B%90",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:23:08.376Z",
+      "finishedAt": "2026-07-10T03:23:20.072Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "화성시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%ED%99%94%EC%84%B1",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:23:20.072Z",
+      "finishedAt": "2026-07-10T03:23:31.767Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "의왕시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%9D%98%EC%99%95",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:23:31.767Z",
+      "finishedAt": "2026-07-10T03:23:43.463Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "광주시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EA%B4%91%EC%A3%BC",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:23:43.463Z",
+      "finishedAt": "2026-07-10T03:23:55.158Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "고양시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EA%B3%A0%EC%96%91",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:23:55.158Z",
+      "finishedAt": "2026-07-10T03:24:06.853Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "용인시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%9A%A9%EC%9D%B8",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:24:06.853Z",
+      "finishedAt": "2026-07-10T03:24:18.547Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "성남시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%84%B1%EB%82%A8",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:24:18.547Z",
+      "finishedAt": "2026-07-10T03:24:30.241Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "안양시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%95%88%EC%96%91",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:24:30.241Z",
+      "finishedAt": "2026-07-10T03:24:41.934Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "군포시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EA%B5%B0%ED%8F%AC",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:24:41.935Z",
+      "finishedAt": "2026-07-10T03:24:53.629Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "하남시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%ED%95%98%EB%82%A8",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:24:53.629Z",
+      "finishedAt": "2026-07-10T03:25:05.323Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "부천시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EB%B6%80%EC%B2%9C",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:25:05.323Z",
+      "finishedAt": "2026-07-10T03:25:17.018Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "안산시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%95%88%EC%82%B0",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:25:17.018Z",
+      "finishedAt": "2026-07-10T03:25:28.713Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "시흥시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%8B%9C%ED%9D%A5",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:25:28.713Z",
+      "finishedAt": "2026-07-10T03:25:40.406Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "김포시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EA%B9%80%ED%8F%AC",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:25:40.406Z",
+      "finishedAt": "2026-07-10T03:25:52.100Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "남양주시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EB%82%A8%EC%96%91%EC%A3%BC",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:25:52.100Z",
+      "finishedAt": "2026-07-10T03:26:03.792Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "평택시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%ED%8F%89%ED%83%9D",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:26:03.792Z",
+      "finishedAt": "2026-07-10T03:26:15.485Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "안성시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%95%88%EC%84%B1",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:26:15.485Z",
+      "finishedAt": "2026-07-10T03:26:27.180Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "의정부시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%9D%98%EC%A0%95%EB%B6%80",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:26:27.180Z",
+      "finishedAt": "2026-07-10T03:26:38.874Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "양평군 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%96%91%ED%8F%89",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:26:38.874Z",
+      "finishedAt": "2026-07-10T03:26:50.566Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "이천시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%9D%B4%EC%B2%9C",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:26:50.566Z",
+      "finishedAt": "2026-07-10T03:27:02.260Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "오산시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EC%98%A4%EC%82%B0",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:27:02.260Z",
+      "finishedAt": "2026-07-10T03:27:13.955Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "과천시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EA%B3%BC%EC%B2%9C",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:27:13.955Z",
+      "finishedAt": "2026-07-10T03:27:25.648Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "구리시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EA%B5%AC%EB%A6%AC",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:27:25.648Z",
+      "finishedAt": "2026-07-10T03:27:37.341Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "광명시 2차 후보",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule&sfl=wr_subject&stx=%EA%B4%91%EB%AA%85",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:27:37.341Z",
+      "finishedAt": "2026-07-10T03:27:49.032Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "군포시체육회 테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://gunposports.or.kr/bbs/board.php?bo_table=classgroup&wr_id=50",
+      "status": "success",
+      "startedAt": "2026-07-10T03:27:49.032Z",
+      "finishedAt": "2026-07-10T03:27:51.008Z",
+      "detailCount": 0,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "하남시테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://www.hanamtennis.com/club/competition.php?sect_id=10",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:27:51.008Z",
+      "finishedAt": "2026-07-10T03:27:52.984Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "경기도테니스연합회 일정",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://kgtfs.com/bbs/board.php?bo_table=ktfs_schedule",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:27:52.984Z",
+      "finishedAt": "2026-07-10T03:28:04.679Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "성남 시설공지",
+      "sourceType": "FACILITY_NOTICE",
+      "sourceUrl": "https://res.isdc.co.kr/notice.do?facType=tennis",
+      "status": "success",
+      "startedAt": "2026-07-10T03:28:04.679Z",
+      "finishedAt": "2026-07-10T03:28:06.923Z",
+      "detailCount": 8,
+      "errorMessage": null
+    },
     {
       "sourceName": "TennisTown App",
       "sourceType": "TENNISTOWN_APP",
       "sourceUrl": "https://app.momjit.com/competition/list/v3",
       "status": "success",
-      "startedAt": "2026-07-09T04:30:25.539Z",
-      "finishedAt": "2026-07-09T04:35:56.941Z",
-      "detailCount": 61,
+      "startedAt": "2026-07-10T03:28:06.923Z",
+      "finishedAt": "2026-07-10T03:28:08.124Z",
+      "detailCount": 0,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "테니스타운",
+      "sourceType": "TENNISTOWN",
+      "sourceUrl": "https://www.tennistown.team/",
+      "status": "success",
+      "startedAt": "2026-07-10T03:28:08.124Z",
+      "finishedAt": "2026-07-10T03:28:36.539Z",
+      "detailCount": 162,
+      "errorMessage": null
+    },
+    {
+      "sourceName": "tennisgame 지역대회",
+      "sourceType": "TENNISGAME",
+      "sourceUrl": "https://www.tennisgame.co.kr/board/lcompeboard",
+      "status": "failed",
+      "startedAt": "2026-07-10T03:28:36.539Z",
+      "finishedAt": "2026-07-10T03:28:38.340Z",
+      "detailCount": 0,
+      "errorMessage": "fetch failed"
+    },
+    {
+      "sourceName": "용인시테니스협회",
+      "sourceType": "LOCAL_ASSOC",
+      "sourceUrl": "https://yitc.kr/sub2_1.asp?g_year=2026",
+      "status": "success",
+      "startedAt": "2026-07-10T03:28:38.340Z",
+      "finishedAt": "2026-07-10T03:28:46.899Z",
+      "detailCount": 24,
       "errorMessage": null
     }
   ]
