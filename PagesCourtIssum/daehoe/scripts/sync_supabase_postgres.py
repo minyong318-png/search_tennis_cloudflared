@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 import re
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -14,14 +14,21 @@ MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 TENNISTOWN_TYPES = {"TENNISTOWN", "TENNISTOWN_APP"}
 
 
+def valid_date(value):
+    try:
+        return date.fromisoformat(str(value)).isoformat()
+    except (TypeError, ValueError):
+        return None
+
+
 def build_row(item):
     now = datetime.now(tz=ZoneInfo("Asia/Seoul")).isoformat()
     return (
         item["id"],
         item.get("sourceType") or "UNKNOWN",
         item.get("sourceId"),
-        item.get("startDate"),
-        item.get("endDate"),
+        valid_date(item.get("startDate")),
+        valid_date(item.get("endDate")),
         item.get("syncStatus") != "missing_from_latest_crawl",
         item.get("syncStatus") or "seen",
         item,

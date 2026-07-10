@@ -32,6 +32,20 @@ class DaehoeSupabaseSyncTests(unittest.TestCase):
             ["2026-07", "2026-08"],
         )
 
+    def test_invalid_date_is_kept_in_payload_but_not_database_date_column(self):
+        item = {
+            "id": "legacy-invalid-date",
+            "sourceType": "TENNISTOWN",
+            "startDate": "2026-22-02",
+            "endDate": "2026-22-02",
+        }
+
+        row = MODULE.build_row(item)
+
+        self.assertIsNone(row[3])
+        self.assertIsNone(row[4])
+        self.assertEqual(row[7]["startDate"], "2026-22-02")
+
 
 if __name__ == "__main__":
     unittest.main()
