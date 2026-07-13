@@ -47,6 +47,46 @@ export function normalizeStatus(text = "") {
   return "미상";
 }
 
+export function normalizeRegistrationStatusCode(text = "") {
+  const raw = String(text || "");
+  if (/취소|대회취소/.test(raw)) return "CANCELED";
+  if (/마감|접수종료|신청마감/.test(raw)) return "CLOSED";
+  if (/접수중|모집중|신청 가능|신청가능|접수 가능|접수가능|LIVE/.test(raw)) return "OPEN";
+  if (/모집예정|접수예정|준비중|예정/.test(raw)) return "UPCOMING";
+  return "UNKNOWN";
+}
+
+export function parseRegistrationCount(raw = "") {
+  const text = String(raw || "").trim();
+  const match = text.match(/(\d+)\s*\/\s*(\d+)/);
+  return {
+    raw: text,
+    current: match ? Number(match[1]) : null,
+    capacity: match ? Number(match[2]) : null
+  };
+}
+
+export function parseFeeText(raw = "") {
+  const text = String(raw || "").trim();
+  const isFree = /무료|free/i.test(text);
+  const normalized = text.replace(/,/g, "");
+  const amountMatch = normalized.match(/(\d+)\s*(?:원|₩|KRW)/i) || normalized.match(/(\d+)(?!\s*인)/);
+  let unit = "unknown";
+  if (/인당|1인|개인|person/i.test(text)) unit = "person";
+  else if (/팀|조|페어|복식|대회|team/i.test(text)) unit = "team";
+  return {
+    raw: text,
+    amount: isFree ? 0 : amountMatch ? Number(amountMatch[1]) : null,
+    unit
+  };
+}
+
+export function extractTitleTags(title = "") {
+  return [...String(title || "").matchAll(/\(([^)]+)\)/g)]
+    .map((match) => match[1].trim())
+    .filter(Boolean);
+}
+
 export function normalizeRegion(text = "") {
   const compact = text.replace(/\s+/g, "");
   const region = {};
