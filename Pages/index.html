@@ -329,6 +329,12 @@
       <h4>업데이트 이력</h4>
       <div class="update-log" aria-label="업데이트 이력">
         <div class="update-item">
+          <span class="update-date">2026-07-13</span>
+          <ul>
+            <li>성남은 예약 신청 가능 기간인 오늘부터 3일 이내 날짜만 조회하고, 그 이후 날짜는 안내 메시지로 표시하도록 변경했습니다.</li>
+          </ul>
+        </div>
+        <div class="update-item">
           <span class="update-date">2026-06-30</span>
           <ul>
             <li>용인 코트 필터에 다른 도시 코트가 섞이지 않도록 도시 구분 로직을 보정했습니다.</li>
@@ -642,6 +648,17 @@ function toYYYYMMDD(dateStr) {
   return (dateStr || "").replaceAll("-", "");
 }
 
+function seongnamReservationWindowMessage() {
+  if (CURRENT_CITY !== "seongnam") return "";
+  const selected = toYYYYMMDD(filterDate?.value || "");
+  if (selected.length !== 8) return "";
+  const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+  today.setDate(today.getDate() + 2);
+  const maxDate = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
+  if (selected <= maxDate) return "";
+  return "성남시는 예약 신청이 오늘부터 3일 이내 날짜만 열립니다. 선택한 날짜는 아직 조회 대상이 아니며, 예약 오픈 후 확인해 주세요.";
+}
+
 function yyyymmddToPretty(yyyymmdd) {
   if (!yyyymmdd) return "";
   if (yyyymmdd.includes("-")) return yyyymmdd;
@@ -910,6 +927,12 @@ function renderCourts() {
   }
 
   courtsEl.replaceChildren();
+  const reservationWindowMessage = seongnamReservationWindowMessage();
+  if (reservationWindowMessage) {
+    courtsEl.appendChild(makeNode("div", "empty-state", reservationWindowMessage));
+    renderSummary();
+    return;
+  }
 
   const gu = (CURRENT_CITY === "yongin") ? filterGu.value : "";
   const group = filterCourt.value;

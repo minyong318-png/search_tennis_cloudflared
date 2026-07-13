@@ -634,6 +634,17 @@
       return ymd(todayKst());
     }
 
+    function seongnamReservationWindowMessage() {
+      if (currentCity !== "seongnam") return "";
+      const selected = ymd();
+      if (selected.length !== 8) return "";
+      const max = new Date(todayKst());
+      max.setDate(max.getDate() + 2);
+      const maxDate = ymd(toInputDate(max));
+      if (selected <= maxDate) return "";
+      return "성남시는 예약 신청이 오늘부터 3일 이내 날짜만 열립니다. 선택한 날짜는 아직 조회 대상이 아니며, 예약 오픈 후 확인해 주세요.";
+    }
+
     function cityCrawlHealth(city, cityFacilities, availability, updatedMs, ageHours) {
       const today = todayCompactKst();
       let slotCount = 0;
@@ -950,7 +961,7 @@
       els.citySelect.value = currentCity;
     }
 
-    function renderMatrix(rows) {
+    function renderMatrix(rows, emptyMessage = "선택한 조건에 맞는 코트가 없습니다.") {
       const hours = activeHours();
       els.matrix.style.setProperty("--hour-count", String(hours.length));
       els.matrix.replaceChildren();
@@ -961,7 +972,7 @@
       els.matrix.appendChild(head);
 
       if (!rows.length) {
-        const empty = node("div", "empty", "선택한 조건에 맞는 코트가 없습니다.");
+        const empty = node("div", "empty", emptyMessage);
         els.matrix.appendChild(empty);
         return;
       }
@@ -1003,10 +1014,10 @@
       });
     }
 
-    function renderMobileCards(rows) {
+    function renderMobileCards(rows, emptyMessage = "No courts match the selected filters.") {
       els.mobileCards.replaceChildren();
       if (!rows.length) {
-        els.mobileCards.appendChild(node("div", "empty", "No courts match the selected filters."));
+        els.mobileCards.appendChild(node("div", "empty", emptyMessage));
         return;
       }
 
@@ -1089,12 +1100,12 @@
       });
     }
 
-    function renderQuick(rows) {
+    function renderQuick(rows, emptyMessage = "잔여 슬롯이 없습니다.") {
       if (!els.quickList) return;
       els.quickList.replaceChildren();
       const items = rows.flatMap(row => row.slots.map(slot => ({ row, slot, time: firstTime(slot) || "99:99" }))).sort((a, b) => a.time.localeCompare(b.time)).slice(0, 8);
       if (!items.length) {
-        els.quickList.appendChild(node("div", "empty", "잔여 슬롯이 없습니다."));
+        els.quickList.appendChild(node("div", "empty", emptyMessage));
         return;
       }
       items.forEach(item => {
@@ -1187,19 +1198,24 @@
       refreshHourOptions();
       refreshCourtOptions();
       renderCityControls();
-      const rows = collectRows();
+      const reservationWindowMessage = seongnamReservationWindowMessage();
+      const rows = reservationWindowMessage ? [] : collectRows();
       const openRows = rows.filter(row => row.count > 0);
       const slotCount = openRows.reduce((sum, row) => sum + row.count, 0);
       els.pageTitle.textContent = `${CITY_LABELS[currentCity]} 코트 현황`;
-      els.summary.innerHTML = `<strong>${compactDate()} ${weekday()}요일</strong> 잔여 슬롯 ${slotCount}개 · 잔여 있는 코트 ${openRows.length}곳`;
+      if (reservationWindowMessage) {
+        els.summary.textContent = reservationWindowMessage;
+      } else {
+        els.summary.innerHTML = `<strong>${compactDate()} ${weekday()}요일</strong> 잔여 슬롯 ${slotCount}개 · 잔여 있는 코트 ${openRows.length}곳`;
+      }
       els.boardTitle.textContent = `${compactDate()} ${weekday()}요일 시간표`;
-      els.boardSubtitle.textContent = "O는 해당 시간대에 예약 가능한 코트입니다.";
+      els.boardSubtitle.textContent = reservationWindowMessage || "O는 해당 시간대에 예약 가능한 코트입니다.";
       if (els.openCourtCount) els.openCourtCount.textContent = String(openRows.length);
       if (els.openSlotCount) els.openSlotCount.textContent = String(slotCount);
       renderCrawlStatus();
-      renderMatrix(rows);
-      renderMobileCards(rows);
-      renderQuick(rows);
+      renderMatrix(rows, reservationWindowMessage || undefined);
+      renderMobileCards(rows, reservationWindowMessage || undefined);
+      renderQuick(rows, reservationWindowMessage || undefined);
       renderAlarmList();
     }
 
