@@ -788,6 +788,11 @@ function makeReserveLink(resveId){
 
 function cityOfFacilityId(fid){
   fid = String(fid || "");
+  if (fid.startsWith("anseong:") || fid.startsWith("ggshare:anseong")) return "";
+  if (fid.startsWith("ggshare:")) {
+    const city = fid.slice("ggshare:".length).split("-", 1)[0] || "";
+    return CITY_LABELS[city] ? city : "";
+  }
   if (fid.startsWith("goyang:")) return "goyang";
   if (fid.startsWith("suwon:")) return "suwon";
   if (fid.startsWith("seongnam:")) return "seongnam";
@@ -795,7 +800,7 @@ function cityOfFacilityId(fid){
   if (fid.startsWith("paju:")) return "paju";
   if (fid.startsWith("yongin:")) return "yongin";
   // 구버전(숫자 rid 등)은 용인으로 취급
-  return "yongin";
+  return /^\d+$/.test(fid) ? "yongin" : "";
 }
 
 function prefixedGroupValueForCity(city, displayName){

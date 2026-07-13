@@ -385,6 +385,7 @@
     const DEFAULT_HOURS = { start: 7, end: 21 };
     const CITY_HOURS = {
       yongin: { start: 6, end: 21 },
+      goyang: { start: 6, end: 21 },
       anyang: { start: 7, end: 21 },
       paju: { start: 7, end: 21 }
     };
@@ -625,9 +626,13 @@
 
     function cityOfFacilityId(id) {
       id = String(id || "");
-      if (id.startsWith("ggshare:")) return id.slice("ggshare:".length).split("-", 1)[0] || "anseong";
+      if (id.startsWith("anseong:") || id.startsWith("ggshare:anseong")) return "";
+      if (id.startsWith("ggshare:")) {
+        const city = id.slice("ggshare:".length).split("-", 1)[0] || "";
+        return CITY_LABELS[city] ? city : "";
+      }
       for (const city of CITY_KEYS) if (id.startsWith(`${city}:`)) return city;
-      return "yongin";
+      return /^\d+$/.test(id) ? "yongin" : "";
     }
 
     function todayCompactKst() {
