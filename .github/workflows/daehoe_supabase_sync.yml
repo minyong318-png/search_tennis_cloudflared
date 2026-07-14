@@ -1,0 +1,46 @@
+name: Daehoe Supabase Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "TennisTown refresh mode"
+        required: false
+        default: "incremental"
+        type: choice
+        options:
+          - incremental
+          - full
+      months:
+        description: "Comma-separated YYYY-MM refresh scope"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daehoe-supabase-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install sync dependency
+        run: python -m pip install --disable-pip-version-check psycopg[binary]
+
+      - name: Sync committed tournament data
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python PagesDaehoeIssum/scripts/sync_supabase_postgres.py \
+            --mode "${{ inputs.mode || 'incremental' }}" \
+            --months "${{ inputs.months || '' }}"

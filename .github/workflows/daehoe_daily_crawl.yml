@@ -1,6 +1,9 @@
 name: Daehoe Daily Crawl
 
 on:
+  schedule:
+    # KST 06:20. Refresh public/association tournament sources without Android phone crawling.
+    - cron: "20 21 * * *"
   workflow_dispatch:
 
 permissions:
@@ -27,7 +30,10 @@ jobs:
           DAEHOE_MERGE_EXISTING: "1"
           DAEHOE_AI_EXTRACT: "0"
           DAEHOE_TENNISTOWN_ADB: "0"
+          DAEHOE_SOURCE_TYPES: "KTA,KATO,KATA,LOCAL_ASSOC,FACILITY_NOTICE,TENNISGAME"
           DAEHOE_REQUEST_DELAY_MS: "1200"
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           node PagesDaehoeIssum/scripts/crawl-all.mjs
 

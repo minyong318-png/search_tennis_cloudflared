@@ -8,6 +8,7 @@ import {
 import {
   extractTitleTags,
   normalizeRegistrationStatusCode,
+  organizerGroup,
   parseFeeText,
   parseRegistrationCount
 } from "../PagesDaehoeIssum/src/tournament-utils.js";
@@ -78,4 +79,13 @@ test("TennisTown status and event tags are normalized conservatively", () => {
   assert.equal(normalizeRegistrationStatusCode("모집예정"), "UPCOMING");
   assert.equal(normalizeRegistrationStatusCode("접수마감"), "CLOSED");
   assert.deepEqual(extractTitleTags("(대회공지) ACECUP X MEGA TENNIS"), ["대회공지"]);
+});
+
+test("organizer filter groups related institutions", () => {
+  assert.equal(organizerGroup({ sourceType: "TENNISTOWN_APP" }), "테니스타운");
+  assert.equal(organizerGroup({ sourceType: "KTA", organizer: "대한테니스협회" }), "전국 협회 · KTA");
+  assert.equal(organizerGroup({ sourceType: "KATO" }), "전국 협회 · KATO");
+  assert.equal(organizerGroup({ sourceType: "KATA" }), "전국 협회 · KATA");
+  assert.equal(organizerGroup({ sourceType: "LOCAL_ASSOC", organizer: "성남시테니스협회" }), "지역 협회·체육회");
+  assert.equal(organizerGroup({ sourceType: "FACILITY_NOTICE", sourceName: "성남 시설공지" }), "시설 공지");
 });

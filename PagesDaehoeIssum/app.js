@@ -108,7 +108,7 @@ async function fetchJson(url, fallback) {
 
 function populateFilters() {
   fillSelect(els.regionFilter, "전체 지역", unique(state.tournaments.map((item) => item.regionLabel).filter(Boolean)));
-  fillSelect(els.organizerFilter, "전체 주체", unique(state.tournaments.flatMap(organizerFilterValues).filter(Boolean)));
+  fillSelect(els.organizerFilter, "전체 기관", unique(state.tournaments.flatMap(organizerFilterValues).filter(Boolean)));
   fillSelect(els.divisionFilter, "전체 부서", unique(state.tournaments.flatMap((item) => item.divisions.map((division) => division.divisionName)).filter(Boolean)));
   populateMonthControls();
 }
@@ -538,11 +538,26 @@ function normalizeSearchValue(value) {
 }
 
 function organizerFilterValues(tournament) {
-  return unique([
+  const group = organizerGroup(tournament);
+  return group ? [group] : [];
+}
+
+function organizerGroup(tournament) {
+  const sourceType = String(tournament.sourceType || "");
+  const text = [
     tournament.organizer,
     tournament.host,
-    tournament.sourceName
-  ].filter(Boolean).map((value) => String(value).trim()));
+    tournament.sourceName,
+    tournament.titleRaw
+  ].filter(Boolean).join(" ");
+  if (sourceType.includes("TENNISTOWN")) return "테니스타운";
+  if (sourceType === "KTA" || /대한테니스협회|KTA/.test(text)) return "전국 협회 · KTA";
+  if (sourceType === "KATO" || /KATO|한국테니스발전협의회/.test(text)) return "전국 협회 · KATO";
+  if (sourceType === "KATA" || /KATA|한국동호인테니스협회/.test(text)) return "전국 협회 · KATA";
+  if (sourceType === "FACILITY_NOTICE" || /시설|공공시설|예약시스템/.test(text)) return "시설 공지";
+  if (sourceType === "LOCAL_ASSOC" || /테니스협회|체육회|연맹|연합회/.test(text)) return "지역 협회·체육회";
+  if (sourceType === "TENNISGAME" || /tennisgame/i.test(text)) return "테니스 플랫폼";
+  return "기타 기관";
 }
 
 function inferLevelTone(tournament) {

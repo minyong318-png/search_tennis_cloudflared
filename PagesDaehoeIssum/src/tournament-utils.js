@@ -183,6 +183,24 @@ export function calculateConfidenceScore(tournament) {
   return Math.min(score, 100);
 }
 
+export function organizerGroup(tournament = {}) {
+  const sourceType = String(tournament.sourceType || "");
+  const text = [
+    tournament.organizer,
+    tournament.host,
+    tournament.sourceName,
+    tournament.titleRaw
+  ].filter(Boolean).join(" ");
+  if (sourceType.includes("TENNISTOWN")) return "테니스타운";
+  if (sourceType === "KTA" || /대한테니스협회|KTA/.test(text)) return "전국 협회 · KTA";
+  if (sourceType === "KATO" || /KATO|한국테니스발전협의회/.test(text)) return "전국 협회 · KATO";
+  if (sourceType === "KATA" || /KATA|한국동호인테니스협회/.test(text)) return "전국 협회 · KATA";
+  if (sourceType === "FACILITY_NOTICE" || /시설|공공시설|예약시스템/.test(text)) return "시설 공지";
+  if (sourceType === "LOCAL_ASSOC" || /테니스협회|체육회|연맹|연합회/.test(text)) return "지역 협회·체육회";
+  if (sourceType === "TENNISGAME" || /tennisgame/i.test(text)) return "테니스 플랫폼";
+  return "기타 기관";
+}
+
 export function scoreVenueMatch(tournament, courtVenue) {
   const left = normalizeVenueName(tournament.venueName || "");
   const right = normalizeVenueName(courtVenue.name || "");
