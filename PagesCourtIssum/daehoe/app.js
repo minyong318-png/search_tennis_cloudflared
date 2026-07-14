@@ -32,7 +32,7 @@ function cacheElements() {
     "sourceFilter", "regionFilter", "keywordFilter", "organizerFilter", "divisionFilter", "tournamentList", "calendarList", "detailPanel",
     "monthSummary", "yearSelect", "monthSelect", "prevMonthBtn", "nextMonthBtn",
     "profileGender", "profileFormat", "profileLevel", "profileYears", "dateTypeFilter", "weekFilter",
-    "recommendPanel", "dataStats"
+    "recommendPanel", "dataStats", "infoToggle", "infoPanel"
   ].forEach((id) => {
     els[id] = document.getElementById(id);
   });
@@ -59,6 +59,12 @@ function bindEvents() {
   }
   els.prevMonthBtn.addEventListener("click", () => shiftMonth(-1));
   els.nextMonthBtn.addEventListener("click", () => shiftMonth(1));
+  els.infoToggle?.addEventListener("click", () => {
+    const open = !els.infoPanel.classList.contains("is-open");
+    els.infoPanel.classList.toggle("is-open", open);
+    els.infoToggle.setAttribute("aria-expanded", String(open));
+    els.infoToggle.textContent = open ? "안내 접기" : "안내 및 업데이트";
+  });
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = button.dataset.view;

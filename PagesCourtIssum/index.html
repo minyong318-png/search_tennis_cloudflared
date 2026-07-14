@@ -76,6 +76,9 @@
     .page{max-width:1480px;margin:0 auto;padding:18px 24px 42px}
     .shell{border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
     .hero{display:block;padding:26px;border-bottom:1px solid var(--line)}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .utility-btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid #cfe1c8;border-radius:999px;background:#fff;color:#135d34;font-size:13px;font-weight:950;cursor:pointer;text-decoration:none}
+    .utility-btn:hover{border-color:var(--green);background:#f7fbf4}
     .title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
     h1{margin:0;font-size:38px;line-height:1.08;letter-spacing:-.045em}
     .nav-month{display:flex;gap:8px}
@@ -144,7 +147,9 @@
     .quick-badge{padding:5px 8px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:12px;font-weight:950}
     .details{padding:22px;background:#fff;border-top:1px solid var(--line)}
     .details-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .details-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .details-head h2{margin:0;font-size:20px}
+    .details.is-collapsed .alarm-list{display:none}
     .court-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
     .court-item{display:grid;grid-template-columns:220px minmax(0,1fr) auto;gap:16px;align-items:center;padding:15px 16px;border-top:1px solid var(--line);background:#fff}
     .court-item:first-child{border-top:0}
@@ -194,6 +199,23 @@
     .slot-choice-list{display:flex;flex-direction:column;gap:8px;padding:14px}
     .slot-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:11px 13px;border:1px solid #cfe7c7;border-radius:12px;background:var(--green-soft);color:#123d25;text-decoration:none;font-weight:950}
     .slot-choice small{color:var(--muted);font-size:12px;font-weight:850}
+    .notice-overlay{position:fixed;inset:0;z-index:40;display:none;background:rgba(17,24,39,.46);padding:18px;overflow:auto}
+    .notice-overlay.is-open{display:block}
+    .notice-panel{width:min(680px,100%);margin:5vh auto;border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(17,24,39,.28);overflow:hidden}
+    .notice-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line)}
+    .notice-head h2{margin:0;font-size:22px;letter-spacing:-.03em}
+    .notice-head p{margin:5px 0 0;color:var(--muted);font-size:13px;font-weight:750;line-height:1.5}
+    .notice-close{width:34px;height:34px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#667085;font-size:20px;font-weight:950;cursor:pointer}
+    .notice-body{padding:18px 20px 22px}
+    .notice-section{padding-top:16px;margin-top:16px;border-top:1px solid var(--line)}
+    .notice-section:first-child{padding-top:0;margin-top:0;border-top:0}
+    .notice-section h3{margin:0 0 9px;font-size:16px}
+    .notice-section p,.notice-section li{color:#4b5563;font-size:14px;font-weight:650;line-height:1.65}
+    .notice-section ul{margin:0;padding-left:19px}
+    .update-log{display:flex;flex-direction:column;gap:10px;max-height:220px;overflow:auto;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fbfcfa}
+    .update-item{padding-bottom:10px;border-bottom:1px dashed #d8e1d2}
+    .update-item:last-child{padding-bottom:0;border-bottom:0}
+    .update-date{display:block;margin-bottom:4px;color:#0f172a;font-size:13px;font-weight:950}
     .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100vw - 32px);padding:13px 16px;border-radius:12px;background:#111827;color:#fff;font-size:13px;font-weight:800;box-shadow:0 16px 36px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:.18s;z-index:20}
     .toast.show{opacity:1;bottom:30px}
     .content-guide{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
@@ -211,7 +233,7 @@
     .sr-fallback{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;margin:12px 0;color:#334155}
     @media (max-width:900px){
       .topbar{height:auto}.topbar-inner{grid-template-columns:1fr auto;align-items:center;padding:9px 10px 8px;gap:10px}.brand{gap:8px}.brand-ball{width:28px;height:28px}.brand strong{font-size:21px}.brand em,.tagline{display:none}.ball{width:28px;height:28px}.ball:before,.ball:after{top:3px;bottom:3px}.ball:before{left:8px}.ball:after{right:8px}.product-tabs{height:33px;display:inline-grid;grid-template-columns:1fr 1fr;grid-column:1 / -1;width:100%;gap:6px;padding:4px;border:1px solid var(--line);border-radius:10px;background:#fff}.product-tab{height:24px;min-height:0;justify-content:center;border:0;border-radius:7px;padding:0 8px;font-size:12px}.product-tab.is-active{background:var(--green);color:#fff}.app-icon{width:16px;height:16px}.mini{width:15px;height:15px}
-      .page{padding:8px}.shell{border-radius:12px}.hero{padding:13px 14px}.title-row{gap:8px}h1{font-size:24px;line-height:1.12}.nav-month{gap:6px}.icon-btn{width:38px;height:36px;border-radius:8px;font-size:19px}.summary{margin-top:8px;font-size:13px}
+      .page{padding:8px}.shell{border-radius:12px}.hero{padding:13px 14px}.hero-actions{margin-top:10px}.utility-btn{min-height:32px;padding:6px 10px;font-size:12px}.title-row{gap:8px}h1{font-size:24px;line-height:1.12}.nav-month{gap:6px}.icon-btn{width:38px;height:36px;border-radius:8px;font-size:19px}.summary{margin-top:8px;font-size:13px}
       .filter-toggle{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 20px);min-height:40px;margin:0 10px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);font-size:13px;font-weight:950;padding:0 11px;cursor:pointer}
       .filter-toggle:after{content:"⌄";font-size:15px;color:var(--green)}
       .filter-toggle.is-open:after{content:"⌃"}
@@ -227,9 +249,10 @@
       .mobile-court-chips{gap:5px;margin-top:8px}.mobile-court-chip{min-height:23px;padding:4px 7px;font-size:10px}
       .mobile-time-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
       .mobile-time-grid{gap:5px;margin-top:8px}.mobile-time{min-width:0;min-height:36px;border-radius:8px;font-size:12px}.mobile-time-label{font-size:10px}.mobile-time-value{font-size:13px}
-      .details{padding:10px}.details-head h2{font-size:16px}.court-item{grid-template-columns:1fr;padding:11px 12px;gap:9px}.court-count{text-align:left}
+      .details{padding:10px}.details-head{align-items:flex-start;gap:8px}.details-head h2{font-size:16px}.court-item{grid-template-columns:1fr;padding:11px 12px;gap:9px}.court-count{text-align:left}
       .alarm-item{grid-template-columns:1fr 34px;gap:6px;padding:10px 11px}.alarm-date,.alarm-court,.alarm-condition{grid-column:1;font-size:12px}.alarm-condition{justify-self:start;padding:5px 8px;font-size:11px}.alarm-delete{grid-column:2;grid-row:1 / span 3;width:30px;height:30px}
       .slot-picker{padding:10px}.slot-sheet{border-radius:15px}.slot-sheet-head{padding:13px}.slot-sheet-head strong{font-size:16px}.slot-picker-close{width:30px;height:30px;font-size:18px}.slot-choice-list{gap:6px;padding:11px}.slot-choice{min-height:42px;padding:9px 11px;font-size:13px}
+      .notice-overlay{padding:10px}.notice-panel{margin:3vh auto;border-radius:15px}.notice-head{padding:14px}.notice-body{padding:14px}.notice-head h2{font-size:18px}.notice-section p,.notice-section li{font-size:13px}
       .content-guide{grid-template-columns:1fr;margin-top:10px}.content-card{padding:15px;border-radius:12px}.content-card h2{font-size:19px}.content-card h3{font-size:16px}.content-card p,.content-card li{font-size:13px}.site-footer{padding:18px 14px 28px;margin-top:12px}
     }
     @media (max-width:420px){
@@ -266,6 +289,11 @@
             <h1 id="pageTitle">용인 코트 현황</h1>
           </div>
           <div class="summary" id="summary">오늘의 잔여 코트는 아래 시간표에서 확인하세요. 용인, 고양, 수원, 성남, 안양, 파주, 하남, 의왕 공공 테니스장 예약 정보를 제공합니다.</div>
+          <div class="hero-actions">
+            <button id="noticeBtn" class="utility-btn" type="button">공지 및 사용방법</button>
+            <a class="utility-btn" href="/guide/tennis-reservation/">예약 가이드</a>
+            <a class="utility-btn" href="/data-source/">데이터 출처</a>
+          </div>
         </div>
       </div>
 
@@ -288,9 +316,12 @@
         <div id="crawlStatusGrid" class="crawl-status-grid"></div>
       </section>
 
-      <section class="details">
+      <section id="alarmSection" class="details is-collapsed">
         <div class="details-head">
-          <h2>알람 등록 내역</h2>
+          <div class="details-title">
+            <h2>알람 등록 내역</h2>
+            <button id="alarmToggle" class="utility-btn" type="button" aria-expanded="false" aria-controls="alarmList">열기</button>
+          </div>
           <span id="updatedAt">업데이트 확인 중</span>
         </div>
         <div id="alarmList" class="alarm-list"></div>
@@ -351,6 +382,68 @@
     </nav>
     <div class="footer-note">코트있음?은 공공 테니스장 예약을 돕는 비공식 정보 제공 사이트입니다. 잔여 코트 정보는 참고용이며 실제 예약 가능 여부, 요금, 환불, 이용 조건은 공식 예약처 기준으로 확인해야 합니다.</div>
   </footer>
+  <div id="noticeModal" class="notice-overlay" aria-hidden="true">
+    <div class="notice-panel" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
+      <div class="notice-head">
+        <div>
+          <h2 id="noticeTitle">코트있음? 공지 및 사용방법</h2>
+          <p>첫 화면은 예약 가능한 코트 확인에 집중하고, 자세한 안내와 변경 이력은 여기에서 확인할 수 있습니다.</p>
+        </div>
+        <button id="noticeClose" class="notice-close" type="button" aria-label="공지 닫기">×</button>
+      </div>
+      <div class="notice-body">
+        <section class="notice-section">
+          <h3>빠른 사용법</h3>
+          <ul>
+            <li>지역, 날짜, 코트, 시간 조건을 고르면 해당 조건에 맞는 잔여 슬롯을 먼저 보여줍니다.</li>
+            <li>초록색 O 표시는 해당 시간대에 예약 가능한 코트가 있다는 뜻입니다.</li>
+            <li>시간 버튼을 누르면 공식 예약 페이지로 이동합니다. 실제 예약과 결제는 공식 예약처에서 확정됩니다.</li>
+            <li>별표를 누르면 자주 보는 코트를 이 브라우저에 저장하고, 종 모양 버튼으로 해당 코트 알림을 등록할 수 있습니다.</li>
+          </ul>
+        </section>
+        <section class="notice-section">
+          <h3>데이터 상태 해석</h3>
+          <ul>
+            <li>“예약 가능 0건”은 실제 잔여가 없을 수도 있고, 일부 지역은 예약 기간이 아직 열리지 않은 상태일 수도 있습니다.</li>
+            <li>도시별 수집 상태가 경고 또는 오류로 표시되면 기존 캐시를 보존하며, 실제 공식 예약처와 차이가 날 수 있습니다.</li>
+            <li>성남처럼 로그인·WAF·예약 가능 기간 영향을 받는 지역은 수집 방식과 표시 범위를 별도로 관리합니다.</li>
+          </ul>
+        </section>
+        <section class="notice-section">
+          <h3>최근 업데이트</h3>
+          <div class="update-log" aria-label="업데이트 이력">
+            <div class="update-item">
+              <span class="update-date">2026-07-14</span>
+              <ul>
+                <li>알림 구독과 알람 등록/조회/삭제를 Supabase RPC 경로로 변경해 공개 테이블 직접 접근을 제거했습니다.</li>
+                <li>코트있음?과 대회있음? 운영 프로젝트를 기본 반영 대상으로 정리했습니다.</li>
+              </ul>
+            </div>
+            <div class="update-item">
+              <span class="update-date">2026-07-13</span>
+              <ul>
+                <li>용인 코트 목록에 다른 도시 코트가 섞이지 않도록 정리했습니다.</li>
+                <li>고양시는 예약 오픈 시간에 맞춰 6시부터 조회되도록 조정했습니다.</li>
+              </ul>
+            </div>
+            <div class="update-item">
+              <span class="update-date">2026-06-30</span>
+              <ul>
+                <li>도시별 수집 상태와 마지막 정상 수집 시각을 화면에서 구분해 볼 수 있게 개선했습니다.</li>
+              </ul>
+            </div>
+            <div class="update-item">
+              <span class="update-date">2026-06-06</span>
+              <ul>
+                <li>시간 필터, 즐겨찾기, 시간 조건 기반 알람 등록을 추가했습니다.</li>
+                <li>첫 화면은 예약 가능 결과 중심으로 정리하고 안내 콘텐츠는 하단과 공지 영역으로 이동했습니다.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
   <div id="toast" class="toast"></div>
   <div id="slotPicker" class="slot-picker" aria-hidden="true">
     <div class="slot-sheet" role="dialog" aria-modal="true" aria-labelledby="slotPickerTitle">
@@ -406,6 +499,11 @@
       hourFilter: $("hourFilter"),
       timeMode: $("timeMode"),
       cityTabs: $("cityTabs"),
+      noticeBtn: $("noticeBtn"),
+      noticeModal: $("noticeModal"),
+      noticeClose: $("noticeClose"),
+      alarmSection: $("alarmSection"),
+      alarmToggle: $("alarmToggle"),
       matrix: $("matrix"),
       mobileCards: $("mobileCards"),
       slotPicker: $("slotPicker"),
@@ -1253,6 +1351,20 @@
       els.filterToggle.textContent = open ? "필터 숨기기" : "필터 열기";
     }
 
+    function setNoticeOpen(open) {
+      if (!els.noticeModal) return;
+      els.noticeModal.classList.toggle("is-open", open);
+      els.noticeModal.setAttribute("aria-hidden", String(!open));
+      document.body.style.overflow = open ? "hidden" : "";
+    }
+
+    function setAlarmOpen(open) {
+      if (!els.alarmSection || !els.alarmToggle) return;
+      els.alarmSection.classList.toggle("is-collapsed", !open);
+      els.alarmToggle.setAttribute("aria-expanded", String(open));
+      els.alarmToggle.textContent = open ? "접기" : "열기";
+    }
+
     function formatUpdated(ts) {
       if (!ts) return "업데이트 확인 중";
       const d = new Date(ts);
@@ -1281,6 +1393,15 @@
       renderCityControls();
       ["dateFilter","courtFilter","hourFilter","timeMode"].forEach(id => $(id).addEventListener("change", render));
       els.filterToggle?.addEventListener("click", () => setFilterOpen(!els.filterPanel.classList.contains("is-open")));
+      els.noticeBtn?.addEventListener("click", () => setNoticeOpen(true));
+      els.noticeClose?.addEventListener("click", () => setNoticeOpen(false));
+      els.noticeModal?.addEventListener("click", event => {
+        if (event.target === els.noticeModal) setNoticeOpen(false);
+      });
+      els.alarmToggle?.addEventListener("click", () => setAlarmOpen(els.alarmSection.classList.contains("is-collapsed")));
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") setNoticeOpen(false);
+      });
       els.slotPickerClose?.addEventListener("click", closeSlotPicker);
       els.slotPicker?.addEventListener("click", event => {
         if (event.target === els.slotPicker) closeSlotPicker();

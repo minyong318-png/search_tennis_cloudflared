@@ -297,6 +297,18 @@ button { cursor: pointer; }
   font-weight: 900;
   white-space: nowrap;
 }
+.info-toggle {
+  min-height: 52px;
+  align-self: stretch;
+  padding: 0 18px;
+  border: 1px solid var(--green-line);
+  border-radius: 8px;
+  background: #f6fcf5;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 950;
+  white-space: nowrap;
+}
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -308,6 +320,40 @@ button { cursor: pointer; }
   white-space: nowrap !important;
   border: 0 !important;
 }
+
+.info-panel {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 16px 20px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfd;
+}
+.info-panel.is-open { display: grid; }
+.info-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+}
+.info-card h2,
+.info-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  letter-spacing: -.02em;
+}
+.info-card p,
+.info-card li {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.65;
+}
+.info-card ul { margin: 0; padding-left: 18px; }
+.info-card strong { color: var(--text); }
 
 .recommend-panel {
   display: grid;
@@ -715,7 +761,8 @@ body[data-view="list"] .calendar-panel { display: none; }
   }
   .month-command { grid-template-columns: 1fr; }
   .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .reset-btn { grid-column: 1 / -1; }
+  .reset-btn, .info-toggle { grid-column: 1 / -1; }
+  .info-panel { grid-template-columns: 1fr; }
   .recommend-panel { grid-template-columns: 1fr; }
   .recommend-items { grid-template-columns: 1fr; }
   .dashboard-grid { grid-template-columns: 1fr; }
@@ -776,8 +823,9 @@ body[data-view="list"] .calendar-panel { display: none; }
   }
   .filters { order: 1; }
   #calendarView { order: 2; }
-  .recommend-panel { order: 3; }
-  .data-stats { order: 4; }
+  .info-panel { order: 3; margin: 10px; padding: 10px; }
+  .recommend-panel { order: 4; }
+  .data-stats { order: 5; }
   .month-command {
     display: grid;
     grid-template-columns: 1fr;

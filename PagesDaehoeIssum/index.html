@@ -104,6 +104,7 @@
           </select>
         </label>
         <button class="reset-btn" type="button" onclick="location.reload()">↻ 필터 초기화</button>
+        <button id="infoToggle" class="info-toggle" type="button" aria-expanded="false" aria-controls="infoPanel">안내 및 업데이트</button>
         <select id="sourceFilter" class="visually-hidden" aria-label="데이터 출처">
           <option value="">전체 데이터</option>
           <option value="tennistown">테니스타운 앱</option>
@@ -112,6 +113,22 @@
         <select id="profileYears" class="visually-hidden" aria-label="구력">
           <option value="">상관없음</option>
         </select>
+      </section>
+
+      <section id="infoPanel" class="info-panel" aria-label="대회있음 안내">
+        <article class="info-card">
+          <h2>대회있음? 사용법</h2>
+          <ul>
+            <li>성별, 복식, 레벨, 지역, 주최, 부서 조건을 고르면 이번 달 대회 중 맞는 후보를 먼저 보여줍니다.</li>
+            <li>캘린더에서 날짜를 누르면 해당 날짜의 대회만 목록으로 좁혀 볼 수 있습니다.</li>
+            <li>대회 카드의 접수 링크는 원본 페이지 또는 앱 안내로 이동하며, 신청 가능 여부는 원본 접수처 기준으로 확인해야 합니다.</li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h3>데이터 업데이트</h3>
+          <p><strong>2026-07-14</strong> 기준 Supabase에 정리된 활성 대회 데이터를 정적 JSON으로 동기화해 코트있음? 내부 대회 페이지와 독립 대회있음? 페이지에 함께 반영했습니다.</p>
+          <p>테니스타운 앱 데이터는 로컬 휴대폰 수집과 Supabase 동기화 결과를 기준으로 보존하며, 수집 실패 시 기존 데이터를 빈 값으로 덮어쓰지 않습니다.</p>
+        </article>
       </section>
 
       <section id="recommendPanel" class="recommend-panel" aria-live="polite"></section>
