@@ -5,11 +5,15 @@ import { promisify } from "node:util";
 import {
   buildDuplicateKey,
   calculateConfidenceScore,
+  extractTitleTags,
   normalizeDateRange,
   normalizeDivision,
   normalizeRegion,
   normalizeStatus,
-  normalizeTitle
+  normalizeTitle,
+  normalizeRegistrationStatusCode,
+  parseFeeText,
+  parseRegistrationCount
 } from "../src/tournament-utils.js";
 import {
   isTennisTownSource,
@@ -899,26 +903,60 @@ async function crawlTennisTownApp(source) {
       const divisionName = tennisTownAppDivisionName(item);
       const dateText = item.start_date || item.comp_start_date || item.part_date || titleRaw;
       const venueName = item.ground_name || item.place_name || item.location || item.ground_region_name;
+      const registrationCountRaw = firstNonEmpty(
+        item.participant_count,
+        item.registration_count,
+        item.part_count_text,
+        item.part_count,
+        item.count_text,
+        item.status_text
+      );
+      const participant = parseParticipantCount(registrationCountRaw);
+      const feeText = firstNonEmpty(
+        item.fee_text,
+        item.entry_fee_text,
+        item.price_text,
+        item.part_fee_text,
+        item.fee,
+        item.entry_fee,
+        item.price
+      );
       const sourceId = `tennistown-app-${item.comp_part_date_id || item.id || item.comp_id || hashShort(JSON.stringify(item))}`;
       if (seen.has(sourceId)) continue;
       seen.add(sourceId);
       tournaments.push(makeTournament({
         source,
         sourceId,
+        sourceEventId: item.comp_id || item.competition_id || item.event_id || item.id,
+        sourceDivisionId: item.comp_part_date_id || item.part_id || item.division_id,
         sourceUrl: `https://app.momjit.com/competition/list/v3#${encodeURIComponent(sourceId)}`,
+        detailUrl: firstNonEmpty(item.detail_url, item.web_url),
+        applicationUrl: "https://play.google.com/store/apps/details?id=com.momzit.tennistown",
+        appDeepLink: firstNonEmpty(item.deep_link, `tennistown://competition/${item.comp_id || item.id || sourceId}`),
         titleRaw,
         dateText,
+        baseYear: target.year,
         status: tennisTownAppStatus(item.part_status),
         registrationStatus: tennisTownAppStatus(item.part_status),
+        registrationCountRaw,
+        registrationUnit: "unknown",
+        participantCurrent: participant?.current,
+        participantCapacity: participant?.capacity,
+        feeText,
         tournamentScope: "사설",
         tournamentType: inferTournamentType(titleRaw),
         organizer: "테니스타운",
         venueName,
+        rawPayload: sanitizeTennisTownAppItem(item),
         duplicateKey: tennisTownDuplicateKey({ titleRaw, dateText, venueName, divisionName }),
         applicationMethodText: "테니스타운 앱 확인",
         divisions: [{
+          sourceDivisionId: item.comp_part_date_id || item.part_id || item.division_id,
           divisionName,
           playDate: item.start_date || item.part_date,
+          feeText,
+          participantCurrent: participant?.current,
+          participantCapacity: participant?.capacity,
           applicationUrl: "https://play.google.com/store/apps/details?id=com.momzit.tennistown"
         }].filter((division) => division.divisionName || division.playDate)
       }));
@@ -1001,20 +1039,38 @@ async function crawlTennisTownAppWithAdb(source) {
       seen.add(sourceId);
       const participant = item.participant || parseParticipantCount(item.status);
       const registrationStatus = tennisTownAdbStatus(item.status, participant);
+      const registrationCountRaw = participant ? `${participant.current}/${participant.capacity}` : "";
       tournaments.push(makeTournament({
         source,
         sourceId,
+        sourceEventId: sourceId,
+        sourceDivisionId: sourceId,
         sourceUrl: `tennistown-app://competition/${sourceId}`,
+        applicationUrl: "https://play.google.com/store/apps/details?id=com.momzit.tennistown",
+        appDeepLink: `tennistown://competition/${sourceId}`,
         titleRaw: item.titleRaw,
         dateText,
+        baseYear: year,
         status: registrationStatus,
         registrationStatus,
+        registrationCountRaw,
+        registrationUnit: "unknown",
         participantCurrent: participant?.current,
         participantCapacity: participant?.capacity,
         tournamentScope: "사설",
         tournamentType: inferTournamentType(item.titleRaw),
         organizer: "테니스타운",
         venueName: item.venueName,
+        rawPayload: {
+          collectionMethod: "adb_uiautomator",
+          day: item.day,
+          weekday: item.weekday,
+          titleRaw: item.titleRaw,
+          divisionName: item.divisionName,
+          venueName: item.venueName,
+          statusRaw: item.status,
+          registrationCountRaw
+        },
         applicationMethodText: "테니스타운 앱에서 확인",
         duplicateKey: tennisTownDuplicateKey({
           titleRaw: item.titleRaw,
@@ -1023,9 +1079,12 @@ async function crawlTennisTownAppWithAdb(source) {
           divisionName: item.divisionName
         }),
         divisions: [{
+          sourceDivisionId: sourceId,
           divisionName: item.divisionName,
           playDate: dateText,
           status: registrationStatus,
+          registrationCountRaw,
+          registrationUnit: "unknown",
           participantCurrent: participant?.current,
           participantCapacity: participant?.capacity,
           applicationUrl: "https://play.google.com/store/apps/details?id=com.momzit.tennistown"
@@ -1580,17 +1639,105 @@ function compactKeyPart(value = "") {
   return cleanText(value).replace(/\s+/g, "").toLowerCase();
 }
 
+function enrichDivisionPayload(division = {}) {
+  const registration = parseRegistrationCount(
+    division.registrationCountRaw ||
+    (Number.isFinite(division.participantCurrent) && Number.isFinite(division.participantCapacity)
+      ? `${division.participantCurrent}/${division.participantCapacity}`
+      : "")
+  );
+  const fee = parseFeeText(division.feeText);
+  return {
+    ...division,
+    registrationCountRaw: registration.raw || division.registrationCountRaw,
+    registrationCountCurrent: registration.current,
+    registrationCapacity: registration.capacity,
+    registrationUnit: division.registrationUnit || "unknown",
+    feeRaw: fee.raw || division.feeText,
+    feeAmount: fee.amount,
+    feeUnit: division.feeUnit || fee.unit
+  };
+}
+
+function firstNonEmpty(...values) {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+    const text = String(value).trim();
+    if (text) return text;
+  }
+  return "";
+}
+
+function sanitizeTennisTownAppItem(item = {}) {
+  const allowed = [
+    "id",
+    "comp_id",
+    "competition_id",
+    "comp_part_date_id",
+    "part_id",
+    "division_id",
+    "comp_name",
+    "part_name",
+    "title",
+    "start_date",
+    "comp_start_date",
+    "part_date",
+    "ground_name",
+    "place_name",
+    "location",
+    "ground_region_name",
+    "gender_type",
+    "part_status",
+    "participant_count",
+    "registration_count",
+    "part_count_text",
+    "part_count",
+    "count_text",
+    "status_text",
+    "fee_text",
+    "entry_fee_text",
+    "price_text",
+    "part_fee_text",
+    "fee",
+    "entry_fee",
+    "price",
+    "detail_url",
+    "web_url",
+    "deep_link"
+  ];
+  return Object.fromEntries(
+    allowed
+      .filter((key) => item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== "")
+      .map((key) => [key, item[key]])
+  );
+}
+
 function makeTournament(input) {
-  const dateRange = normalizeDateRange(input.dateText || "", 2026);
+  const dateRange = normalizeDateRange(input.dateText || "", input.baseYear || 2026);
   const region = normalizeRegion(`${input.titleRaw || ""} ${input.venueName || ""}`);
+  const registration = parseRegistrationCount(
+    input.registrationCountRaw ||
+    input.registrationRaw ||
+    (Number.isFinite(input.participantCurrent) && Number.isFinite(input.participantCapacity)
+      ? `${input.participantCurrent}/${input.participantCapacity}`
+      : "")
+  );
+  const fee = parseFeeText(input.feeText);
+  const divisions = (input.divisions || []).map((division) => enrichDivisionPayload(division));
+  const divisionApplicationUrl = divisions.find((division) => division?.applicationUrl)?.applicationUrl;
+  const detailUrl = input.detailUrl || input.sourceUrl || input.source?.url;
+  const applicationUrl = input.applicationUrl || divisionApplicationUrl;
   const tournament = {
     id: `${input.source.type.toLowerCase()}-${input.sourceId || hashShort(`${input.titleRaw}|${input.dateText}`)}`,
     sourceType: input.source.type,
     sourceName: input.source.name,
     sourceUrl: input.sourceUrl || input.source.url,
     sourceId: input.sourceId,
+    sourceEventId: input.sourceEventId || input.sourceId,
+    sourceDivisionId: input.sourceDivisionId,
     titleRaw: input.titleRaw,
     titleNormalized: normalizeTitle(input.titleRaw),
+    eventTags: input.eventTags || extractTitleTags(input.titleRaw),
     regionSido: region.regionSido,
     regionSigungu: region.regionSigungu,
     tournamentScope: input.tournamentScope || "미상",
@@ -1601,8 +1748,18 @@ function makeTournament(input) {
     endDate: dateRange.endDate || isoDateOrUndefined(input.dateText),
     status: input.status || statusFromDateText(input.dateText),
     registrationStatus: input.registrationStatus,
+    registrationStatusRaw: input.registrationStatusRaw || input.registrationStatus || input.status,
+    registrationStatusCode: normalizeRegistrationStatusCode(input.registrationStatus || input.status),
+    registrationCountRaw: registration.raw || undefined,
+    registrationCountCurrent: registration.current,
+    registrationCapacity: registration.capacity,
+    registrationUnit: input.registrationUnit || "unknown",
     venueName: input.venueName,
+    venueAddress: input.venueAddress,
     feeText: input.feeText,
+    feeRaw: fee.raw || undefined,
+    feeAmount: fee.amount,
+    feeUnit: input.feeUnit || fee.unit,
     prizeText: input.prizeText,
     ballText: input.ballText,
     eligibilityText: input.eligibilityText,
@@ -1611,6 +1768,9 @@ function makeTournament(input) {
     applicationEndDate: input.applicationEndDate,
     participantCurrent: input.participantCurrent,
     participantCapacity: input.participantCapacity,
+    detailUrl,
+    applicationUrl,
+    appDeepLink: input.appDeepLink,
     extractionStatus: input.extractionStatus,
     extractionModel: input.extractionModel,
     extractedDetails: input.extractedDetails,
@@ -1618,7 +1778,11 @@ function makeTournament(input) {
     detailText: input.detailText,
     attachments: input.attachments || [],
     media: input.media || [],
-    divisions: input.divisions || [],
+    divisions,
+    rawPayload: input.rawPayload,
+    sourceUpdatedAt: input.sourceUpdatedAt,
+    countdownRaw: input.countdownRaw,
+    weekGroupRaw: input.weekGroupRaw,
     crawledAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
