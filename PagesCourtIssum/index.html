@@ -49,6 +49,15 @@
       --lime:#c9ef6b;
       --amber:#b45f18;
       --amber-soft:#fff2dc;
+      --primary:#14743f;
+      --success:#15803d;
+      --warning:#b45f18;
+      --neutral:#667085;
+      --surface:#ffffff;
+      --text-primary:#111827;
+      --text-secondary:#667085;
+      --border:#e1e8dc;
+      --focus:#2563eb;
       --shadow:0 18px 46px rgba(17,24,39,.08);
     }
     *{box-sizing:border-box}
@@ -69,13 +78,22 @@
     .app-icon{width:22px;height:22px;flex:0 0 auto;display:inline-block;border-radius:5px;border:1px solid rgba(16,32,23,.18);box-shadow:0 1px 2px rgba(16,24,40,.12);background-size:cover;background-position:center}
     .daehoe-icon{background-image:url("/daehoe/favicon.svg")}
     .court-icon{background-image:url("./favicon.svg")}
+    :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
     .product-tabs{height:100%;display:inline-flex;align-items:center;gap:18px}
-    .product-tab{height:100%;display:inline-flex;align-items:center;gap:8px;padding:0 8px;border-bottom:3px solid transparent;text-decoration:none;color:#1f2933;font-size:17px;font-weight:900}
-    .product-tab.is-active{border-bottom-color:var(--green);color:#0d3f22}
+    .service-switcher{position:relative;padding:4px;border:1px solid var(--line);border-radius:14px;background:#fff;isolation:isolate}
+    .service-switcher:before{content:"";position:absolute;inset:4px auto 4px 50%;width:calc(50% - 4px);border-radius:10px;background:linear-gradient(135deg,#e9f8e6,#fff);box-shadow:inset 0 0 0 1px #cfe7c7;transition:transform .24s ease}
+    .service-switcher[data-active="court"]:before{transform:translateX(0)}
+    .service-switcher[data-active="daehoe"]:before{transform:translateX(-100%)}
+    .product-tab{position:relative;z-index:1;height:38px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border-bottom:0;text-decoration:none;color:#1f2933;font-size:15px;font-weight:900;border-radius:10px}
+    .product-tab.is-active{color:#0d3f22}
     .mini{width:18px;height:18px}
     .page{max-width:1480px;margin:0 auto;padding:18px 24px 42px}
     .shell{border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
-    .hero{display:block;padding:26px;border-bottom:1px solid var(--line)}
+    .hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:center;padding:26px;border-bottom:1px solid var(--line);overflow:hidden;background:linear-gradient(180deg,#fff,#fbfdf9)}
+    .hero-court-lines{height:150px;border:1px solid #d9ead2;border-radius:14px;background:linear-gradient(90deg,transparent 49%,#b9dfac 50%,transparent 51%),linear-gradient(0deg,transparent 49%,#b9dfac 50%,transparent 51%),linear-gradient(90deg,#eaf6e6 0 0);position:relative;transform:translateZ(0)}
+    .hero-court-lines:before,.hero-court-lines:after{content:"";position:absolute;inset:22px;border:2px solid #98c98c;border-radius:8px;opacity:.75;transform-origin:left center;animation:courtDraw .26s ease both}
+    .hero-court-lines:after{inset:48px 70px;animation-delay:.06s}
+    @keyframes courtDraw{from{clip-path:inset(0 100% 0 0);opacity:.1}to{clip-path:inset(0 0 0 0);opacity:.75}}
     .hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
     .utility-btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid #cfe1c8;border-radius:999px;background:#fff;color:#135d34;font-size:13px;font-weight:950;cursor:pointer;text-decoration:none}
     .utility-btn:hover{border-color:var(--green);background:#f7fbf4}
@@ -102,6 +120,8 @@
     .result-stat{min-height:82px;padding:14px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#fff,#fbfcfa)}
     .result-stat strong{display:block;color:var(--green);font-size:28px;line-height:1}
     .result-stat span{display:block;margin-top:8px;color:var(--muted);font-size:12px;font-weight:950}
+    .dynamic-status-island{margin:0 26px 16px;display:inline-flex;align-items:center;min-height:38px;max-width:calc(100% - 52px);padding:8px 13px;border:1px solid #cfe7c7;border-radius:999px;background:#f7fcf4;color:#17452a;font-size:13px;font-weight:950;transition:max-width .18s ease,background-color .18s ease,transform .18s ease}
+    .dynamic-status-island.is-changing{transform:translateY(-1px);background:#ecf9e8}
     .crawl-status{padding:18px 26px;border-bottom:1px solid var(--line);background:#fbfcfa}
     .crawl-status-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
     .crawl-status-head h2{margin:0;font-size:17px}
@@ -122,7 +142,7 @@
     .board-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .board-head h2{margin:0;font-size:22px;letter-spacing:-.03em}
     .board-head span{color:var(--muted);font-weight:800}
-    .matrix-scroll{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .matrix-scroll{overflow:auto;min-height:520px;border:1px solid var(--line);border-radius:12px;background:#fff}
     .mobile-courts{display:none}
     .matrix{min-width:1010px}
     .matrix-row,.matrix-group{display:grid;grid-template-columns:230px 76px repeat(var(--hour-count, 14),56px);border-top:1px solid var(--line)}
@@ -136,6 +156,7 @@
     .matrix-row.head .matrix-cell,.matrix-row.head .venue,.matrix-row.head .court-no{min-height:44px;background:#f8faf7;color:#667085}
     .matrix-row.head .venue,.matrix-row.head .court-no{z-index:4}
     .matrix-group.is-empty{opacity:.56}
+    .matrix-group,.mobile-card,.tournament-card{transition:transform .24s ease,opacity .18s ease}
     .matrix-cell{color:#c0c7be;text-decoration:none;background:#fff}
     .matrix-cell.open{background:var(--green-soft);color:var(--green-2)}
     .matrix-cell.hot{background:var(--lime);color:#173b21}
@@ -184,6 +205,7 @@
     .favorite-star span,.alarm-bell span{transform:translateY(-1px)}
     .alarm-bell{font-size:14px}
     .mobile-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px;box-shadow:0 8px 22px rgba(17,24,39,.05)}
+    .mobile-card.is-new-slot{box-shadow:0 0 0 2px #c9ef6b,0 8px 22px rgba(17,24,39,.05)}
     .mobile-card.is-empty{opacity:.62;background:#fbfcfa}
     .mobile-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
     .mobile-card-title{min-width:0}
@@ -199,6 +221,21 @@
     .mobile-time-value{font-size:16px;line-height:1}
     .slot-picker{position:fixed;inset:0;z-index:30;display:none;background:rgba(17,24,39,.38);padding:18px;align-items:flex-end}
     .slot-picker.is-open{display:flex}
+    .facility-sheet-backdrop{position:fixed;inset:0;z-index:34;display:none;background:rgba(17,24,39,.42);padding:18px;align-items:flex-end}
+    .facility-sheet-backdrop.is-open{display:flex}
+    .facility-sheet{width:100%;max-width:520px;max-height:min(78vh,680px);margin:0 auto;padding:0 0 env(safe-area-inset-bottom);border-radius:18px 18px 0 0;background:#fff;box-shadow:0 -22px 60px rgba(0,0,0,.24);overflow:auto}
+    .sheet-grip{width:44px;height:4px;margin:10px auto 6px;border-radius:999px;background:#d7ded2}
+    .facility-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+    .facility-sheet-head h2{margin:0;font-size:20px;line-height:1.25}
+    .facility-sheet-head p{margin:4px 0 0;color:var(--muted);font-size:12px;font-weight:850}
+    .facility-sheet-body{padding:14px 16px 18px}
+    .facility-sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .sheet-close{width:34px;height:34px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#667085;font-size:20px;font-weight:950}
+    .mobile-action-bar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:29;display:none;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;min-height:58px;padding:9px 10px;border:1px solid #cfe7c7;border-radius:14px;background:#fff;box-shadow:0 16px 40px rgba(17,24,39,.18)}
+    .mobile-action-bar.is-open{display:grid}
+    .mobile-action-copy{min-width:0;font-size:12px;font-weight:900;color:#17452a}
+    .mobile-action-copy strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#111827;font-size:14px}
+    .mobile-action-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 12px;border-radius:10px;border:1px solid var(--green);background:var(--green);color:#fff;font-size:13px;font-weight:950;text-decoration:none}
     .slot-sheet{width:100%;max-width:460px;margin:0 auto;border-radius:18px;background:#fff;box-shadow:0 22px 60px rgba(0,0,0,.24);overflow:hidden}
     .slot-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid var(--line)}
     .slot-sheet-head strong{display:block;font-size:18px;line-height:1.25}
@@ -240,10 +277,11 @@
     .footer-note{font-size:12px;line-height:1.6}
     .sr-fallback{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;margin:12px 0;color:#334155}
     @media (max-width:900px){
-      .topbar{height:auto}.topbar-inner{grid-template-columns:1fr auto;align-items:center;padding:9px 10px 8px;gap:10px}.brand{gap:8px}.brand-ball{width:28px;height:28px}.brand strong{font-size:21px}.brand em,.tagline{display:none}.ball{width:28px;height:28px}.ball:before,.ball:after{top:3px;bottom:3px}.ball:before{left:8px}.ball:after{right:8px}.product-tabs{height:33px;display:inline-grid;grid-template-columns:1fr 1fr;grid-column:1 / -1;width:100%;gap:6px;padding:4px;border:1px solid var(--line);border-radius:10px;background:#fff}.product-tab{height:24px;min-height:0;justify-content:center;border:0;border-radius:7px;padding:0 8px;font-size:12px}.product-tab.is-active{background:var(--green);color:#fff}.app-icon{width:16px;height:16px}.mini{width:15px;height:15px}
-      .page{padding:8px}.shell{border-radius:12px}.hero{padding:13px 14px}.hero-actions{margin-top:10px}.utility-btn{min-height:32px;padding:6px 10px;font-size:12px}.title-row{gap:8px}h1{font-size:24px;line-height:1.12}.nav-month{gap:6px}.icon-btn{width:38px;height:36px;border-radius:8px;font-size:19px}.summary{margin-top:8px;font-size:13px}
+      .topbar{height:auto}.topbar-inner{grid-template-columns:1fr auto;align-items:center;padding:9px 10px 8px;gap:10px}.brand{gap:8px}.brand-ball{width:28px;height:28px}.brand strong{font-size:21px}.brand em,.tagline{display:none}.ball{width:28px;height:28px}.ball:before,.ball:after{top:3px;bottom:3px}.ball:before{left:8px}.ball:after{right:8px}.product-tabs{height:33px;display:inline-grid;grid-template-columns:1fr 1fr;grid-column:1 / -1;width:100%;gap:6px}.product-tab{height:24px;min-height:0;justify-content:center;border:0;border-radius:7px;padding:0 8px;font-size:12px}.product-tab.is-active{color:#0d3f22}.app-icon{width:16px;height:16px}.mini{width:15px;height:15px}
+      .page{padding:8px}.shell{border-radius:12px}.hero{grid-template-columns:1fr;padding:13px 14px}.hero-court-lines{height:74px}.hero-court-lines:before{inset:14px}.hero-court-lines:after{inset:28px 54px}.hero-actions{margin-top:10px}.utility-btn{min-height:32px;padding:6px 10px;font-size:12px}.title-row{gap:8px}h1{font-size:24px;line-height:1.12}.nav-month{gap:6px}.icon-btn{width:38px;height:36px;border-radius:8px;font-size:19px}.summary{margin-top:8px;font-size:13px}
       .quick-date-strip{gap:6px;padding:8px 10px}.date-chip{min-height:32px;padding:6px 10px;font-size:12px}
       .result-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:10px}.result-stat{min-height:64px;padding:10px;border-radius:11px}.result-stat strong{font-size:20px}.result-stat span{margin-top:6px;font-size:10px;line-height:1.3}
+      .dynamic-status-island{margin:0 10px 10px;max-width:calc(100% - 20px);font-size:12px;border-radius:12px}
       .filter-toggle{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 20px);min-height:40px;margin:0 10px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);font-size:13px;font-weight:950;padding:0 11px;cursor:pointer}
       .filter-backdrop{position:fixed;inset:0;z-index:24;background:rgba(17,24,39,.42);opacity:0;pointer-events:none;transition:.18s}
       .filter-backdrop.is-open{display:block;opacity:1;pointer-events:auto}
@@ -259,16 +297,77 @@
       .crawl-status{padding:10px}.crawl-status-head{align-items:flex-start;flex-direction:column;gap:4px;margin-bottom:7px}.crawl-status-head h2{font-size:14px}.crawl-status-head span{font-size:10px}.crawl-status-grid{display:flex;grid-template-columns:none;overflow:auto;padding-bottom:2px}.crawl-card{flex:0 0 116px;padding:8px 9px;text-align:left}.crawl-city{font-size:12px}.crawl-meta{margin-top:5px;font-size:10px;line-height:1.35}
       .board-wrap{grid-template-columns:1fr}.board-main{border-right:0;border-bottom:0;padding:10px}.board-head{align-items:flex-start;flex-direction:column;gap:6px;margin-bottom:9px}.board-head h2{font-size:17px}.board-head span{font-size:12px}
       .matrix-scroll,.side{display:none}
-      .mobile-courts{display:flex;flex-direction:column;gap:8px}
+      .mobile-courts{display:flex;flex-direction:column;gap:8px;min-height:560px}
       .mobile-card{border-radius:11px;padding:10px;box-shadow:0 6px 16px rgba(17,24,39,.045)}.mobile-card-head{gap:7px}.mobile-card-title strong{font-size:15px;line-height:1.28}.mobile-card-title span{margin-top:3px;font-size:10px}.court-actions{gap:3px}.favorite-star,.alarm-bell{width:22px;height:22px;font-size:13px}.alarm-bell{font-size:12px}
       .mobile-court-chips{gap:5px;margin-top:8px}.mobile-court-chip{min-height:23px;padding:4px 7px;font-size:10px}
       .mobile-time-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
       .mobile-time-grid{gap:5px;margin-top:8px}.mobile-time{min-width:0;min-height:36px;border-radius:8px;font-size:12px}.mobile-time-label{font-size:10px}.mobile-time-value{font-size:13px}
       .details{padding:10px}.details-head{align-items:flex-start;gap:8px}.details-head h2{font-size:16px}.court-item{grid-template-columns:1fr;padding:11px 12px;gap:9px}.court-count{text-align:left}
       .alarm-item{grid-template-columns:1fr 34px;gap:6px;padding:10px 11px}.alarm-date,.alarm-court,.alarm-condition{grid-column:1;font-size:12px}.alarm-condition{justify-self:start;padding:5px 8px;font-size:11px}.alarm-delete{grid-column:2;grid-row:1 / span 3;width:30px;height:30px}
-      .slot-picker{padding:10px}.slot-sheet{border-radius:15px}.slot-sheet-head{padding:13px}.slot-sheet-head strong{font-size:16px}.slot-picker-close{width:30px;height:30px;font-size:18px}.slot-choice-list{gap:6px;padding:11px}.slot-choice{min-height:42px;padding:9px 11px;font-size:13px}
+      .slot-picker{padding:10px}.slot-sheet{border-radius:15px}.slot-sheet-head{padding:13px}.slot-sheet-head strong{font-size:16px}.slot-picker-close{width:30px;height:30px;font-size:18px}.slot-choice-list{gap:6px;padding:11px}.slot-choice{min-height:42px;padding:9px 11px;font-size:13px}.facility-sheet-backdrop{padding:10px}.facility-sheet-head h2{font-size:18px}
       .notice-overlay{padding:10px}.notice-panel{margin:3vh auto;border-radius:15px}.notice-head{padding:14px}.notice-body{padding:14px}.notice-head h2{font-size:18px}.notice-section p,.notice-section li{font-size:13px}
       .content-guide{grid-template-columns:1fr;margin-top:10px}.content-card{padding:15px;border-radius:12px}.content-card h2{font-size:19px}.content-card h3{font-size:16px}.content-card p,.content-card li{font-size:13px}.site-footer{padding:18px 14px 28px;margin-top:12px}
+    }
+    /* Reference design skin: soft off-white canvas, left hero, central schedule, right selection panel. */
+    @media (min-width: 1024px){
+      body{background:
+        radial-gradient(circle at 8% 10%,rgba(126,185,50,.16),transparent 24%),
+        radial-gradient(circle at 88% 12%,rgba(214,195,165,.22),transparent 28%),
+        linear-gradient(135deg,#fbf7ef 0%,#f7f1e8 54%,#fbf8f2 100%)}
+      .topbar{height:68px;background:rgba(251,247,239,.72);backdrop-filter:blur(18px);border-bottom:0}
+      .topbar-inner{max-width:1460px;grid-template-columns:300px 1fr auto;gap:24px}
+      .brand strong{font-size:22px}.brand em{display:none}
+      .product-tabs{height:68px;display:flex;align-items:center;justify-content:center;gap:44px;padding:0;border:0;background:transparent}.product-tab{flex:0 0 auto;min-width:0;height:68px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;font-size:15px;color:#4c4a45}.product-tab.is-active{background:transparent;color:#111;border-bottom-color:#111}
+      .page{max-width:1460px;padding:28px 28px 54px}
+      .shell{display:grid;grid-template-columns:300px minmax(640px,1fr) 290px;grid-template-areas:"hero board select" "tabs board select" "quick board select" "filters board select" "stats board select" "status status status";align-items:start;gap:12px;border:0;background:transparent;box-shadow:none;overflow:visible}
+      .hero{grid-area:hero;min-height:300px;padding:18px 0 10px;border:0;background:transparent}
+      .hero:before{content:"COURT ISSUM?";display:block;margin-bottom:18px;color:var(--green);font-size:12px;font-weight:900;letter-spacing:.08em}
+      .title-row h1{max-width:280px;font-size:46px;line-height:1.18;letter-spacing:-.06em}
+      .title-row h1 span{color:#5aac14}
+      .summary{max-width:260px;margin-top:20px;color:#5c5b56;font-size:15px;line-height:1.7}
+      .hero-actions{display:none}
+      .city-tabs{grid-area:tabs;padding:0;gap:8px;border:0;background:transparent}
+      .city-tab{min-width:0;height:42px;padding:0 12px;border-radius:10px;background:rgba(255,255,255,.7);box-shadow:0 1px 0 rgba(0,0,0,.03);font-size:13px}
+      .city-tab.is-active{background:#111;border-color:#111;color:#fff}
+      .quick-date-strip{grid-area:quick;padding:0;border:0;background:transparent}
+      .date-chip{min-height:38px;border-color:#e7dfd2;background:rgba(255,255,255,.78);box-shadow:0 8px 20px rgba(38,34,27,.04)}
+      .filters{grid-area:filters;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0;border:0;background:transparent}
+      .field{min-height:42px;border-color:#e7dfd2;border-radius:10px;background:rgba(255,255,255,.78)}
+      .field:first-child{grid-column:1 / -1}
+      .result-summary{grid-area:stats;grid-template-columns:repeat(3,1fr);gap:0;padding:0;border:1px solid #e8dfd2;border-radius:12px;background:rgba(255,255,255,.76);overflow:hidden}
+      .result-stat{min-height:70px;border:0;border-left:1px solid #eee6dc;border-radius:0;background:transparent}.result-stat:first-child{border-left:0}
+      .result-stat strong{font-size:26px;color:#151515}.result-stat span{color:#6d6a63;font-size:11px}
+      .dynamic-status-island{grid-area:status;margin:4px 0 0;border:1px solid #e8dfd2;background:rgba(255,255,255,.68);color:#6d6a63}
+      .board-wrap{grid-area:board;min-width:0}
+      .board-main{padding:16px;border:1px solid #e7dfd2;border-radius:16px;background:rgba(255,255,255,.72);box-shadow:0 18px 55px rgba(53,45,31,.08)}
+      .board-head{margin-bottom:12px}.board-head h2{font-size:17px}.board-head span{font-size:12px}
+      .matrix-scroll{border-color:#ece4da;border-radius:12px;background:rgba(255,255,255,.7)}
+      .matrix{min-width:820px}
+      .matrix-row,.matrix-group{grid-template-columns:170px 72px repeat(var(--hour-count, 8),58px)}
+      .matrix-cell,.venue,.court-no{min-height:40px;border-color:#eee7df;font-size:12px}
+      .matrix-row.head .matrix-cell,.matrix-row.head .venue,.matrix-row.head .court-no{min-height:40px;background:#f8f4ee;color:#333}
+      .venue{left:0;background:rgba(255,255,255,.94)}.court-no{left:170px;background:rgba(255,255,255,.94)}
+      .venue strong{font-size:13px}.venue span{font-size:11px}
+      .matrix-cell{border-radius:7px;margin:5px;background:#f7f4ef;color:#8c8983;text-decoration:none}
+      .matrix-cell.open{background:#eef8df;border:1px solid #d8edb6;color:#4f9d19;box-shadow:inset 0 0 0 1px rgba(116,174,40,.08)}
+      .matrix-cell.open strong{display:block;font-size:13px;line-height:1.2}.matrix-cell.open small{display:block;font-size:10px;color:#69a51f}
+      .selection-panel{grid-area:select;position:sticky;top:84px;border:1px solid #e7dfd2;border-radius:16px;background:rgba(255,255,255,.78);box-shadow:0 18px 55px rgba(53,45,31,.08);overflow:hidden}
+      .selection-head{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 12px;border-bottom:1px solid #eee6dc}
+      .selection-head strong{font-size:16px}.selection-head button{width:30px;height:30px;border:0;background:transparent;font-size:22px;color:#716d66}
+      .selection-body{display:grid;gap:12px;padding:18px}.selection-body h2{margin:0;font-size:17px;line-height:1.35}.selection-body p{margin:0;color:#4f4d48;font-size:13px;line-height:1.55}
+      .selection-image{height:112px;border-radius:12px;background:linear-gradient(145deg,#7fb15d,#2d6b3a);position:relative;overflow:hidden}
+      .selection-image:before{content:"";position:absolute;inset:18px 12px;border:1px solid rgba(255,255,255,.55);transform:skewY(-7deg)}
+      .selection-primary,.selection-secondary{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:950}
+      .selection-primary{border:1px solid var(--green);background:linear-gradient(180deg,#77c420,#54a513);color:#fff}.selection-primary[aria-disabled="true"]{opacity:.55;pointer-events:none}
+      .selection-secondary{border:1px solid #e7dfd2;background:#fff;color:#222}
+      .selection-facts{display:grid;gap:8px;margin:4px 0 0}.selection-facts div{display:grid;grid-template-columns:74px 1fr;gap:8px}.selection-facts dt{color:#7a766e;font-size:12px;font-weight:900}.selection-facts dd{margin:0;color:#222;font-size:12px;font-weight:800;line-height:1.45}
+      .selection-panel.is-minimized .selection-body{display:none}
+      .crawl-status,.details{display:none}
+    }
+    @media (max-width:900px){
+      body{background:linear-gradient(160deg,#fbf7ef,#f7f1e8)}
+      .selection-panel{display:none}
+      .hero .summary{font-size:14px;line-height:1.55}
     }
     @media (prefers-reduced-motion: reduce){
       .filter-backdrop,.filters,.toast{transition:none}
@@ -283,7 +382,7 @@
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/" aria-label="코트있음 홈"><span class="brand-ball" aria-hidden="true"></span><strong>코트있음?</strong><em>공공 테니스장 예약 가이드</em></a>
-      <nav class="product-tabs" aria-label="서비스 전환">
+      <nav class="product-tabs service-switcher" data-active="court" aria-label="서비스 전환">
         <a class="product-tab" href="/daehoe/"><span class="app-icon daehoe-icon" aria-hidden="true"></span>대회있음?</a>
         <a class="product-tab is-active" href="/"><span class="app-icon court-icon" aria-hidden="true"></span>코트있음?</a>
       </nav>
@@ -304,7 +403,7 @@
       <div class="hero">
         <div>
           <div class="title-row">
-            <h1 id="pageTitle">용인 코트 현황</h1>
+            <h1 id="pageTitle">오늘,<br>바로 칠 수 있는<br><span>코트</span>를 찾으세요.</h1>
           </div>
           <div class="summary" id="summary">오늘의 잔여 코트는 아래 시간표에서 확인하세요. 용인, 고양, 수원, 성남, 안양, 파주, 하남, 의왕 공공 테니스장 예약 정보를 제공합니다.</div>
           <div class="hero-actions">
@@ -313,6 +412,7 @@
             <a class="utility-btn" href="/data-source/">데이터 출처</a>
           </div>
         </div>
+        <div class="hero-court-lines" aria-hidden="true"></div>
       </div>
 
       <div class="city-tabs" id="cityTabs"></div>
@@ -337,25 +437,26 @@
         <div class="result-stat"><strong id="openSlotCount">0</strong><span>예약 가능 시간대</span></div>
         <div class="result-stat"><strong id="firstOpenTime">-</strong><span>가장 빠른 가능 시간</span></div>
       </section>
+      <div id="dynamicStatusIsland" class="dynamic-status-island" aria-live="polite">데이터를 불러오고 있어요</div>
 
-      <section class="crawl-status" aria-label="도시별 수집 상태">
-        <div class="crawl-status-head">
-          <h2>도시별 수집 상태</h2>
-          <span id="crawlStatusUpdated">데이터 확인 중</span>
+      <aside id="selectionPanel" class="selection-panel" aria-live="polite" aria-label="선택 정보">
+        <div class="selection-head">
+          <strong>선택 정보</strong>
+          <button id="selectionClose" type="button" aria-label="선택 정보 닫기">×</button>
         </div>
-        <div id="crawlStatusGrid" class="crawl-status-grid"></div>
-      </section>
-
-      <section id="alarmSection" class="details is-collapsed">
-        <div class="details-head">
-          <div class="details-title">
-            <h2>알람 등록 내역</h2>
-            <button id="alarmToggle" class="utility-btn" type="button" aria-expanded="false" aria-controls="alarmList">열기</button>
-          </div>
-          <span id="updatedAt">업데이트 확인 중</span>
+        <div class="selection-body">
+          <h2 id="selectionTitle">코트를 선택하세요</h2>
+          <p id="selectionMeta">예약 가능한 시간을 누르면 상세 정보가 표시됩니다.</p>
+          <div class="selection-image" aria-hidden="true"></div>
+          <a id="selectionReserve" class="selection-primary" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">공식 예약 사이트 이동 ↗</a>
+          <button id="selectionAlarm" class="selection-secondary" type="button">빈자리 알림 설정 ♡</button>
+          <dl class="selection-facts">
+            <div><dt>운영기관</dt><dd id="selectionOrg">-</dd></div>
+            <div><dt>주소</dt><dd id="selectionAddress">-</dd></div>
+            <div><dt>업데이트</dt><dd id="selectionUpdated">-</dd></div>
+          </dl>
         </div>
-        <div id="alarmList" class="alarm-list"></div>
-      </section>
+      </aside>
 
       <div class="board-wrap">
         <section class="board-main">
@@ -375,6 +476,25 @@
           <div id="mobileCards" class="mobile-courts"></div>
         </section>
       </div>
+
+      <section class="crawl-status" aria-label="도시별 수집 상태">
+        <div class="crawl-status-head">
+          <h2>도시별 수집 상태</h2>
+          <span id="crawlStatusUpdated">데이터 확인 중</span>
+        </div>
+        <div id="crawlStatusGrid" class="crawl-status-grid"></div>
+      </section>
+
+      <section id="alarmSection" class="details is-collapsed">
+        <div class="details-head">
+          <div class="details-title">
+            <h2>알람 등록 내역</h2>
+            <button id="alarmToggle" class="utility-btn" type="button" aria-expanded="false" aria-controls="alarmList">열기</button>
+          </div>
+          <span id="updatedAt">업데이트 확인 중</span>
+        </div>
+        <div id="alarmList" class="alarm-list"></div>
+      </section>
 
     </section>
     <section class="content-guide" aria-label="공공 테니스장 예약 안내">
@@ -487,11 +607,31 @@
       <div id="slotPickerChoices" class="slot-choice-list"></div>
     </div>
   </div>
+  <div id="facilitySheet" class="facility-sheet-backdrop" aria-hidden="true">
+    <section class="facility-sheet" role="dialog" aria-modal="true" aria-labelledby="facilitySheetTitle">
+      <div class="sheet-grip" data-sheet-drag aria-hidden="true"></div>
+      <div class="facility-sheet-head">
+        <div>
+          <h2 id="facilitySheetTitle">시설 상세</h2>
+          <p id="facilitySheetSubtitle"></p>
+        </div>
+        <button id="facilitySheetClose" class="sheet-close" type="button" aria-label="시설 상세 닫기">×</button>
+      </div>
+      <div id="facilitySheetBody" class="facility-sheet-body"></div>
+    </section>
+  </div>
+  <div id="mobileActionBar" class="mobile-action-bar" aria-live="polite">
+    <div class="mobile-action-copy"><strong id="mobileActionTitle">선택된 시간</strong><span id="mobileActionMeta"></span></div>
+    <a id="mobileActionLink" class="mobile-action-btn" href="#" target="_blank" rel="noopener noreferrer">공식 예약처</a>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const FILTER_STORAGE_KEY = "courtissum.filters.v1";
+    let lastSlotKeys = new Set();
+    let lastStatusText = "";
 
     const CITY_LABELS = {
       yongin: "용인",
@@ -545,6 +685,15 @@
       slotPickerSubtitle: $("slotPickerSubtitle"),
       slotPickerChoices: $("slotPickerChoices"),
       slotPickerClose: $("slotPickerClose"),
+      facilitySheet: $("facilitySheet"),
+      facilitySheetTitle: $("facilitySheetTitle"),
+      facilitySheetSubtitle: $("facilitySheetSubtitle"),
+      facilitySheetBody: $("facilitySheetBody"),
+      facilitySheetClose: $("facilitySheetClose"),
+      mobileActionBar: $("mobileActionBar"),
+      mobileActionTitle: $("mobileActionTitle"),
+      mobileActionMeta: $("mobileActionMeta"),
+      mobileActionLink: $("mobileActionLink"),
       quickList: $("quickList"),
       alarmList: $("alarmList"),
       crawlStatusGrid: $("crawlStatusGrid"),
@@ -553,6 +702,16 @@
       openCourtCount: $("openCourtCount"),
       openSlotCount: $("openSlotCount"),
       firstOpenTime: $("firstOpenTime"),
+      dynamicStatusIsland: $("dynamicStatusIsland"),
+      selectionPanel: $("selectionPanel"),
+      selectionClose: $("selectionClose"),
+      selectionTitle: $("selectionTitle"),
+      selectionMeta: $("selectionMeta"),
+      selectionReserve: $("selectionReserve"),
+      selectionAlarm: $("selectionAlarm"),
+      selectionOrg: $("selectionOrg"),
+      selectionAddress: $("selectionAddress"),
+      selectionUpdated: $("selectionUpdated"),
       boardTitle: $("boardTitle"),
       boardSubtitle: $("boardSubtitle")
     };
@@ -562,6 +721,155 @@
       if (className) el.className = className;
       if (text !== undefined) el.textContent = text;
       return el;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function analyticsEvent(name, payload = {}) {
+      window.dispatchEvent(new CustomEvent("courtissum:analytics", { detail: { name, payload } }));
+    }
+
+    function readSavedFilters() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || "{}");
+        if (parsed.version !== 1) return {};
+        return parsed;
+      } catch {
+        return {};
+      }
+    }
+
+    function saveFilters() {
+      try {
+        localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify({
+          version: 1,
+          city: currentCity,
+          hour: els.hourFilter.value || "",
+          timeMode: els.timeMode.value || "contains"
+        }));
+      } catch {}
+    }
+
+    function applySavedFilters() {
+      const saved = readSavedFilters();
+      if (CITY_LABELS[saved.city]) currentCity = saved.city;
+      if (saved.timeMode && ["contains", "after", "before"].includes(saved.timeMode)) els.timeMode.value = saved.timeMode;
+      if (saved.hour && els.hourFilter && [...els.hourFilter.options].some(option => option.value === saved.hour)) els.hourFilter.value = saved.hour;
+    }
+
+    function countTo(el, nextValue) {
+      if (!el) return;
+      const previous = Number(el.textContent);
+      const next = Number(nextValue);
+      if (!Number.isFinite(previous) || !Number.isFinite(next) || previous === next || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        el.textContent = String(nextValue);
+        return;
+      }
+      const start = performance.now();
+      const duration = 220;
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        el.textContent = String(Math.round(previous + (next - previous) * t));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    function updateDynamicStatus(text) {
+      if (!els.dynamicStatusIsland || !text) return;
+      if (lastStatusText === text) return;
+      lastStatusText = text;
+      els.dynamicStatusIsland.textContent = text;
+      els.dynamicStatusIsland.classList.add("is-changing");
+      window.setTimeout(() => els.dynamicStatusIsland?.classList.remove("is-changing"), 220);
+      analyticsEvent("dynamic_status_change", { service: "court" });
+    }
+
+    function animateListFlip(container, renderFn) {
+      if (!container || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        renderFn();
+        return;
+      }
+      const before = new Map([...container.children].map((child) => [child.dataset.key, child.getBoundingClientRect()]));
+      renderFn();
+      [...container.children].slice(0, 24).forEach((child) => {
+        const first = before.get(child.dataset.key);
+        if (!first) return;
+        const last = child.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+        child.animate([
+          { transform: `translate(${dx}px, ${dy}px)` },
+          { transform: "translate(0, 0)" }
+        ], { duration: 240, easing: "ease", fill: "both" });
+      });
+    }
+
+    function trapFocus(container, event) {
+      if (event.key !== "Tab" || !container) return;
+      const focusables = [...container.querySelectorAll('a[href],button:not([disabled]),select,input,[tabindex]:not([tabindex="-1"])')];
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function selectCourtSlot(row, hour, slot) {
+      const href = reserveHref(row.cid, slot);
+      if (!href || !els.mobileActionBar) return;
+      els.mobileActionTitle.textContent = `${row.courtGroup} · ${slot._courtLabel || "코트"} · ${hour}:00`;
+      els.mobileActionMeta.textContent = "선택한 시간은 공식 예약처에서 최종 확인하세요.";
+      els.mobileActionLink.href = href;
+      els.mobileActionBar.classList.add("is-open");
+      analyticsEvent("mobile_slot_select", { service: "court" });
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    function openFacilitySheet(row) {
+      if (!els.facilitySheet) return;
+      els.facilitySheetTitle.textContent = row.courtGroup;
+      els.facilitySheetSubtitle.textContent = `${CITY_LABELS[currentCity]} · 예약 가능 ${row.count}개`;
+      const official = row.slots.find(slot => reserveHref(row.cid, slot));
+      els.facilitySheetBody.innerHTML = `
+        <p><strong>주소</strong><br>${escapeHtml(row.locationText || row.fac.location || "확인 필요")}</p>
+        <p><strong>가능한 코트와 시간</strong><br>${escapeHtml(row.slots.map(labelSlot).join(", ") || "선택 조건에서 가능한 시간이 없습니다.")}</p>
+        <p><strong>마지막 정상 확인</strong><br>${escapeHtml(formatUpdated(DATA.updated_at))}</p>
+        <p><strong>데이터 출처</strong><br>공식 예약처 공개 화면 기준</p>
+        <div class="facility-sheet-actions">
+          ${official ? `<a class="mobile-action-btn" href="${escapeHtml(reserveHref(row.cid, official))}" target="_blank" rel="noopener noreferrer">공식 예약처</a>` : `<span></span>`}
+          <button class="utility-btn" type="button" data-sheet-alarm>빈자리 알림</button>
+        </div>
+      `;
+      els.facilitySheetBody.querySelector("[data-sheet-alarm]")?.addEventListener("click", () => registerCourtAlarm(row.courtGroup));
+      els.facilitySheet.classList.add("is-open");
+      els.facilitySheet.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      els.facilitySheetClose?.focus();
+      history.pushState({ facilitySheet: true }, "", location.href);
+      analyticsEvent("mobile_bottom_sheet_open", { service: "court", type: "facility" });
+    }
+
+    function closeFacilitySheet() {
+      if (!els.facilitySheet) return;
+      els.facilitySheet.classList.remove("is-open");
+      els.facilitySheet.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      analyticsEvent("mobile_bottom_sheet_close", { service: "court", type: "facility" });
     }
 
     function toast(message) {
@@ -761,7 +1069,6 @@
       if (d.length !== 8) return "";
       return ["일","월","화","수","목","금","토"][new Date(Number(d.slice(0,4)), Number(d.slice(4,6))-1, Number(d.slice(6,8))).getDay()];
     }
-
     function nextWeekendOffset() {
       const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
       const day = now.getDay();
@@ -784,7 +1091,7 @@
         btn.type = "button";
         btn.onclick = () => {
           els.dateFilter.value = value;
-          render();
+          runViewTransition(render);
           setFilterOpen(false);
         };
         els.quickDateStrip.appendChild(btn);
@@ -1003,6 +1310,40 @@
       return "";
     }
 
+    function formatSelectionUpdated() {
+      const ts = DATA.updated_at || DATA.last_success_at || "";
+      if (!ts) return "-";
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return "-";
+      return d.toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function updateSelectionPanel(row, slot) {
+      if (!els.selectionPanel || !row) return;
+      els.selectionPanel.classList.remove("is-minimized");
+      const time = slot ? firstTime(slot) : (row.first !== "99:99" ? row.first : "");
+      const court = slot?._courtLabel || row.courtLabelList?.[0] || "";
+      const href = slot ? reserveHref(row.cid, slot) : "";
+      els.selectionTitle.textContent = `${row.courtGroup}${court ? ` ${court}` : ""}`;
+      els.selectionMeta.textContent = time ? `${compactDate()} (${weekday()}) ${time}` : "예약 가능한 시간이 없습니다.";
+      els.selectionOrg.textContent = CITY_LABELS[currentCity] || currentCity;
+      els.selectionAddress.textContent = row.locationText || row.fac?.location || row.fac?.title || "-";
+      els.selectionUpdated.textContent = formatSelectionUpdated();
+      if (href) {
+        els.selectionReserve.href = href;
+        els.selectionReserve.setAttribute("aria-disabled", "false");
+      } else {
+        els.selectionReserve.href = "#";
+        els.selectionReserve.setAttribute("aria-disabled", "true");
+      }
+      els.selectionAlarm.onclick = () => {
+        els.courtFilter.value = row.courtGroup;
+        if (time) els.hourFilter.value = String(Number(time.slice(0, 2)));
+        render();
+        toast("빈자리 알림 조건에 반영했습니다.");
+      };
+    }
+
     function openSlotPicker(row, hour, slots) {
       if (!els.slotPicker || !slots.length) return;
       els.slotPickerTitle.textContent = `${row.courtGroup} ${hour}:00`;
@@ -1173,14 +1514,11 @@
             const hourSlots = row.byHour.get(hour) || [];
             const slots = label === "전체" ? hourSlots : hourSlots.filter(slot => slot._courtLabel === label);
             const className = slots.length ? "matrix-cell open" : "matrix-cell";
-            const el = node(slots.length ? "a" : "div", className, slots.length ? "O" : "-");
+            const el = node(slots.length ? "button" : "div", className, slots.length ? "" : "-");
             if (slots.length) {
-              const href = reserveHref(row.cid, slots[0]);
-              if (href) {
-                el.href = href;
-                el.target = "_blank";
-                el.rel = "noopener noreferrer";
-              }
+              el.type = "button";
+              el.innerHTML = `<strong>${slots.length > 1 ? slots.length : ""}</strong><small>가능</small>`;
+              el.addEventListener("click", () => updateSelectionPanel(row, slots[0]));
               el.title = `${row.courtGroup} ${slots.map(labelSlot).join(", ")}`;
             }
             group.appendChild(el);
@@ -1199,6 +1537,9 @@
 
       rows.forEach(row => {
         const card = node("article", row.count ? "mobile-card" : "mobile-card is-empty");
+        card.dataset.key = row.courtGroup;
+        const rowSlotKeys = row.slots.map(slot => `${row.courtGroup}|${firstTime(slot)}|${slot._courtLabel || ""}`);
+        if (rowSlotKeys.some(key => !lastSlotKeys.has(key)) && lastSlotKeys.size) card.classList.add("is-new-slot");
         const head = node("div", "mobile-card-head");
         const title = node("div", "mobile-card-title");
         title.appendChild(node("strong", "", row.courtGroup));
@@ -1206,6 +1547,10 @@
         head.appendChild(title);
         head.appendChild(courtActions(row.courtGroup));
         card.appendChild(head);
+        const detailButton = node("button", "utility-btn", "시설 상세");
+        detailButton.type = "button";
+        detailButton.onclick = () => openFacilitySheet(row);
+        card.appendChild(detailButton);
 
         const chips = node("div", "mobile-court-chips");
         const labels = row.courtLabelList?.length ? row.courtLabelList : ["All"];
@@ -1215,17 +1560,16 @@
         const grid = node("div", "mobile-time-grid");
         mobileHoursForRow(row).forEach(hour => {
           const slots = row.byHour.get(hour) || [];
-          const tag = slots.length && reserveHref(row.cid, slots[0]) ? "a" : "div";
+          const tag = slots.length && reserveHref(row.cid, slots[0]) ? "button" : "div";
           const cell = node(tag, slots.length > 1 ? "mobile-time is-open is-hot" : slots.length ? "mobile-time is-open" : "mobile-time");
-          if (slots.length && tag === "a") {
-            cell.href = reserveHref(row.cid, slots[0]);
-            cell.target = "_blank";
-            cell.rel = "noopener noreferrer";
+          if (tag === "button") {
+            cell.type = "button";
+            cell.onclick = event => {
+              event.preventDefault();
+              selectCourtSlot(row, hour, slots[0]);
+            };
           }
           if (slots.length > 1) {
-            cell.removeAttribute("href");
-            cell.removeAttribute("target");
-            cell.removeAttribute("rel");
             cell.onclick = event => {
               event.preventDefault();
               openSlotPicker(row, hour, slots);
@@ -1383,7 +1727,9 @@
       const openRows = rows.filter(row => row.count > 0);
       const slotCount = openRows.reduce((sum, row) => sum + row.count, 0);
       const firstOpen = openRows.map(row => row.first).filter(time => time && time !== "99:99").sort()[0] || "-";
-      els.pageTitle.textContent = `${CITY_LABELS[currentCity]} 코트 현황`;
+      const nextSlotKeys = new Set(openRows.flatMap(row => row.slots.map(slot => `${row.courtGroup}|${firstTime(slot)}|${slot._courtLabel || ""}`)));
+      const newSlotCount = lastSlotKeys.size ? [...nextSlotKeys].filter(key => !lastSlotKeys.has(key)).length : 0;
+      els.pageTitle.innerHTML = `오늘,<br>바로 칠 수 있는<br><span>코트</span>를 찾으세요.`;
       if (reservationWindowMessage) {
         els.summary.textContent = reservationWindowMessage;
       } else {
@@ -1391,27 +1737,44 @@
       }
       els.boardTitle.textContent = `${compactDate()} ${weekday()}요일 시간표`;
       els.boardSubtitle.textContent = reservationWindowMessage || "O는 해당 시간대에 예약 가능한 코트입니다.";
-      if (els.openCourtCount) els.openCourtCount.textContent = String(openRows.length);
-      if (els.openSlotCount) els.openSlotCount.textContent = String(slotCount);
+      countTo(els.openCourtCount, openRows.length);
+      countTo(els.openSlotCount, slotCount);
       if (els.firstOpenTime) els.firstOpenTime.textContent = firstOpen;
+      updateDynamicStatus(newSlotCount
+        ? `새로운 코트 ${newSlotCount}개 발견`
+        : `${CITY_LABELS[currentCity]} · ${compactDate()} · 예약 가능 ${slotCount}개`);
       renderCrawlStatus();
       renderMatrix(rows, reservationWindowMessage || undefined);
-      renderMobileCards(rows, reservationWindowMessage || undefined);
+      const firstRow = openRows[0];
+      if (firstRow) updateSelectionPanel(firstRow, firstRow.slots[0]);
+      animateListFlip(els.mobileCards, () => renderMobileCards(rows, reservationWindowMessage || undefined));
       renderQuick(rows, reservationWindowMessage || undefined);
-      renderAlarmList();
+      if (!els.alarmSection?.classList.contains("is-collapsed")) renderAlarmList();
+      lastSlotKeys = nextSlotKeys;
+      saveFilters();
+      analyticsEvent(rows.length ? "results_loaded" : "empty_results", { service: "court", city: currentCity, count: rows.length });
     }
 
     function setCity(city) {
       currentCity = CITY_LABELS[city] ? city : "yongin";
       els.courtFilter.value = "";
-      render();
+      runViewTransition(render);
+      analyticsEvent("filter_apply", { service: "court", filter: "city" });
     }
 
     function moveDate(delta) {
       const base = els.dateFilter.value ? new Date(els.dateFilter.value) : new Date();
       base.setDate(base.getDate() + delta);
       els.dateFilter.value = toInputDate(base);
-      render();
+      runViewTransition(render);
+    }
+
+    function runViewTransition(callback) {
+      if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.startViewTransition(callback);
+      } else {
+        callback();
+      }
     }
 
     function setFilterOpen(open) {
@@ -1436,6 +1799,7 @@
       els.alarmSection.classList.toggle("is-collapsed", !open);
       els.alarmToggle.setAttribute("aria-expanded", String(open));
       els.alarmToggle.textContent = open ? "접기" : "열기";
+      if (open) renderAlarmList();
     }
 
     function formatUpdated(ts) {
@@ -1462,11 +1826,19 @@
 
     function init() {
       els.dateFilter.value = todayKst();
+      applySavedFilters();
       refreshHourOptions();
+      applySavedFilters();
       renderCityControls();
       renderQuickDates();
-      ["dateFilter","courtFilter","hourFilter","timeMode"].forEach(id => $(id).addEventListener("change", render));
-      els.filterToggle?.addEventListener("click", () => setFilterOpen(!els.filterPanel.classList.contains("is-open")));
+      ["dateFilter","courtFilter","hourFilter","timeMode"].forEach(id => $(id).addEventListener("change", () => {
+        runViewTransition(render);
+        analyticsEvent("filter_apply", { service: "court", filter: id });
+      }));
+      els.filterToggle?.addEventListener("click", () => {
+        setFilterOpen(!els.filterPanel.classList.contains("is-open"));
+        analyticsEvent("filter_open", { service: "court" });
+      });
       els.filterBackdrop?.addEventListener("click", () => setFilterOpen(false));
       els.filterApply?.addEventListener("click", () => setFilterOpen(false));
       els.filterReset?.addEventListener("click", () => {
@@ -1474,8 +1846,10 @@
         els.courtFilter.value = "";
         els.hourFilter.value = "";
         els.timeMode.value = "contains";
+        localStorage.removeItem(FILTER_STORAGE_KEY);
         render();
         setFilterOpen(false);
+        analyticsEvent("filter_reset", { service: "court" });
       });
       els.noticeBtn?.addEventListener("click", () => setNoticeOpen(true));
       els.noticeClose?.addEventListener("click", () => setNoticeOpen(false));
@@ -1483,16 +1857,34 @@
         if (event.target === els.noticeModal) setNoticeOpen(false);
       });
       els.alarmToggle?.addEventListener("click", () => setAlarmOpen(els.alarmSection.classList.contains("is-collapsed")));
+      els.selectionClose?.addEventListener("click", () => els.selectionPanel?.classList.add("is-minimized"));
       document.addEventListener("keydown", event => {
         if (event.key === "Escape") {
           setNoticeOpen(false);
           setFilterOpen(false);
           closeSlotPicker();
+          closeFacilitySheet();
         }
       });
       els.slotPickerClose?.addEventListener("click", closeSlotPicker);
       els.slotPicker?.addEventListener("click", event => {
         if (event.target === els.slotPicker) closeSlotPicker();
+      });
+      els.facilitySheetClose?.addEventListener("click", closeFacilitySheet);
+      els.facilitySheet?.addEventListener("click", event => {
+        if (event.target === els.facilitySheet) closeFacilitySheet();
+      });
+      els.facilitySheet?.addEventListener("keydown", event => trapFocus(els.facilitySheet, event));
+      els.facilitySheet?.querySelector("[data-sheet-drag]")?.addEventListener("pointerdown", event => {
+        const startY = event.clientY;
+        const onUp = upEvent => {
+          if (upEvent.clientY - startY > 36) closeFacilitySheet();
+          window.removeEventListener("pointerup", onUp);
+        };
+        window.addEventListener("pointerup", onUp);
+      });
+      window.addEventListener("popstate", () => {
+        if (els.facilitySheet?.classList.contains("is-open")) closeFacilitySheet();
       });
       els.citySelect.addEventListener("change", e => setCity(e.target.value));
       $("prevDate").addEventListener("click", () => moveDate(-1));
