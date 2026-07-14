@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -50,7 +50,7 @@ def default_months(mode):
     return [f"{now.year}-{now.month:02d}", f"{next_year}-{next_month:02d}"]
 
 
-def sync(database_url, data_path, schema_path, mode, months):
+def sync(database_url, data_path, schema_path, mode, months, inactive_retention_days=180):
     import psycopg
     from psycopg.types.json import Jsonb
 
@@ -106,6 +106,16 @@ def sync(database_url, data_path, schema_path, mode, months):
                     """,
                     (Jsonb({"completedAt": datetime.now(tz=ZoneInfo("Asia/Seoul")).isoformat(), "months": months}),),
                 )
+            if inactive_retention_days and inactive_retention_days > 0:
+                cutoff = datetime.now(tz=ZoneInfo("Asia/Seoul")) - timedelta(days=inactive_retention_days)
+                cursor.execute(
+                    """
+                    delete from public.daehoe_tournaments
+                     where active = false
+                       and updated_at < %s
+                    """,
+                    (cutoff,),
+                )
             cursor.execute("select count(*) from public.daehoe_tournaments where active")
             active_count = cursor.fetchone()[0]
         connection.commit()
@@ -118,12 +128,13 @@ def main():
     parser.add_argument("--schema", default=str(DEFAULT_SCHEMA))
     parser.add_argument("--mode", choices=("full", "incremental"), default=os.getenv("DAEHOE_SYNC_MODE", "incremental"))
     parser.add_argument("--months", default=os.getenv("DAEHOE_REFRESH_MONTHS", ""))
+    parser.add_argument("--inactive-retention-days", type=int, default=int(os.getenv("DAEHOE_INACTIVE_RETENTION_DAYS", "180")))
     args = parser.parse_args()
     months = normalize_months(args.months.split(",")) or default_months(args.mode)
     database_url = os.environ.get("DATABASE_URL", "").strip()
     if not database_url:
         raise RuntimeError("DATABASE_URL is required")
-    result = sync(database_url, args.data, args.schema, args.mode, months)
+    result = sync(database_url, args.data, args.schema, args.mode, months, args.inactive_retention_days)
     print(json.dumps(result, ensure_ascii=False))
 
 

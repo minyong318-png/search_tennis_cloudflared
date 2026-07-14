@@ -49,6 +49,7 @@ const SUPABASE_URL = String(process.env.SUPABASE_URL || "").replace(/\/$/, "");
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "";
 const SUPABASE_TOURNAMENT_TABLE = process.env.DAEHOE_SUPABASE_TOURNAMENT_TABLE || "daehoe_tournaments";
 const SUPABASE_STATE_TABLE = process.env.DAEHOE_SUPABASE_STATE_TABLE || "daehoe_sync_state";
+const SUPABASE_INACTIVE_RETENTION_DAYS = Number(process.env.DAEHOE_INACTIVE_RETENTION_DAYS || 180);
 const INITIAL_REFRESH_STATE_KEY = "tennistown_initial_refresh";
 const REQUIRE_SUPABASE = process.env.DAEHOE_REQUIRE_SUPABASE === "1";
 const SOURCE_TYPE_FILTER = new Set((process.env.DAEHOE_SOURCE_TYPES || "")
@@ -277,6 +278,8 @@ async function syncTournamentsWithSupabase(tournaments, startedAt, successfulSou
     });
   }
 
+  await cleanupInactiveSupabaseTournaments(now);
+
   if (tennisTownRefreshPlan.mode === "full" && successfulSourceTypes.has("TENNISTOWN_APP")) {
     await supabaseRequest(`${SUPABASE_STATE_TABLE}?on_conflict=key`, {
       method: "POST",
@@ -292,6 +295,18 @@ async function syncTournamentsWithSupabase(tournaments, startedAt, successfulSou
   const persisted = await readSupabaseTournamentPayloads({ activeOnly: true });
   console.log(`[daehoe][supabase] upserted=${rows.length} active=${persisted.length}`);
   return persisted.sort(sortForOutput);
+}
+
+async function cleanupInactiveSupabaseTournaments(nowIso) {
+  if (!Number.isFinite(SUPABASE_INACTIVE_RETENTION_DAYS) || SUPABASE_INACTIVE_RETENTION_DAYS <= 0) return;
+  const cutoff = new Date(Date.parse(nowIso) - SUPABASE_INACTIVE_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  await supabaseRequest(
+    `${SUPABASE_TOURNAMENT_TABLE}?active=eq.false&updated_at=lt.${encodeURIComponent(cutoff)}`,
+    {
+      method: "DELETE",
+      prefer: "return=minimal"
+    }
+  );
 }
 
 async function readSupabaseTournamentPayloads({ activeOnly = false } = {}) {
