@@ -562,7 +562,12 @@
       const auth = json.keys?.auth;
       if (!endpoint || !p256dh || !auth) throw new Error("알림 구독 정보를 만들지 못했습니다.");
       const subscriptionId = await sha256Hex(endpoint);
-      const { error } = await sb.from("push_subscriptions").upsert({ id: subscriptionId, endpoint, p256dh, auth });
+      const { error } = await sb.rpc("register_push_subscription", {
+        p_subscription_id: subscriptionId,
+        p_endpoint: endpoint,
+        p_p256dh: p256dh,
+        p_auth: auth
+      });
       if (error) throw new Error(error.message || "알림 구독 저장 실패");
       localStorage.setItem("subscription_id", subscriptionId);
       return subscriptionId;
@@ -572,16 +577,16 @@
       try {
         const subscriptionId = await enablePushIfNeeded();
         const cond = parseTimeConditionValue(currentTimeConditionValue());
-        const { error } = await sb.from("alarms").insert({
-          subscription_id: subscriptionId,
-          court_group: prefixedCourtGroup(courtGroup),
-          date: ymd(),
-          time_mode: cond.mode,
-          time_hour: cond.hour
+        const { data, error } = await sb.rpc("add_alarm_rpc", {
+          p_subscription_id: subscriptionId,
+          p_court_group: prefixedCourtGroup(courtGroup),
+          p_date: ymd(),
+          p_time_mode: cond.mode,
+          p_time_hour: cond.hour
         });
-        if (error) {
-          const msg = String(error.message || "").toLowerCase();
-          if (msg.includes("duplicate") || msg.includes("unique")) {
+        if (error || data?.status === "duplicate") {
+          const msg = String(error?.message || "").toLowerCase();
+          if (data?.status === "duplicate" || msg.includes("duplicate") || msg.includes("unique")) {
             toast("이미 등록된 알람입니다.");
             return;
           }
@@ -1147,7 +1152,12 @@
     }
 
     async function deleteAlarm(alarmId) {
-      const { error } = await sb.from("alarms").delete().eq("id", alarmId);
+      const subscriptionId = localStorage.getItem("subscription_id");
+      if (!subscriptionId) return;
+      const { error } = await sb.rpc("delete_alarm_rpc", {
+        p_subscription_id: subscriptionId,
+        p_alarm_id: alarmId
+      });
       if (error) throw error;
     }
 
@@ -1159,11 +1169,9 @@
         els.alarmList.replaceChildren(node("div", "empty", "이 브라우저에 등록된 알람이 없습니다."));
         return;
       }
-      const { data, error } = await sb
-        .from("alarms")
-        .select("id, date, court_group, time_mode, time_hour")
-        .eq("subscription_id", subscriptionId)
-        .order("date", { ascending: true });
+      const { data, error } = await sb.rpc("list_alarms_rpc", {
+        p_subscription_id: subscriptionId
+      });
       if (error) {
         console.error(error);
         els.alarmList.replaceChildren(node("div", "empty", "알람 내역을 불러오지 못했습니다."));
