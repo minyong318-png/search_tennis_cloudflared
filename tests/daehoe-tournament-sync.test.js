@@ -6,6 +6,7 @@ import {
   resolveTennisTownRefreshPlan
 } from "../PagesDaehoeIssum/src/tournament-sync.js";
 import {
+  divisionGroupValues,
   extractTitleTags,
   normalizeRegistrationStatusCode,
   organizerGroup,
@@ -86,6 +87,13 @@ test("organizer filter groups related institutions", () => {
   assert.equal(organizerGroup({ sourceType: "KTA", organizer: "대한테니스협회" }), "전국 협회 · KTA");
   assert.equal(organizerGroup({ sourceType: "KATO" }), "전국 협회 · KATO");
   assert.equal(organizerGroup({ sourceType: "KATA" }), "전국 협회 · KATA");
-  assert.equal(organizerGroup({ sourceType: "LOCAL_ASSOC", organizer: "성남시테니스협회" }), "지역 협회·체육회");
-  assert.equal(organizerGroup({ sourceType: "FACILITY_NOTICE", sourceName: "성남 시설공지" }), "시설 공지");
+  assert.equal(organizerGroup({ sourceType: "LOCAL_ASSOC", organizer: "성남시테니스협회", regionSigungu: "성남시" }), "성남시");
+  assert.equal(organizerGroup({ sourceType: "FACILITY_NOTICE", sourceName: "성남 시설공지" }), "");
+});
+
+test("division filter groups noisy source divisions", () => {
+  assert.deepEqual(divisionGroupValues("남자단식 아이언"), ["남자단식", "레벨/등급전"]);
+  assert.deepEqual(divisionGroupValues("개나리부"), ["여성부"]);
+  assert.deepEqual(divisionGroupValues("혼합복식 실버"), ["혼합복식", "레벨/등급전"]);
+  assert.deepEqual(divisionGroupValues("단체전"), ["단체전"]);
 });

@@ -108,8 +108,8 @@ async function fetchJson(url, fallback) {
 
 function populateFilters() {
   fillSelect(els.regionFilter, "전체 지역", unique(state.tournaments.map((item) => item.regionLabel).filter(Boolean)));
-  fillSelect(els.organizerFilter, "전체 기관", unique(state.tournaments.flatMap(organizerFilterValues).filter(Boolean)));
-  fillSelect(els.divisionFilter, "전체 부서", unique(state.tournaments.flatMap((item) => item.divisions.map((division) => division.divisionName)).filter(Boolean)));
+  fillSelect(els.organizerFilter, "전체 기관/지역", unique(state.tournaments.flatMap(organizerFilterValues).filter(Boolean)));
+  fillSelect(els.divisionFilter, "전체 부서", unique(state.tournaments.flatMap(divisionFilterValues).filter(Boolean)));
   populateMonthControls();
 }
 
@@ -150,7 +150,7 @@ function render() {
     if (els.regionFilter.value && item.regionLabel !== els.regionFilter.value) return false;
     if (organizer && !organizerFilterValues(item).includes(organizer)) return false;
     if (keyword && !normalizeSearchValue(searchableText(item)).includes(keyword)) return false;
-    if (els.divisionFilter.value && !item.divisions.some((division) => division.divisionName === els.divisionFilter.value)) return false;
+    if (els.divisionFilter.value && !divisionFilterValues(item).includes(els.divisionFilter.value)) return false;
     if (els.dateTypeFilter.value && !matchesDateType(item.startDate, els.dateTypeFilter.value)) return false;
     if (els.weekFilter.value && getMonthWeekIndex(item.startDate) !== Number(els.weekFilter.value)) return false;
     return isInSelectedMonth(item, month);
@@ -554,10 +554,36 @@ function organizerGroup(tournament) {
   if (sourceType === "KTA" || /대한테니스협회|KTA/.test(text)) return "전국 협회 · KTA";
   if (sourceType === "KATO" || /KATO|한국테니스발전협의회/.test(text)) return "전국 협회 · KATO";
   if (sourceType === "KATA" || /KATA|한국동호인테니스협회/.test(text)) return "전국 협회 · KATA";
-  if (sourceType === "FACILITY_NOTICE" || /시설|공공시설|예약시스템/.test(text)) return "시설 공지";
-  if (sourceType === "LOCAL_ASSOC" || /테니스협회|체육회|연맹|연합회/.test(text)) return "지역 협회·체육회";
+  if (sourceType === "FACILITY_NOTICE") return "";
+  if (sourceType === "LOCAL_ASSOC" || /테니스협회|체육회|연맹|연합회/.test(text)) return compactRegionLabel(tournament);
   if (sourceType === "TENNISGAME" || /tennisgame/i.test(text)) return "테니스 플랫폼";
   return "기타 기관";
+}
+
+function compactRegionLabel(tournament) {
+  const region = tournament.regionSigungu || tournament.regionLabel || tournament.regionSido || inferRegion(tournament);
+  return String(region || "").replace(/^대한민국\s*/, "").replace(/^경기도\s*/, "").replace(/^서울특별시\s*/, "서울 ").trim() || "지역 미상";
+}
+
+function divisionFilterValues(tournament) {
+  const values = tournament.divisions.flatMap((division) => divisionGroupValues(division.divisionName));
+  if (!values.length) values.push(...divisionGroupValues(searchableText(tournament)));
+  return unique(values);
+}
+
+function divisionGroupValues(text = "") {
+  const value = String(text || "").replace(/\s+/g, "");
+  const groups = [];
+  if (/단체|단체전|팀전/.test(value)) groups.push("단체전");
+  if (/혼합|혼복|믹스/.test(value)) groups.push("혼합복식");
+  if (/여복|여자복식|여성복식/.test(value)) groups.push("여자복식");
+  if (/남복|남자복식|남성복식/.test(value)) groups.push("남자복식");
+  if (/여단|여자단식|여성단식/.test(value)) groups.push("여자단식");
+  if (/남단|남자단식|남성단식/.test(value)) groups.push("남자단식");
+  if (/개나리|국화|여성부|여자부/.test(value)) groups.push("여성부");
+  if (/베테랑|시니어|장년|은배|금배/.test(value)) groups.push("시니어·베테랑");
+  if (/신인|챌린저|마스터스|오픈|퓨처스|테린이|입문|브론즈|실버|골드|아이언/.test(value)) groups.push("레벨/등급전");
+  return unique(groups.length ? groups : ["기타 부서"]);
 }
 
 function inferLevelTone(tournament) {
