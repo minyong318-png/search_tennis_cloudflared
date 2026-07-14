@@ -32,7 +32,8 @@ function cacheElements() {
     "sourceFilter", "regionFilter", "keywordFilter", "organizerFilter", "divisionFilter", "tournamentList", "calendarList", "detailPanel",
     "monthSummary", "yearSelect", "monthSelect", "prevMonthBtn", "nextMonthBtn",
     "profileGender", "profileFormat", "profileLevel", "profileYears", "dateTypeFilter", "weekFilter",
-    "recommendPanel", "dataStats", "infoToggle", "infoPanel"
+    "recommendPanel", "dataStats", "infoToggle", "infoPanel",
+    "filterTrigger", "filterBackdrop", "filterPanel", "filterApply", "filterReset", "quickDateStrip"
   ].forEach((id) => {
     els[id] = document.getElementById(id);
   });
@@ -59,6 +60,10 @@ function bindEvents() {
   }
   els.prevMonthBtn.addEventListener("click", () => shiftMonth(-1));
   els.nextMonthBtn.addEventListener("click", () => shiftMonth(1));
+  els.filterTrigger?.addEventListener("click", () => openFilterSheet());
+  els.filterBackdrop?.addEventListener("click", () => closeFilterSheet());
+  els.filterApply?.addEventListener("click", () => closeFilterSheet());
+  els.filterReset?.addEventListener("click", resetFilters);
   els.infoToggle?.addEventListener("click", () => {
     const open = !els.infoPanel.classList.contains("is-open");
     els.infoPanel.classList.toggle("is-open", open);
@@ -75,10 +80,99 @@ function bindEvents() {
       render();
     });
   });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeFilterSheet();
+  });
 }
 
 function isMobileViewport() {
   return window.matchMedia("(max-width: 720px)").matches;
+}
+
+function openFilterSheet() {
+  if (!els.filterPanel) return;
+  els.filterPanel.classList.add("is-open");
+  els.filterBackdrop?.classList.add("is-open");
+  els.filterTrigger?.setAttribute("aria-expanded", "true");
+  document.body.style.overflow = "hidden";
+}
+
+function closeFilterSheet() {
+  if (!els.filterPanel) return;
+  els.filterPanel.classList.remove("is-open");
+  els.filterBackdrop?.classList.remove("is-open");
+  els.filterTrigger?.setAttribute("aria-expanded", "false");
+  document.body.style.overflow = "";
+}
+
+function resetFilters() {
+  [
+    els.profileGender,
+    els.profileFormat,
+    els.profileLevel,
+    els.regionFilter,
+    els.keywordFilter,
+    els.organizerFilter,
+    els.divisionFilter,
+    els.dateTypeFilter,
+    els.weekFilter,
+    els.sourceFilter,
+    els.profileYears
+  ].forEach((input) => {
+    if (input) input.value = "";
+  });
+  state.selectedDate = "";
+  state.view = "calendar";
+  render();
+  closeFilterSheet();
+}
+
+function renderQuickDates() {
+  if (!els.quickDateStrip) return;
+  const weekend = nextWeekendDate();
+  const options = [
+    ["오늘", todayStart()],
+    ["이번 주말", weekend],
+    ["이번 달", null]
+  ];
+  els.quickDateStrip.innerHTML = options.map(([label, date]) => {
+    const value = date ? toDateValue(date) : "";
+    const active = value ? state.selectedDate === value : !state.selectedDate;
+    const suffix = value ? shortMonthDay(value) : `${state.selectedMonth}월 전체`;
+    return `<button class="date-chip ${active ? "is-active" : ""}" data-quick-date="${escapeHtml(value)}" type="button">${escapeHtml(label)} <span>${escapeHtml(suffix)}</span></button>`;
+  }).join("");
+  els.quickDateStrip.querySelectorAll("[data-quick-date]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const value = button.dataset.quickDate || "";
+      if (value) setSelectedDateValue(value);
+      else {
+        state.selectedDate = "";
+        state.view = "calendar";
+        render();
+      }
+      closeFilterSheet();
+    });
+  });
+}
+
+function nextWeekendDate() {
+  const date = todayStart();
+  const day = date.getDay();
+  const offset = day === 6 ? 0 : (6 - day + 7) % 7;
+  date.setDate(date.getDate() + offset);
+  return date;
+}
+
+function setSelectedDateValue(value) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return;
+  state.selectedYear = date.getFullYear();
+  state.selectedMonth = date.getMonth() + 1;
+  state.selectedDate = value;
+  state.view = "list";
+  ensureYearOption(state.selectedYear);
+  syncMonthControls();
+  render();
 }
 
 function isFilterControl(input) {
@@ -140,6 +234,7 @@ function render() {
   state.selectedYear = Number(els.yearSelect.value || state.selectedYear);
   state.selectedMonth = Number(els.monthSelect.value || state.selectedMonth);
   syncMonthControls();
+  renderQuickDates();
 
   const month = selectedMonthValue();
   const filtered = state.tournaments.filter((item) => {
@@ -240,10 +335,28 @@ function renderList() {
       ? `${formatSelectedDateTitle(state.selectedDate)} 대회 (${state.filtered.length})`
       : `${state.selectedMonth}월 남은 대회 (${state.filtered.length})`;
   }
-  els.tournamentList.innerHTML = state.filtered.map(renderCard).join("");
+  els.tournamentList.innerHTML = renderGroupedTournamentList(state.filtered);
   els.tournamentList.querySelectorAll("[data-detail]").forEach((button) => {
     button.addEventListener("click", () => openDetail(button.dataset.detail));
   });
+}
+
+function renderGroupedTournamentList(items) {
+  const groups = new Map();
+  items.forEach((item) => {
+    const key = item.startDate || "unknown";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  });
+  return [...groups.entries()].map(([date, list]) => `
+    <section class="date-group">
+      <div class="date-group-title">
+        <strong>${escapeHtml(date === "unknown" ? "날짜 미상" : formatSelectedDateTitle(date))}</strong>
+        <span>${list.length}개 대회</span>
+      </div>
+      ${list.map(renderCard).join("")}
+    </section>
+  `).join("");
 }
 
 function renderCard(tournament) {
@@ -271,6 +384,7 @@ function renderCard(tournament) {
         <strong>${escapeHtml(tournament.titleRaw)}</strong>
         <small>${escapeHtml(formatDateRange(tournament))} · ${escapeHtml(tournament.venueName || tournament.regionLabel || "장소 미상")}</small>
         <span class="division-list">${divisions}</span>
+        ${participantProgress(tournament)}
       </button>
       <div class="row-status">
         <span class="${statusClass(status)}">${escapeHtml(status)}</span>
@@ -304,8 +418,7 @@ function renderCalendar(month) {
   });
   els.calendarList.querySelectorAll("[data-date]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.selectedDate = button.dataset.date;
-      render();
+      setSelectedDateValue(button.dataset.date);
       if (window.matchMedia("(max-width: 720px)").matches) {
         document.querySelector(".list-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
@@ -659,6 +772,19 @@ function compactParticipantLine(item) {
   const capacity = numberOrNull(item.participantCapacity);
   if (!Number.isFinite(current) || !Number.isFinite(capacity)) return "";
   return `${current}/${capacity}`;
+}
+
+function participantProgress(item) {
+  const current = numberOrNull(item.participantCurrent);
+  const capacity = numberOrNull(item.participantCapacity);
+  if (!Number.isFinite(current) || !Number.isFinite(capacity) || capacity <= 0) return "";
+  const ratio = Math.max(0, Math.min(100, Math.round((current / capacity) * 100)));
+  return `
+    <span class="capacity-bar" aria-label="신청 ${current}명 / 정원 ${capacity}명">
+      <i style="width:${ratio}%"></i>
+      <em>${current}/${capacity} · ${ratio}%</em>
+    </span>
+  `;
 }
 
 function calendarMetaLine(item) {

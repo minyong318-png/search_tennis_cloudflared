@@ -86,14 +86,22 @@
     .icon-btn:hover{border-color:var(--green);color:var(--green)}
     .summary{display:block;margin-top:12px;color:var(--muted);font-size:18px;font-weight:700}
     .summary strong{color:#111827}
-    .filter-toggle{display:none}
+    .filter-toggle,.filter-backdrop{display:none}
     .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;padding:20px 26px;border-bottom:1px solid var(--line)}
+    .filter-actions{display:none}
     .field{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#fff}
     .field-label{color:var(--muted);font-size:13px;font-weight:900;white-space:nowrap}
     .field select,.field input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#111827;font-weight:900}
     .city-tabs{display:flex;gap:8px;overflow:auto;padding:16px 26px;border-bottom:1px solid var(--line)}
     .city-tab{flex:0 0 auto;min-width:96px;height:48px;border:1px solid var(--line);border-radius:12px;background:#fff;font-weight:950;cursor:pointer}
     .city-tab.is-active{background:var(--green);border-color:var(--green);color:#fff}
+    .quick-date-strip{display:flex;gap:8px;overflow:auto;padding:12px 26px;border-bottom:1px solid var(--line);background:#fbfcfa}
+    .date-chip{flex:0 0 auto;min-height:36px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#253528;font-size:13px;font-weight:950;cursor:pointer}
+    .date-chip.is-active{border-color:var(--green);background:var(--green);color:#fff}
+    .result-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:16px 26px;border-bottom:1px solid var(--line);background:#fff}
+    .result-stat{min-height:82px;padding:14px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#fff,#fbfcfa)}
+    .result-stat strong{display:block;color:var(--green);font-size:28px;line-height:1}
+    .result-stat span{display:block;margin-top:8px;color:var(--muted);font-size:12px;font-weight:950}
     .crawl-status{padding:18px 26px;border-bottom:1px solid var(--line);background:#fbfcfa}
     .crawl-status-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
     .crawl-status-head h2{margin:0;font-size:17px}
@@ -234,11 +242,18 @@
     @media (max-width:900px){
       .topbar{height:auto}.topbar-inner{grid-template-columns:1fr auto;align-items:center;padding:9px 10px 8px;gap:10px}.brand{gap:8px}.brand-ball{width:28px;height:28px}.brand strong{font-size:21px}.brand em,.tagline{display:none}.ball{width:28px;height:28px}.ball:before,.ball:after{top:3px;bottom:3px}.ball:before{left:8px}.ball:after{right:8px}.product-tabs{height:33px;display:inline-grid;grid-template-columns:1fr 1fr;grid-column:1 / -1;width:100%;gap:6px;padding:4px;border:1px solid var(--line);border-radius:10px;background:#fff}.product-tab{height:24px;min-height:0;justify-content:center;border:0;border-radius:7px;padding:0 8px;font-size:12px}.product-tab.is-active{background:var(--green);color:#fff}.app-icon{width:16px;height:16px}.mini{width:15px;height:15px}
       .page{padding:8px}.shell{border-radius:12px}.hero{padding:13px 14px}.hero-actions{margin-top:10px}.utility-btn{min-height:32px;padding:6px 10px;font-size:12px}.title-row{gap:8px}h1{font-size:24px;line-height:1.12}.nav-month{gap:6px}.icon-btn{width:38px;height:36px;border-radius:8px;font-size:19px}.summary{margin-top:8px;font-size:13px}
+      .quick-date-strip{gap:6px;padding:8px 10px}.date-chip{min-height:32px;padding:6px 10px;font-size:12px}
+      .result-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:10px}.result-stat{min-height:64px;padding:10px;border-radius:11px}.result-stat strong{font-size:20px}.result-stat span{margin-top:6px;font-size:10px;line-height:1.3}
       .filter-toggle{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 20px);min-height:40px;margin:0 10px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);font-size:13px;font-weight:950;padding:0 11px;cursor:pointer}
+      .filter-backdrop{position:fixed;inset:0;z-index:24;background:rgba(17,24,39,.42);opacity:0;pointer-events:none;transition:.18s}
+      .filter-backdrop.is-open{display:block;opacity:1;pointer-events:auto}
       .filter-toggle:after{content:"⌄";font-size:15px;color:var(--green)}
       .filter-toggle.is-open:after{content:"⌃"}
-      .filters{display:none;grid-template-columns:1fr;gap:8px;padding:0 10px 10px;border-bottom:1px solid var(--line)}
-      .filters.is-open{display:grid}
+      .filters{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:1fr;gap:8px;padding:14px 14px calc(14px + env(safe-area-inset-bottom));border:0;border-radius:18px 18px 0 0;background:#fff;box-shadow:0 -18px 55px rgba(17,24,39,.22);transform:translateY(108%);transition:.2s}
+      .filters.is-open{transform:translateY(0)}
+      .filter-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+      .filter-action{min-height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#123d25;font-size:13px;font-weight:950;cursor:pointer}
+      .filter-action.primary{border-color:var(--green);background:var(--green);color:#fff}
       .field{min-height:42px;padding:7px 10px;gap:9px}.field-label{font-size:11px}.field select,.field input{font-size:13px}
       .city-tabs{gap:6px;padding:10px}.city-tab{min-width:72px;height:38px;border-radius:9px;font-size:13px}
       .crawl-status{padding:10px}.crawl-status-head{align-items:flex-start;flex-direction:column;gap:4px;margin-bottom:7px}.crawl-status-head h2{font-size:14px}.crawl-status-head span{font-size:10px}.crawl-status-grid{display:flex;grid-template-columns:none;overflow:auto;padding-bottom:2px}.crawl-card{flex:0 0 116px;padding:8px 9px;text-align:left}.crawl-city{font-size:12px}.crawl-meta{margin-top:5px;font-size:10px;line-height:1.35}
@@ -254,6 +269,9 @@
       .slot-picker{padding:10px}.slot-sheet{border-radius:15px}.slot-sheet-head{padding:13px}.slot-sheet-head strong{font-size:16px}.slot-picker-close{width:30px;height:30px;font-size:18px}.slot-choice-list{gap:6px;padding:11px}.slot-choice{min-height:42px;padding:9px 11px;font-size:13px}
       .notice-overlay{padding:10px}.notice-panel{margin:3vh auto;border-radius:15px}.notice-head{padding:14px}.notice-body{padding:14px}.notice-head h2{font-size:18px}.notice-section p,.notice-section li{font-size:13px}
       .content-guide{grid-template-columns:1fr;margin-top:10px}.content-card{padding:15px;border-radius:12px}.content-card h2{font-size:19px}.content-card h3{font-size:16px}.content-card p,.content-card li{font-size:13px}.site-footer{padding:18px 14px 28px;margin-top:12px}
+    }
+    @media (prefers-reduced-motion: reduce){
+      .filter-backdrop,.filters,.toast{transition:none}
     }
     @media (max-width:420px){
       .page{padding:6px}.hero{padding:12px}.mobile-time-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -298,15 +316,27 @@
       </div>
 
       <div class="city-tabs" id="cityTabs"></div>
+      <div id="quickDateStrip" class="quick-date-strip" aria-label="빠른 날짜 선택"></div>
 
       <button id="filterToggle" class="filter-toggle" type="button" aria-expanded="false" aria-controls="filterPanel">필터 열기</button>
+      <div id="filterBackdrop" class="filter-backdrop" aria-hidden="true"></div>
       <div id="filterPanel" class="filters">
         <label class="field"><span class="field-label">날짜</span><input id="dateFilter" type="date"></label>
         <label class="field"><span class="field-label">지역</span><select id="citySelect"></select></label>
         <label class="field"><span class="field-label">코트</span><select id="courtFilter"></select></label>
         <label class="field"><span class="field-label">시간</span><select id="hourFilter"></select></label>
         <label class="field"><span class="field-label">조건</span><select id="timeMode"><option value="contains">해당 시간 포함</option><option value="after">이후 시작</option><option value="before">이전 시작</option></select></label>
+        <div class="filter-actions">
+          <button id="filterReset" class="filter-action" type="button">초기화</button>
+          <button id="filterApply" class="filter-action primary" type="button">결과 보기</button>
+        </div>
       </div>
+
+      <section class="result-summary" aria-label="조회 결과 요약">
+        <div class="result-stat"><strong id="openCourtCount">0</strong><span>예약 가능한 코트</span></div>
+        <div class="result-stat"><strong id="openSlotCount">0</strong><span>예약 가능 시간대</span></div>
+        <div class="result-stat"><strong id="firstOpenTime">-</strong><span>가장 빠른 가능 시간</span></div>
+      </section>
 
       <section class="crawl-status" aria-label="도시별 수집 상태">
         <div class="crawl-status-head">
@@ -494,11 +524,15 @@
       dateFilter: $("dateFilter"),
       citySelect: $("citySelect"),
       filterToggle: $("filterToggle"),
+      filterBackdrop: $("filterBackdrop"),
       filterPanel: $("filterPanel"),
+      filterReset: $("filterReset"),
+      filterApply: $("filterApply"),
       courtFilter: $("courtFilter"),
       hourFilter: $("hourFilter"),
       timeMode: $("timeMode"),
       cityTabs: $("cityTabs"),
+      quickDateStrip: $("quickDateStrip"),
       noticeBtn: $("noticeBtn"),
       noticeModal: $("noticeModal"),
       noticeClose: $("noticeClose"),
@@ -518,6 +552,7 @@
       updatedAt: $("updatedAt"),
       openCourtCount: $("openCourtCount"),
       openSlotCount: $("openSlotCount"),
+      firstOpenTime: $("firstOpenTime"),
       boardTitle: $("boardTitle"),
       boardSubtitle: $("boardSubtitle")
     };
@@ -725,6 +760,39 @@
       const d = ymd(dateText);
       if (d.length !== 8) return "";
       return ["일","월","화","수","목","금","토"][new Date(Number(d.slice(0,4)), Number(d.slice(4,6))-1, Number(d.slice(6,8))).getDay()];
+    }
+
+    function nextWeekendOffset() {
+      const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+      const day = now.getDay();
+      return day === 6 ? 0 : (6 - day + 7) % 7;
+    }
+
+    function renderQuickDates() {
+      if (!els.quickDateStrip) return;
+      const options = [
+        ["오늘", 0],
+        ["내일", 1],
+        ["모레", 2],
+        ["이번 주말", nextWeekendOffset()]
+      ];
+      els.quickDateStrip.replaceChildren();
+      const selected = els.dateFilter.value;
+      options.forEach(([label, offset]) => {
+        const value = todayKst(offset);
+        const btn = node("button", value === selected ? "date-chip is-active" : "date-chip", `${label} ${compactDate(value)}`);
+        btn.type = "button";
+        btn.onclick = () => {
+          els.dateFilter.value = value;
+          render();
+          setFilterOpen(false);
+        };
+        els.quickDateStrip.appendChild(btn);
+      });
+    }
+
+    function isMobileViewport() {
+      return window.matchMedia("(max-width: 900px)").matches;
     }
 
     function cityOfFacilityId(id) {
@@ -1309,10 +1377,12 @@
       refreshHourOptions();
       refreshCourtOptions();
       renderCityControls();
+      renderQuickDates();
       const reservationWindowMessage = seongnamReservationWindowMessage();
       const rows = reservationWindowMessage ? [] : collectRows();
       const openRows = rows.filter(row => row.count > 0);
       const slotCount = openRows.reduce((sum, row) => sum + row.count, 0);
+      const firstOpen = openRows.map(row => row.first).filter(time => time && time !== "99:99").sort()[0] || "-";
       els.pageTitle.textContent = `${CITY_LABELS[currentCity]} 코트 현황`;
       if (reservationWindowMessage) {
         els.summary.textContent = reservationWindowMessage;
@@ -1323,6 +1393,7 @@
       els.boardSubtitle.textContent = reservationWindowMessage || "O는 해당 시간대에 예약 가능한 코트입니다.";
       if (els.openCourtCount) els.openCourtCount.textContent = String(openRows.length);
       if (els.openSlotCount) els.openSlotCount.textContent = String(slotCount);
+      if (els.firstOpenTime) els.firstOpenTime.textContent = firstOpen;
       renderCrawlStatus();
       renderMatrix(rows, reservationWindowMessage || undefined);
       renderMobileCards(rows, reservationWindowMessage || undefined);
@@ -1347,8 +1418,10 @@
       if (!els.filterToggle || !els.filterPanel) return;
       els.filterToggle.classList.toggle("is-open", open);
       els.filterPanel.classList.toggle("is-open", open);
+      els.filterBackdrop?.classList.toggle("is-open", open);
       els.filterToggle.setAttribute("aria-expanded", String(open));
       els.filterToggle.textContent = open ? "필터 숨기기" : "필터 열기";
+      if (isMobileViewport()) document.body.style.overflow = open ? "hidden" : "";
     }
 
     function setNoticeOpen(open) {
@@ -1391,8 +1464,19 @@
       els.dateFilter.value = todayKst();
       refreshHourOptions();
       renderCityControls();
+      renderQuickDates();
       ["dateFilter","courtFilter","hourFilter","timeMode"].forEach(id => $(id).addEventListener("change", render));
       els.filterToggle?.addEventListener("click", () => setFilterOpen(!els.filterPanel.classList.contains("is-open")));
+      els.filterBackdrop?.addEventListener("click", () => setFilterOpen(false));
+      els.filterApply?.addEventListener("click", () => setFilterOpen(false));
+      els.filterReset?.addEventListener("click", () => {
+        els.dateFilter.value = todayKst();
+        els.courtFilter.value = "";
+        els.hourFilter.value = "";
+        els.timeMode.value = "contains";
+        render();
+        setFilterOpen(false);
+      });
       els.noticeBtn?.addEventListener("click", () => setNoticeOpen(true));
       els.noticeClose?.addEventListener("click", () => setNoticeOpen(false));
       els.noticeModal?.addEventListener("click", event => {
@@ -1400,7 +1484,11 @@
       });
       els.alarmToggle?.addEventListener("click", () => setAlarmOpen(els.alarmSection.classList.contains("is-collapsed")));
       document.addEventListener("keydown", event => {
-        if (event.key === "Escape") setNoticeOpen(false);
+        if (event.key === "Escape") {
+          setNoticeOpen(false);
+          setFilterOpen(false);
+          closeSlotPicker();
+        }
       });
       els.slotPickerClose?.addEventListener("click", closeSlotPicker);
       els.slotPicker?.addEventListener("click", event => {

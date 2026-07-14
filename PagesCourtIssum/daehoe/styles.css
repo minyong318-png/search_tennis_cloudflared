@@ -309,6 +309,91 @@ button { cursor: pointer; }
   font-weight: 950;
   white-space: nowrap;
 }
+.filter-trigger,
+.filter-backdrop,
+.sheet-actions {
+  display: none;
+}
+.quick-date-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfcfd;
+  scrollbar-width: none;
+}
+.quick-date-strip::-webkit-scrollbar { display: none; }
+.date-chip {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 7px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 950;
+  cursor: pointer;
+}
+.date-chip span {
+  margin-left: 5px;
+  color: #6f7885;
+  font-size: 12px;
+}
+.date-chip.is-active {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+.date-chip.is-active span { color: rgba(255,255,255,.78); }
+.date-group {
+  display: grid;
+  gap: 10px;
+}
+.date-group + .date-group {
+  margin-top: 16px;
+}
+.date-group-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 2px 2px;
+  color: var(--text);
+}
+.date-group-title strong {
+  font-size: 16px;
+  letter-spacing: -.02em;
+}
+.date-group-title span {
+  color: #6f7885;
+  font-size: 12px;
+  font-weight: 900;
+}
+.capacity-bar {
+  display: grid;
+  gap: 5px;
+  margin-top: 10px;
+  color: #6f7885;
+  font-size: 11px;
+  font-weight: 900;
+}
+.capacity-bar::before {
+  content: "";
+  grid-row: 1;
+  height: 7px;
+  border-radius: 999px;
+  background: #edf2ee;
+}
+.capacity-bar i {
+  grid-row: 1;
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--green), #9bd94a);
+}
+.capacity-bar em {
+  font-style: normal;
+}
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -1161,5 +1246,111 @@ body[data-view="list"] .calendar-panel { display: none; }
   }
   .row-status {
     padding-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .filter-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    margin: 10px 10px 0;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 950;
+  }
+  .filter-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: rgba(17, 24, 39, .42);
+    opacity: 0;
+    pointer-events: none;
+    transition: .18s;
+  }
+  .filter-backdrop.is-open {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .filters {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    max-height: 84vh;
+    padding: 16px 14px calc(16px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    background: #fff;
+    box-shadow: 0 -20px 60px rgba(17, 24, 39, .22);
+    transform: translateY(108%);
+    transition: .2s;
+  }
+  .filters.is-open {
+    transform: translateY(0);
+  }
+  .filters label,
+  .filters .search-field,
+  .filters .week-field {
+    min-width: 0;
+    min-height: 46px;
+    width: 100%;
+    flex: none;
+    border-radius: 12px;
+  }
+  .filters .search-field {
+    grid-column: 1 / -1;
+  }
+  .filters > .reset-btn,
+  .filters > .info-toggle {
+    display: none;
+  }
+  .sheet-actions {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .sheet-actions .reset-btn,
+  .sheet-actions .info-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    border-radius: 12px;
+  }
+  .quick-date-strip {
+    gap: 6px;
+    padding: 9px 10px;
+  }
+  .date-chip {
+    min-height: 32px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .date-group-title {
+    padding: 2px 0;
+  }
+  .capacity-bar {
+    margin-top: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-backdrop,
+  .filters {
+    transition: none;
   }
 }

@@ -25,7 +25,10 @@
   <main class="app-shell">
     <section class="hero-board">
 
-      <section class="filters" aria-label="대회 필터">
+      <button id="filterTrigger" class="filter-trigger" type="button" aria-expanded="false" aria-controls="filterPanel">필터</button>
+      <div id="filterBackdrop" class="filter-backdrop" aria-hidden="true"></div>
+
+      <section id="filterPanel" class="filters" aria-label="대회 필터">
         <label>
           <span class="filter-icon">⚭</span>
           <small>성별</small>
@@ -113,7 +116,13 @@
         <select id="profileYears" class="visually-hidden" aria-label="구력">
           <option value="">상관없음</option>
         </select>
+        <div class="sheet-actions">
+          <button id="filterReset" class="reset-btn" type="button">초기화</button>
+          <button id="filterApply" class="info-toggle" type="button">결과 보기</button>
+        </div>
       </section>
+
+      <section id="quickDateStrip" class="quick-date-strip" aria-label="빠른 날짜 선택"></section>
 
       <section id="infoPanel" class="info-panel" aria-label="대회있음 안내">
         <article class="info-card">
