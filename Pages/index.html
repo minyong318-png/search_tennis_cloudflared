@@ -54,9 +54,6 @@
   .hero-copy{ margin:8px 0 0; color:var(--sub); font-size:14px; line-height:1.55; max-width:620px; }
   .updated-row{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
   .updated{ font-size:13px; color:var(--sub); }
-  .city-updates{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
-  .city-update-chip{ display:inline-flex; align-items:center; gap:5px; padding:6px 9px; border:1px solid rgba(31,111,67,.16); border-radius:999px; background:rgba(255,255,255,.6); color:var(--sub); font-size:12px; font-weight:850; }
-  .city-update-chip.is-current{ border-color:var(--primary); color:var(--primary-strong); background:var(--lime-soft); }
   .header-actions{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
   .icon-btn,.ghost-btn{ margin:0; border:1px solid rgba(31,111,67,.22); background:rgba(255,255,255,.66); color:var(--primary-strong); min-height:38px; border-radius:999px; padding:8px 12px; font-weight:900; font-size:13px; cursor:pointer; backdrop-filter:blur(10px); }
   .icon-btn{ width:40px; padding:0; display:inline-grid; place-items:center; }
@@ -73,9 +70,21 @@
   .tab{ margin:0; padding:11px 8px; border:1px solid var(--border); border-radius:16px; background:#fffdf8; color:var(--text); font-weight:900; font-size:14px; cursor:pointer; }
   .tab.active{ border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 8px 20px rgba(31,111,67,.22); }
   .filter-stack{ display:grid; grid-template-columns:1fr 1fr 1fr 1.35fr; gap:10px; }
+  .quick-dates{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .quick-date{ margin:0; padding:9px 12px; min-height:0; border-radius:999px; background:#fff; color:var(--primary-strong); border:1px solid rgba(31,111,67,.2); font-size:13px; }
+  .quick-date.is-active{ background:var(--primary); color:#fff; border-color:var(--primary); }
+  .result-summary{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:14px; padding:12px 14px; border:1px solid rgba(31,111,67,.14); border-radius:18px; background:#f8faf0; color:var(--sub); font-size:13px; font-weight:850; }
+  .summary-pill{ display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; background:#fff; border:1px solid rgba(31,111,67,.14); color:var(--text); }
+  .summary-pill strong{ color:var(--primary-strong); }
   .alarm-stack{ display:grid; grid-template-columns:1fr 1fr 1.35fr; gap:10px; }
   .alarm-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:10px; }
   .alarm-actions button{ white-space:nowrap; }
+  .secondary-card{ padding:0; overflow:hidden; }
+  .secondary-card summary{ list-style:none; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:16px 18px; cursor:pointer; font-weight:950; }
+  .secondary-card summary::-webkit-details-marker{ display:none; }
+  .secondary-card summary:after{ content:"열기"; flex-shrink:0; color:var(--primary-strong); font-size:12px; padding:6px 10px; border:1px solid rgba(31,111,67,.18); border-radius:999px; background:#fff; }
+  .secondary-card[open] summary:after{ content:"닫기"; }
+  .secondary-body{ padding:0 18px 18px; }
   .filter-stack > *,.alarm-stack > *{ min-width:0; }
   .select,.date-box,.time-control{ display:flex; align-items:center; gap:10px; padding:13px 14px; border-radius:16px; border:1px solid var(--border); background:#fff; font-size:14px; min-height:48px; }
   .select select,.time-control select{ border:none; outline:none; font-size:14px; width:100%; background:none; color:var(--text); font-weight:700; }
@@ -104,6 +113,13 @@
   .slot{ padding:9px 12px; border-radius:999px; border:1px solid rgba(31,111,67,.2); font-size:13px; font-weight:900; background:var(--lime-soft); text-decoration:none; color:#17211b; }
   .slot:hover{ background:var(--lime); border-color:var(--primary); }
   .no-slot-note{ padding:16px; border-top:1px solid #f1f2eb; color:var(--sub); font-size:13px; font-weight:800; line-height:1.55; background:#fbfcf5; }
+  .court-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .secondary-link{ display:inline-flex; align-items:center; justify-content:center; min-height:34px; padding:8px 11px; border-radius:999px; border:1px solid rgba(31,111,67,.18); color:var(--primary-strong); background:#fff; text-decoration:none; font-size:12px; font-weight:900; }
+  .guide-summary{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; }
+  .guide-block{ padding:16px; border:1px solid rgba(31,111,67,.14); border-radius:20px; background:rgba(255,253,246,.9); }
+  .guide-block h3{ margin:0 0 8px; font-size:15px; }
+  .guide-block p{ margin:0 0 10px; color:var(--sub); font-size:13px; line-height:1.6; }
+  .guide-block a{ color:var(--primary-strong); font-weight:900; text-decoration:none; }
   .favorites-panel{ margin-top:12px; padding:12px; border:1px solid rgba(31,111,67,.13); border-radius:18px; background:rgba(255,255,255,.62); }
   .favorites-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
   .favorites-title{ font-size:13px; font-weight:950; color:var(--primary-strong); }
@@ -119,7 +135,7 @@
   .favorite-pick{ padding:8px 10px 8px 12px; font-size:13px; font-weight:950; }
   .favorite-remove{ padding:8px 10px; border-left:1px solid rgba(31,111,67,.13); color:var(--sub); font-size:13px; }
   .favorite-pick:hover,.favorite-remove:hover{ background:rgba(200,242,74,.22); }
-  .empty-state{ padding:26px 12px; text-align:center; color:var(--sub); font-weight:800; }
+  .empty-state{ padding:26px 12px; text-align:center; color:var(--sub); font-weight:800; line-height:1.6; }
   #alarmList .alarm-item{ margin-bottom:8px; }
   .notice-overlay{ display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:10000; padding:18px; box-sizing:border-box; }
   .notice-panel{ background:#fffdf8; max-width:600px; margin:6vh auto; padding:20px; border-radius:24px; max-height:82vh; overflow-y:auto; -webkit-overflow-scrolling:touch; box-shadow:0 24px 70px rgba(15,23,42,.26); }
@@ -135,7 +151,7 @@
   .update-date{ display:block; margin-bottom:4px; color:#0f172a; font-weight:900; font-size:13px; }
   .toast{ position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); width:min(520px,calc(100vw - 32px)); padding:13px 15px; border-radius:16px; background:#17211b; color:#fff; font-size:13px; font-weight:800; box-shadow:0 20px 50px rgba(0,0,0,.22); opacity:0; pointer-events:none; transition:opacity .18s,transform .18s; z-index:12000; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
-  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-actions{ flex-direction:column; } .alarm-actions button{ width:100%; } .time-control{ width:100%; gap:6px; padding:8px; } .time-control .time-icon{ display:none; } .time-control select{ flex:0 0 118px; max-width:118px; min-width:0; } .time-modes{ flex:0 0 162px; min-width:0; } .time-mode{ flex:1 1 0; min-width:0; padding:6px 0; font-size:11px; } .favorites-head{ align-items:flex-start; flex-direction:column; } .favorites-actions{ width:100%; } .favorite-add,.favorite-only-toggle{ flex:1; } }
+  @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-actions{ flex-direction:column; } .alarm-actions button{ width:100%; } .time-control{ width:100%; gap:6px; padding:8px; } .time-control .time-icon{ display:none; } .time-control select{ flex:0 0 118px; max-width:118px; min-width:0; } .time-modes{ flex:0 0 162px; min-width:0; } .time-mode{ flex:1 1 0; min-width:0; padding:6px 0; font-size:11px; } .favorites-head{ align-items:flex-start; flex-direction:column; } .favorites-actions{ width:100%; } .favorite-add,.favorite-only-toggle{ flex:1; } .guide-summary{ grid-template-columns:1fr; } }
   @media (prefers-reduced-motion:reduce){ *,*:before,*:after{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
   </style>
 </head>
@@ -171,7 +187,6 @@
             <div class="updated" id="updatedAt">업데이트 확인 중</div>
             <span class="updated data-dot" id="cityStatusText">업데이트 상태</span>
           </div>
-          <div id="cityUpdatedGrid" class="city-updates" aria-label="도시별 마지막 갱신 시각"></div>
         </div>
         <div class="header-actions">
           <button id="noticeBtn" class="ghost-btn" type="button">공지 및 사용방법</button>
@@ -225,6 +240,12 @@
         </div>
       </div>
     </div>
+    <div class="quick-dates" aria-label="빠른 날짜 선택">
+      <button class="quick-date" type="button" data-offset="0">오늘</button>
+      <button class="quick-date" type="button" data-offset="1">내일</button>
+      <button class="quick-date" type="button" data-offset="2">모레</button>
+      <button class="quick-date" type="button" data-offset="">날짜 직접 선택</button>
+    </div>
 
     <div class="favorites-panel" aria-label="즐겨찾는 코트">
       <div class="favorites-head">
@@ -241,8 +262,9 @@
   </div>
 
   <!-- 알람 -->
-  <div class="card">
-    <h3>🔔 알람 등록</h3>
+  <details class="card secondary-card">
+    <summary>🔔 원하는 코트가 열리면 알림 받기</summary>
+    <div class="secondary-body">
     <div class="alarm-stack">
       <div class="select">
         🎾
@@ -276,13 +298,33 @@
     <div id="alarmList" style="margin-top:12px;font-size:13px;color:var(--sub)">
       등록된 알람이 없습니다.
     </div>
-  </div>
+    </div>
+  </details>
 
   <!-- 데이터 -->
   <div class="card">
     <h3>예약 가능 현황</h3>
+    <div id="resultSummary" class="result-summary" aria-live="polite">조건을 고르면 예약 가능한 시간이 요약됩니다.</div>
     <div id="courts">⏳ 예약 정보를 불러오는 중입니다…</div>
   </div>
+
+  <section class="guide-summary" aria-label="코트있음 이용 안내">
+    <article class="guide-block">
+      <h3>이용 방법</h3>
+      <p>지역, 날짜, 시간을 고르면 현재 예약 가능한 코트만 빠르게 확인할 수 있습니다.</p>
+      <a href="/guide/tennis-reservation/">이용 가이드 보기</a>
+    </article>
+    <article class="guide-block">
+      <h3>지역별 안내</h3>
+      <p>각 지역의 공식 예약처와 운영 방식에 따라 조회 가능한 날짜와 시간이 다를 수 있습니다.</p>
+      <a href="/courts/">지역별 코트 보기</a>
+    </article>
+    <article class="guide-block">
+      <h3>데이터 출처와 한계</h3>
+      <p>코트있음은 공개 예약 정보를 모아 보여주는 보조 서비스이며, 최종 예약은 공식 예약처에서 확정됩니다.</p>
+      <a href="/data-source/">데이터 출처 보기</a>
+    </article>
+  </section>
 </div>
 
 <!-- 공지사항 및 사용방법 모달 -->
@@ -440,7 +482,6 @@ const CITY_NOTES = {
 };
 const FAVORITE_COURTS_KEY = "tennis_favorite_courts_v1";
 let FAVORITES_ONLY = false;
-let CITY_UPDATED_AT = {};
 
 let toastTimer = null;
 function showToast(message) {
@@ -626,6 +667,47 @@ function yyyymmddTodayKst(offsetDays = 0) {
   const m = String(kst.getMonth() + 1).padStart(2, "0");
   const d = String(kst.getDate()).padStart(2, "0");
   return `${y}${m}${d}`;
+}
+
+function isoDateFromYYYYMMDD(yyyymmdd) {
+  return yyyymmdd && yyyymmdd.length === 8
+    ? `${yyyymmdd.slice(0, 4)}-${yyyymmdd.slice(4, 6)}-${yyyymmdd.slice(6, 8)}`
+    : "";
+}
+
+function setFilterDateValue(isoDate) {
+  filterDate.value = isoDate || "";
+  filterDateLabel.textContent = isoDate || "날짜 선택";
+  updateQuickDateButtons();
+  renderCourts();
+}
+
+function updateQuickDateButtons() {
+  const selected = toYYYYMMDD(filterDate.value || "");
+  document.querySelectorAll(".quick-date").forEach(btn => {
+    const offset = btn.dataset.offset;
+    const expected = offset === "" ? "" : yyyymmddTodayKst(Number(offset));
+    btn.classList.toggle("is-active", Boolean(expected && selected === expected));
+  });
+}
+
+function renderResultSummary({ slotCount = 0, groupCount = 0, earliest = "", emptyReason = "" } = {}) {
+  const el = document.getElementById("resultSummary");
+  if (!el) return;
+  const dateLabel = filterDate.value ? filterDate.value : "전체 날짜";
+  const cityLabel = CITY_LABELS[CURRENT_CITY] || CURRENT_CITY;
+  el.replaceChildren();
+  el.appendChild(makeNode("span", "summary-pill", `${dateLabel} · ${cityLabel}`));
+  const slot = makeNode("span", "summary-pill");
+  slot.append("예약 가능 ");
+  slot.appendChild(makeNode("strong", "", `${slotCount}개`));
+  el.appendChild(slot);
+  const group = makeNode("span", "summary-pill");
+  group.append("시설 ");
+  group.appendChild(makeNode("strong", "", `${groupCount}곳`));
+  el.appendChild(group);
+  if (earliest) el.appendChild(makeNode("span", "summary-pill", `가장 빠른 시간 ${earliest}`));
+  if (!slotCount && emptyReason) el.appendChild(makeNode("span", "summary-pill", emptyReason));
 }
 
 
@@ -835,33 +917,6 @@ function renderUpdatedTime(ts) {
   document.getElementById("updatedAt").textContent = `업데이트: ${formatKstTime(ts)}`;
 }
 
-function renderCityUpdatedTimes() {
-  const wrap = document.getElementById("cityUpdatedGrid");
-  if (!wrap) return;
-  wrap.replaceChildren();
-  ["yongin", "goyang", "suwon", "seongnam"].forEach(city => {
-    const chip = makeNode("span", "city-update-chip", `${CITY_LABELS[city]} ${formatKstTime(CITY_UPDATED_AT[city])}`);
-    chip.classList.toggle("is-current", city === CURRENT_CITY);
-    wrap.appendChild(chip);
-  });
-}
-
-async function loadCityUpdatedTimes() {
-  const cities = ["yongin", "goyang", "suwon", "seongnam"];
-  const updates = {};
-  await Promise.all(cities.map(async city => {
-    const { data, error } = await sb
-      .from("availability_cache")
-      .select("updated_at")
-      .like("facility_id", `${city}:%`)
-      .order("updated_at", { ascending: false })
-      .limit(1);
-    if (!error && data && data[0]) updates[city] = data[0].updated_at;
-  }));
-  CITY_UPDATED_AT = updates;
-  renderCityUpdatedTimes();
-}
-
 /** =========================================================
  *  DATA: Supabase RPC로 로드
  * ========================================================= */
@@ -873,7 +928,6 @@ async function loadData() {
 
     DATA = data;
     renderUpdatedTime(data.updated_at);
-    await loadCityUpdatedTimes();
     buildCourtGroups();
     renderCourts();
   } catch (e) {
@@ -927,6 +981,7 @@ function renderCourts() {
 
   if (!DATA || typeof DATA !== "object" || !DATA.facilities || !DATA.availability) {
     courtsEl.textContent = "데이터를 불러오는 중입니다.";
+    renderResultSummary({ emptyReason: "데이터 확인 중" });
     renderSummary();
     return;
   }
@@ -935,6 +990,7 @@ function renderCourts() {
   const reservationWindowMessage = seongnamReservationWindowMessage();
   if (reservationWindowMessage) {
     courtsEl.appendChild(makeNode("div", "empty-state", reservationWindowMessage));
+    renderResultSummary({ emptyReason: "조회 가능 기간 밖" });
     renderSummary();
     return;
   }
@@ -945,6 +1001,9 @@ function renderCourts() {
   const date = filterDate.value ? filterDate.value.replaceAll("-", "") : "";
   const timeCondition = getTimeConditionValue(filterTimeHour, "filterTimeMode");
   let renderedCount = 0;
+  let availableSlotCount = 0;
+  let earliestTime = "";
+  const availableGroups = new Set();
   const courtCards = [];
   let renderOrder = 0;
 
@@ -968,12 +1027,14 @@ function renderCourts() {
     card.appendChild(head);
 
     let hasAnySlot = false;
-    const showEmptyYongin = CURRENT_CITY === "yongin";
+    const showEmptyYongin = false;
     Object.keys(days || {}).sort().forEach(d => {
       if (date && d !== date) return;
       const slots = (Array.isArray(days[d]) ? days[d] : []).filter(s => slotMatchesTimeCondition(s, timeCondition));
       if (slots.length === 0) return;
       hasAnySlot = true;
+      availableSlotCount += slots.length;
+      availableGroups.add(courtGroup || fac.title);
 
       const dayBox = makeNode("section", "date-box-view");
       const title = makeNode("div", "date-title");
@@ -984,6 +1045,8 @@ function renderCourts() {
       const slotWrap = makeNode("div", "slots");
       slots.forEach(s => {
         if (!s || !s.timeContent) return;
+        const first = firstTimeLabel(s.timeContent);
+        if (first && (!earliestTime || first < earliestTime)) earliestTime = first;
         let href = "";
         if (s.reserveUrl) {
           href = s.reserveUrl;
@@ -1023,6 +1086,12 @@ function renderCourts() {
       : "조건에 맞는 예약 가능 시간이 없습니다.";
     courtsEl.appendChild(makeNode("div", "empty-state", message));
   }
+  renderResultSummary({
+    slotCount: availableSlotCount,
+    groupCount: availableGroups.size,
+    earliest: earliestTime,
+    emptyReason: renderedCount === 0 ? "조건에 맞는 예약 가능 시간이 없습니다" : ""
+  });
   renderSummary();
 }
 
@@ -1124,13 +1193,16 @@ async function saveSubscriptionToSupabase(sub) {
 
   const subscription_id = await sha256Hex(endpoint);
 
-  const { error } = await sb
-    .from("push_subscriptions")
-    .upsert({ id: subscription_id, endpoint, p256dh, auth });
+  const { data, error } = await sb.rpc("register_push_subscription", {
+    p_subscription_id: subscription_id,
+    p_endpoint: endpoint,
+    p_p256dh: p256dh,
+    p_auth: auth
+  });
 
-  if (error) throw new Error("push_subscriptions upsert failed: " + error.message);
+  if (error) throw new Error("push subscription registration failed: " + error.message);
 
-  return subscription_id;
+  return data || subscription_id;
 }
 
 async function enablePushIfNeeded({ silent = false } = {}) {
@@ -1161,22 +1233,20 @@ async function enablePushIfNeeded({ silent = false } = {}) {
  * ========================================================= */
 async function addAlarm(subscriptionId, courtGroup, yyyymmdd, conditionValue) {
   const cond = parseTimeCondition(conditionValue);
-  const { error } = await sb
-    .from("alarms")
-    .insert({
-      subscription_id: subscriptionId,
-      court_group: courtGroup,
-      date: yyyymmdd,
-      time_mode: cond.mode,
-      time_hour: cond.hour
-    });
+  const { data, error } = await sb.rpc("add_alarm_rpc", {
+    p_subscription_id: subscriptionId,
+    p_court_group: courtGroup,
+    p_date: yyyymmdd,
+    p_time_mode: cond.mode,
+    p_time_hour: cond.hour
+  });
 
   if (error) {
     const msg = (error.message || "").toLowerCase();
     if (msg.includes("duplicate") || msg.includes("unique")) return { status: "duplicate" };
     throw new Error(error.message || "insert failed");
   }
-  return { status: "added" };
+  return data || { status: "added" };
 }
 
 async function loadMyAlarms() {
@@ -1184,19 +1254,13 @@ async function loadMyAlarms() {
   const alarmListEl = document.getElementById("alarmList");
 
   if (!subscriptionId) {
-    try {
-      subscriptionId = await enablePushIfNeeded({ silent: true });
-    } catch {
-      setListMessage(alarmListEl, "등록된 알람이 없습니다.");
-      return;
-    }
+    setListMessage(alarmListEl, "등록된 알람이 없습니다.");
+    return;
   }
 
-  const { data: alarms, error } = await sb
-    .from("alarms")
-    .select("id, date, court_group, time_mode, time_hour")
-    .eq("subscription_id", subscriptionId)
-    .order("date", { ascending: true });
+  const { data: alarms, error } = await sb.rpc("list_alarms_rpc", {
+    p_subscription_id: subscriptionId
+  });
 
   if (error) {
     setListMessage(alarmListEl, "알람 정보를 불러오지 못했습니다.");
@@ -1258,10 +1322,12 @@ async function loadMyAlarms() {
 }
 
 async function deleteAlarmById(alarmId) {
-  const { error } = await sb
-    .from("alarms")
-    .delete()
-    .eq("id", alarmId);
+  const subscriptionId = localStorage.getItem("subscription_id");
+  if (!subscriptionId) return;
+  const { error } = await sb.rpc("delete_alarm_rpc", {
+    p_subscription_id: subscriptionId,
+    p_alarm_id: alarmId
+  });
 
   if (error) showToast("알람 삭제 실패: " + error.message);
 }
@@ -1288,6 +1354,7 @@ document.querySelectorAll('input[name="filterTimeMode"]').forEach(input => input
 
 filterDate.onchange = () => {
   filterDateLabel.textContent = filterDate.value;
+  updateQuickDateButtons();
   renderCourts();
 };
 alarmDate.onchange = () => {
@@ -1395,11 +1462,11 @@ function setCity(city){
   filterTimeHour.value = "";
   document.querySelector('input[name="filterTimeMode"][value="contains"]').checked = true;
   filterDateLabel.textContent = "날짜 선택";
+  updateQuickDateButtons();
 
   buildCourtGroups();
   renderCourts();
   renderFavoriteCourts();
-  renderCityUpdatedTimes();
   loadMyAlarms(); // 탭 도시 알람만 보여주기 위해 재로딩
 }
 
@@ -1408,12 +1475,25 @@ document.getElementById("tabGoyang").addEventListener("click", () => setCity("go
 document.getElementById("tabSuwon").addEventListener("click", () => setCity("suwon"));
 document.getElementById("tabSeongnam").addEventListener("click", () => setCity("seongnam"));
 
+document.querySelectorAll(".quick-date").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const offset = btn.dataset.offset;
+    if (offset === "") {
+      filterDate.showPicker?.();
+      filterDate.click();
+      return;
+    }
+    setFilterDateValue(isoDateFromYYYYMMDD(yyyymmddTodayKst(Number(offset))));
+  });
+});
+
 /** =========================================================
  *  init + 강제 업데이트 버튼
  * ========================================================= */
 async function init() {
   await loadData();
   setCity("yongin"); // 초기 탭
+  setFilterDateValue(isoDateFromYYYYMMDD(yyyymmddTodayKst(0)));
   await loadMyAlarms();
 }
 
