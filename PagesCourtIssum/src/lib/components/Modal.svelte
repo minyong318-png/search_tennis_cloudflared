@@ -31,6 +31,7 @@
     z-index: 150;
     width: min(640px, calc(100vw - 28px));
     margin: 0;
+    transform: translate(-50%, -50%);
     max-height: 86dvh;
     overflow: auto;
     border: 1px solid rgba(255, 255, 255, 0.97);
@@ -78,6 +79,7 @@
       bottom: 0;
       width: 100%;
       max-height: 90dvh;
+      transform: translate(-50%, 0);
       border-radius: 24px 24px 0 0;
       padding-bottom: calc(28px + env(safe-area-inset-bottom));
       animation-name: modalSheetIn;

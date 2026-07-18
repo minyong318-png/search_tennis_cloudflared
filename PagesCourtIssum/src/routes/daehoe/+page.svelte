@@ -40,11 +40,7 @@
     return { date, value, items };
   });
   $: groupedDays = weekDays.filter((day) => day.items.length);
-  $: closingSoon = [...filtered]
-    .map((item) => ({ item, numbers: participantNumbers(item) }))
-    .filter((row) => row.numbers)
-    .sort((a, b) => b.numbers.ratio - a.numbers.ratio)
-    .slice(0, 4);
+  $: regionSchedule = buildRegionSchedule(filtered);
   $: activeCount = Object.values(filters).filter(Boolean).length;
 
   onMount(() => {
@@ -81,6 +77,25 @@
     return tabSource.filter((item) => item.regionLabel === region).length;
   }
 
+  function buildRegionSchedule(items) {
+    const groups = new Map();
+    items.forEach((item) => {
+      const region = item.regionLabel || "지역 미상";
+      if (!groups.has(region)) groups.set(region, []);
+      groups.get(region).push(item);
+    });
+
+    return [...groups.entries()]
+      .map(([region, regionItems]) => ({
+        region,
+        items: regionItems
+          .slice()
+          .sort((a, b) => (a.startDate || "9999").localeCompare(b.startDate || "9999"))
+          .slice(0, 4)
+      }))
+      .sort((a, b) => (a.items[0]?.startDate || "9999").localeCompare(b.items[0]?.startDate || "9999"));
+  }
+
   function openTournament(item) {
     selected = item;
   }
@@ -94,6 +109,12 @@
 
   function eventTime(item) {
     return item.startTime || item.playTime || item.timeText || "시간 확인";
+  }
+
+  function eventDateRange(item) {
+    if (!item.startDate) return "대회일 확인 필요";
+    if (item.endDate && item.endDate !== item.startDate) return `${formatDate(item.startDate)} - ${formatDate(item.endDate)}`;
+    return formatDate(item.startDate);
   }
 
   function hostText(item) {
@@ -260,28 +281,34 @@
       </div>
     </div>
 
-    <aside class="tourney-rail" aria-label="대회 요약">
-      <section class="rail-card">
-        <span class="rail-label">This Week</span>
-        <h2>{filters.region || "전체"} 대회</h2>
-        <p>지역, 조건, 부서 필터를 적용한 주간 대회 목록입니다. 신청과 결제는 공식 주최처에서 진행됩니다.</p>
-        <div class="rail-stat">
-          <b>{filtered.length}</b>
-          <span>표시 중</span>
-        </div>
+    <aside class="tourney-rail" aria-label="지역별 대회 일정">
+      <section class="rail-card rail-intro">
+        <span class="rail-label">Schedule</span>
+        <h2>지역별 대회일</h2>
+        <p>이번 주 신청 목록에 있는 대회가 실제로 언제 열리는지 지역별로 정리했습니다.</p>
       </section>
-      <section class="rail-card">
-        <span class="rail-label">Closing</span>
-        <h3>마감 임박</h3>
-        {#if closingSoon.length}
-          {#each closingSoon as row}
-            <button class="mini-event" type="button" on:click={() => openTournament(row.item)}>
-              <strong>{row.item.titleRaw}</strong>
-              <span>{row.numbers.current}/{row.numbers.capacity}명 · {formatDate(row.item.startDate)}</span>
-            </button>
-          {/each}
+      <section class="rail-card schedule-card">
+        <span class="rail-label">By Region</span>
+        {#if regionSchedule.length}
+          <div class="region-schedule-list">
+            {#each regionSchedule as group}
+              <div class="region-schedule-group">
+                <div class="region-schedule-head">
+                  <strong>{group.region}</strong>
+                  <span>{group.items.length}개 표시</span>
+                </div>
+                {#each group.items as item}
+                  <button class="mini-event schedule-event" type="button" on:click={() => openTournament(item)}>
+                    <span class="schedule-date">{eventDateRange(item)}</span>
+                    <strong>{item.titleRaw}</strong>
+                    <small>{item.venueName || item.venueAddress || hostText(item)}</small>
+                  </button>
+                {/each}
+              </div>
+            {/each}
+          </div>
         {:else}
-          <p>신청 인원 데이터가 있는 대회가 아직 없습니다.</p>
+          <p>선택한 조건에 맞는 이번 주 신청 대회가 없습니다.</p>
         {/if}
       </section>
       <section class="ad-unit">
@@ -503,7 +530,7 @@
     min-height: 540px;
     overflow: hidden;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 315px;
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 28vw);
     min-block-size: 0;
   }
 
@@ -777,7 +804,7 @@
     min-height: 0;
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 16px;
+    padding: 18px;
   }
 
   .rail-card {
@@ -795,8 +822,7 @@
     text-transform: uppercase;
   }
 
-  .rail-card h2,
-  .rail-card h3 {
+  .rail-card h2 {
     margin: 12px 0 8px;
     font-size: 20px;
     line-height: 1.25;
@@ -810,22 +836,55 @@
     line-height: 1.65;
   }
 
-  .rail-stat {
-    margin-top: 17px;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
+  .schedule-card {
+    padding-bottom: 8px;
+  }
+
+  .region-schedule-list {
+    display: grid;
+    gap: 16px;
+    margin-top: 14px;
+  }
+
+  .region-schedule-group {
+    display: grid;
+    gap: 7px;
+  }
+
+  .region-schedule-head {
     display: flex;
-    align-items: end;
+    align-items: center;
     justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--line);
   }
 
-  .rail-stat b {
-    font-size: 28px;
+  .region-schedule-head strong {
+    font-size: 14px;
   }
 
-  .rail-stat span {
+  .region-schedule-head span {
     color: var(--text-tertiary);
     font-size: 10px;
+    font-weight: 720;
+  }
+
+  .schedule-event {
+    gap: 6px;
+    padding: 10px 0 11px;
+  }
+
+  .schedule-date {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 840;
+  }
+
+  .schedule-event small {
+    color: #9a9f9a;
+    font-size: 10px;
+    line-height: 1.35;
   }
 
   .mini-event {
@@ -929,10 +988,13 @@
   }
 
   .modal-apply {
+    position: sticky;
+    bottom: 0;
     margin-top: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 -10px 20px rgba(251, 252, 250, 0.78);
   }
 
   @media (max-width: 980px) {
