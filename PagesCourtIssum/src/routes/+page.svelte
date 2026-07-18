@@ -252,6 +252,73 @@
         <p>코트 상세와 알람 패널에서 원하는 날짜와 시간 조건을 빠르게 확인할 수 있게 준비했습니다.</p>
       </article>
     </div>
+
+    <section class="content-panel">
+      <div class="section-heading">
+        <span>Summary</span>
+        <h2>오늘의 조회 데이터 요약</h2>
+        <p>현재 선택한 지역과 날짜를 기준으로 수집된 공개 예약 정보를 정리합니다. 수집 지연, 예약 기간 외 날짜, 공식 사이트 응답 오류는 실제 예약 불가와 다를 수 있습니다.</p>
+      </div>
+      <div class="metric-grid">
+        <article><strong>{CITY_LABELS[city]}</strong><span>선택 지역</span></article>
+        <article><strong>{openRows.length ? `${openRows.length}곳` : loading ? "확인 중" : "0곳"}</strong><span>잔여 시간이 있는 코트 묶음</span></article>
+        <article><strong>{slotCount ? `${slotCount}개` : loading ? "확인 중" : "0개"}</strong><span>표시된 잔여 시간</span></article>
+        <article><strong>{firstOpen}</strong><span>가장 빠른 잔여 시간</span></article>
+      </div>
+      <p class="content-note">마지막 정상 갱신: {data.updated_at ? new Date(data.updated_at).toLocaleString("ko-KR") : "수집 상태 확인 중"} · 예약과 결제는 각 공식 예약처에서 진행됩니다.</p>
+    </section>
+
+    <section class="content-panel">
+      <div class="section-heading">
+        <span>Why CourtIssum</span>
+        <h2>코트있음?이 제공하는 고유한 정리 방식</h2>
+        <p>여러 지자체와 시설 예약 화면은 서로 다른 형식으로 공개됩니다. 코트있음?은 날짜, 시간, 지역, 코트 묶음 기준으로 정보를 맞춰 보여주고, 사용자가 공식 예약처를 하나씩 열어 비교하는 시간을 줄이는 데 초점을 둡니다.</p>
+      </div>
+      <div class="explain-grid">
+        <article><h3>날짜·시간 기준 비교</h3><p>지역별 예약 화면을 같은 시간표 구조로 정리해, 오늘 또는 원하는 날짜에 어느 코트가 남아 있는지 빠르게 비교할 수 있습니다.</p></article>
+        <article><h3>공식 예약처 연결</h3><p>조회 결과는 예약을 대신하지 않습니다. 각 잔여 시간 상세에서 공식 예약처로 이동해 최종 상태, 결제, 취소 조건을 확인해야 합니다.</p></article>
+        <article><h3>불완전 데이터 분리</h3><p>공식 사이트가 응답하지 않거나 아직 예약 기간이 열리지 않은 경우, 실제 빈 코트 0개로 단정하지 않고 상태 안내로 구분합니다.</p></article>
+      </div>
+    </section>
+
+    <section class="content-panel">
+      <div class="section-heading">
+        <span>How To Use</span>
+        <h2>빠르게 확인하는 방법</h2>
+      </div>
+      <ol class="step-list">
+        <li><strong>지역과 날짜 선택</strong><span>상단 지역 탭과 날짜 이동 버튼으로 조회 범위를 먼저 정합니다.</span></li>
+        <li><strong>필터 조정</strong><span>구, 코트 묶음, 시간 조건을 좁혀 실제로 갈 수 있는 후보만 남깁니다.</span></li>
+        <li><strong>잔여 시간 상세 확인</strong><span>시간표의 예약 가능 칸을 눌러 코트명과 시간 문구를 확인합니다.</span></li>
+        <li><strong>공식 예약처 최종 확인</strong><span>예약과 결제 전 공식 페이지에서 최신 상태와 취소 규칙을 다시 확인합니다.</span></li>
+      </ol>
+    </section>
+
+    <section class="content-panel">
+      <div class="section-heading">
+        <span>Rules</span>
+        <h2>지역별 예약 규칙 확인 기준</h2>
+        <p>예약 오픈 시간, 관내·관외 우선권, 취소와 환불 규정은 지역과 시설마다 다릅니다. 확인되지 않은 규칙은 임의로 채우지 않고 공식 정보 확인 필요로 남깁니다.</p>
+      </div>
+      <div class="accordion-list">
+        <details><summary>관내·관외 예약 차이</summary><p>일부 시설은 관내 주민에게 먼저 예약을 열거나, 관외 이용자에게 다른 오픈 시간을 적용합니다. 실제 적용 여부는 공식 예약처의 안내를 기준으로 합니다.</p></details>
+        <details><summary>취소·환불 기준</summary><p>취소 가능 시점과 환불 비율은 시설별로 다릅니다. 우천 취소, 당일 취소, 노쇼 처리 기준도 공식 공지에서 최종 확인해야 합니다.</p></details>
+        <details><summary>데이터 갱신과 지연</summary><p>공식 사이트 점검, 접속 지연, 예약 화면 변경이 있으면 수집이 늦어질 수 있습니다. 표시된 갱신 시각을 보고 오래된 데이터인지 확인하세요.</p></details>
+      </div>
+    </section>
+
+    <section class="content-panel">
+      <div class="section-heading">
+        <span>FAQ</span>
+        <h2>자주 묻는 질문</h2>
+      </div>
+      <div class="faq-grid">
+        <article><h3>왜 공식 예약처와 숫자가 다를 수 있나요?</h3><p>수집 이후 다른 사용자가 예약했거나 공식 사이트가 상태를 늦게 반영했을 수 있습니다. 결제 전 공식 예약처에서 마지막으로 확인해야 합니다.</p></article>
+        <article><h3>예약 가능한 시간이 없으면 정말 모두 찬 건가요?</h3><p>항상 그렇지는 않습니다. 예약 기간이 아직 열리지 않았거나 수집 실패 상태일 수 있어 상태 문구와 갱신 시간을 함께 확인해야 합니다.</p></article>
+        <article><h3>오류 제보는 어떻게 하나요?</h3><p>문의 페이지에서 지역, 시설명, 날짜, 잘못된 내용, 공식 출처 링크를 함께 보내면 확인 후 수정합니다.</p></article>
+      </div>
+      <a class="text-link" href="/faq/">FAQ 전체 보기</a>
+    </section>
   </section>
 </main>
 
@@ -668,6 +735,139 @@
     line-height: 1.75;
   }
 
+  .content-panel {
+    margin-top: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.64);
+    box-shadow: 0 14px 40px rgba(46, 55, 49, 0.05);
+    padding: 24px;
+  }
+
+  .section-heading {
+    max-width: 760px;
+    display: grid;
+    gap: 9px;
+  }
+
+  .section-heading span {
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+
+  .section-heading p,
+  .content-note,
+  .explain-grid p,
+  .accordion-list p,
+  .faq-grid p,
+  .step-list span {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 13px;
+  }
+
+  .metric-grid,
+  .explain-grid,
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .explain-grid,
+  .faq-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .metric-grid article,
+  .explain-grid article,
+  .faq-grid article,
+  .step-list li,
+  .accordion-list details {
+    border: 1px solid rgba(27, 34, 29, 0.06);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.68);
+    padding: 16px;
+  }
+
+  .metric-grid strong {
+    display: block;
+    font-size: 20px;
+  }
+
+  .metric-grid span {
+    display: block;
+    margin-top: 6px;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .content-note {
+    margin: 14px 0 0;
+  }
+
+  .explain-grid h3,
+  .faq-grid h3 {
+    margin: 0 0 9px;
+    font-size: 16px;
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+
+  .explain-grid p,
+  .faq-grid p {
+    margin: 0;
+  }
+
+  .step-list {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .step-list strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 15px;
+  }
+
+  .accordion-list {
+    display: grid;
+    gap: 9px;
+    margin-top: 18px;
+  }
+
+  .accordion-list summary {
+    cursor: pointer;
+    font-weight: 780;
+  }
+
+  .accordion-list p {
+    margin: 10px 0 0;
+  }
+
+  .text-link {
+    display: inline-flex;
+    margin-top: 14px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
   .drawer-section {
     margin-bottom: 20px;
     display: grid;
@@ -805,6 +1005,18 @@
     }
 
     .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .content-panel {
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .metric-grid,
+    .explain-grid,
+    .faq-grid,
+    .step-list {
       grid-template-columns: 1fr;
     }
 

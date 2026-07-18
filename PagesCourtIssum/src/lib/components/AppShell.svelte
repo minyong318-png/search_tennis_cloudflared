@@ -37,7 +37,7 @@
         <span class="bell-icon" aria-hidden="true"></span>
         <span class="badge-dot"></span>
       </button>
-      <a class="icon-btn" href="/guide/tennis-reservation/" aria-label="이용 가이드">
+      <a class="icon-btn" href="/guide/tennis-reservation" aria-label="이용 가이드">
         <span class="info-icon" aria-hidden="true"></span>
       </a>
     </div>
@@ -49,10 +49,15 @@
 <footer class="site-footer">
   <span>코트있음? · 대회있음?은 공식 예약 기관이 아닌 정보 제공 서비스입니다.</span>
   <nav aria-label="정책 및 안내">
-    <a href="/privacy/">개인정보처리방침</a>
-    <a href="/terms/">이용약관</a>
-    <a href="/data-source/">데이터 출처</a>
-    <a href="/contact/">문의</a>
+    <a href="/privacy">개인정보처리방침</a>
+    <a href="/terms">이용약관</a>
+    <a href="/data-source">데이터 출처</a>
+    <a href="/contact">문의</a>
+    <a href="/about">소개</a>
+    <a href="/guide/tennis-reservation">이용 가이드</a>
+    <a href="/reservation-guide">예약 규칙</a>
+    <a href="/faq">FAQ</a>
+    <a href="/updates">업데이트</a>
   </nav>
 </footer>
 

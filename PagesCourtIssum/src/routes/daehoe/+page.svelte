@@ -40,7 +40,8 @@
     return { date, value, items };
   });
   $: groupedDays = weekDays.filter((day) => day.items.length);
-  $: regionSchedule = buildRegionSchedule(filtered);
+  $: publisherScheduleItems = filtered.filter((item) => !isTennisTownSource(item));
+  $: regionSchedule = buildRegionSchedule(publisherScheduleItems);
   $: activeCount = Object.values(filters).filter(Boolean).length;
 
   onMount(() => {
@@ -94,6 +95,11 @@
           .slice(0, 4)
       }))
       .sort((a, b) => (a.items[0]?.startDate || "9999").localeCompare(b.items[0]?.startDate || "9999"));
+  }
+
+  function isTennisTownSource(item) {
+    const source = `${item.sourceName || ""} ${item.sourceType || ""} ${item.sourceUrl || ""} ${item.organizer || ""} ${item.host || ""}`.toLowerCase();
+    return source.includes("tennistown") || source.includes("테니스타운");
   }
 
   function openTournament(item) {
@@ -284,6 +290,7 @@
     <aside class="tourney-rail" aria-label="지역별 대회 일정">
       <section class="rail-card rail-intro">
         <span class="rail-label">Schedule</span>
+        <p class="source-note">테니스타운 앱 수집분은 제외하고 협회, 기관, 시설 공지에서 확인한 지역 대회만 표시합니다.</p>
         <h2>지역별 대회일</h2>
         <p>이번 주 신청 목록에 있는 대회가 실제로 언제 열리는지 지역별로 정리했습니다.</p>
       </section>
@@ -834,6 +841,11 @@
     color: #858a85;
     font-size: 11px;
     line-height: 1.65;
+  }
+
+  .rail-card .source-note {
+    margin-top: 10px;
+    color: var(--text-tertiary);
   }
 
   .schedule-card {
