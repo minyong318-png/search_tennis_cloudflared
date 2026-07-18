@@ -33,6 +33,7 @@ node PagesDaehoeIssum\scripts\crawl-all.mjs
 node --test tests\daehoe-tournament-sync.test.js
 python -m unittest tests/test_daehoe_supabase_sync.py
 
+New-Item -ItemType Directory -Force PagesCourtIssum\daehoe\data | Out-Null
 Copy-Item PagesDaehoeIssum\data\tournaments.json PagesCourtIssum\daehoe\data\tournaments.json -Force
 Copy-Item PagesDaehoeIssum\data\crawl-meta.json PagesCourtIssum\daehoe\data\crawl-meta.json -Force
 Copy-Item PagesDaehoeIssum\data\tennistown-app-checkpoint.json PagesCourtIssum\daehoe\data\tennistown-app-checkpoint.json -Force
@@ -48,5 +49,7 @@ gh workflow run daehoe_supabase_sync.yml -R minyong318-png/Search_Tennis_Fly -f 
 
 if (-not $SkipDeploy) {
   npx wrangler pages deploy PagesDaehoeIssum --project-name daehoe-isseum --branch main
-  npx wrangler pages deploy PagesCourtIssum --project-name courtissum --branch main
+  npm ci --prefix PagesCourtIssum
+  npm run build --prefix PagesCourtIssum
+  npx wrangler pages deploy PagesCourtIssum\build --project-name courtissum --branch main
 }
