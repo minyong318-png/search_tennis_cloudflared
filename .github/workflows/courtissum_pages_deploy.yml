@@ -1,0 +1,43 @@
+name: CourtIssum Pages Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "PagesCourtIssum/**"
+      - ".github/workflows/courtissum_pages_deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: courtissum-pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: npm ci --prefix PagesCourtIssum
+
+      - name: Validate SvelteKit app
+        run: npm run check --prefix PagesCourtIssum
+
+      - name: Build SvelteKit app
+        run: npm run build --prefix PagesCourtIssum
+
+      - name: Deploy SvelteKit build to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler pages deploy PagesCourtIssum/build --project-name courtissum --branch main
