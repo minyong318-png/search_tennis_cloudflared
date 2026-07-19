@@ -191,7 +191,7 @@
       <div class="empty-state">코트 데이터를 동기화하는 중입니다.</div>
     {:else}
       <div class="table-viewport" role="region" aria-label="코트 시간표 가로 스크롤 영역">
-        <div class="matrix" style={`grid-template-columns: clamp(154px, 20vw, 250px) repeat(${hours.length}, minmax(64px, 1fr)); --shift:${direction * 16}px`}>
+        <div class="matrix" style={`grid-template-columns: var(--court-col, clamp(154px, 20vw, 250px)) repeat(${hours.length}, minmax(var(--hour-col, 64px), 1fr)); --shift:${direction * 16}px`}>
           <div class="cell head corner">코트 / 위치</div>
           {#each hours as hour}
             <div class="cell head">{hour}:00</div>
@@ -533,8 +533,17 @@
   .table-caption {
     display: flex;
     gap: 8px;
+    min-width: 0;
     color: #757a75;
     font-size: 12px;
+  }
+
+  .table-caption strong,
+  .table-caption span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .toolbar-spacer {
@@ -615,6 +624,10 @@
     box-shadow: 9px 0 18px -17px rgba(15, 20, 17, 0.55);
   }
 
+  .court-cell > div {
+    min-width: 0;
+  }
+
   .favorite {
     width: 28px;
     height: 28px;
@@ -637,6 +650,8 @@
     margin-top: 5px;
     color: #989d98;
     font-size: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
@@ -975,12 +990,33 @@
   @media (max-width: 760px) {
     .subbar-inner,
     .datebar-inner {
-      padding: 8px 10px;
+      padding: 6px 8px;
+      gap: 5px;
+    }
+
+    .subbar-inner {
+      scroll-padding-inline: 8px;
+    }
+
+    .scope-tab {
+      height: 34px;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      padding: 0 10px 0 9px;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.48);
+      font-size: 12px;
+    }
+
+    .scope-tab .status-dot {
+      width: 6px;
+      height: 6px;
     }
 
     .datebar-inner {
-      grid-template-columns: 1fr auto;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      overflow: visible;
     }
 
     .view-title {
@@ -991,17 +1027,136 @@
       display: none;
     }
 
+    .date-nav {
+      width: min(100%, 290px);
+      height: 43px;
+      padding: 4px;
+      border-radius: 15px;
+    }
+
+    .date-display {
+      min-width: 0;
+      flex: 1;
+      padding: 0 4px;
+    }
+
+    .date-display strong {
+      overflow: hidden;
+      font-size: 13px;
+      line-height: 1.1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .date-display span {
+      margin-top: 2px;
+      font-size: 9px;
+    }
+
+    .nav-arrow {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      font-size: 20px;
+      line-height: 1;
+    }
+
     .court-shell {
-      min-height: 560px;
-      border-radius: 20px;
+      height: calc(100dvh - var(--header-height) - var(--subbar-height) - var(--datebar-height) - 10px);
+      min-height: 500px;
+      border-radius: 18px;
+    }
+
+    .table-toolbar {
+      height: 44px;
+      padding: 0 8px 0 11px;
+      gap: 6px;
+    }
+
+    .table-caption {
+      flex: 1 1 auto;
+      gap: 5px;
+      font-size: 11px;
     }
 
     .table-caption span {
       display: none;
     }
 
+    .small-action {
+      min-width: 36px;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      padding: 7px 8px;
+      background: rgba(24, 29, 25, 0.045);
+      font-size: 10px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .table-viewport {
+      height: calc(100% - 44px);
+    }
+
     .matrix {
-      min-width: 820px;
+      min-width: 704px;
+      width: max(100%, 704px);
+      --court-col: 124px;
+      --hour-col: 58px;
+    }
+
+    .cell {
+      min-height: 52px;
+    }
+
+    .head {
+      min-height: 38px;
+      font-size: 10px;
+    }
+
+    .corner {
+      padding-left: 11px;
+    }
+
+    .court-cell {
+      gap: 7px;
+      padding: 0 8px;
+    }
+
+    .favorite {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      font-size: 12px;
+    }
+
+    .court-name {
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .court-location {
+      margin-top: 3px;
+      font-size: 9px;
+      line-height: 1.2;
+    }
+
+    .slot {
+      padding: 5px;
+    }
+
+    .slot-button {
+      height: 37px;
+      border-radius: 11px;
+      gap: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .matrix-empty {
+      min-height: 180px;
+      padding: 0 18px;
+      text-align: center;
     }
 
     .info-grid {

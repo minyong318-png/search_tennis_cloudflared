@@ -55,9 +55,13 @@
   }
 
   .drawer-head strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 22px;
     font-weight: 760;
-    letter-spacing: -0.025em;
+    letter-spacing: 0;
+    white-space: nowrap;
   }
 
   .close-btn {
@@ -90,8 +94,16 @@
       width: 100%;
       max-height: 86dvh;
       border-radius: 24px 24px 0 0;
-      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+      padding: 20px 18px calc(22px + env(safe-area-inset-bottom));
       animation-name: sheetIn;
+    }
+
+    .drawer-head {
+      margin-bottom: 18px;
+    }
+
+    .drawer-head strong {
+      font-size: 19px;
     }
 
     @keyframes sheetIn {

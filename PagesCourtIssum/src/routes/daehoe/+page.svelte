@@ -711,6 +711,7 @@
 
   .event-copy {
     min-width: 0;
+    overflow: hidden;
   }
 
   .event-kicker {
@@ -718,6 +719,10 @@
     color: var(--accent);
     font-size: 10px;
     font-weight: 760;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .event-copy h2 {
@@ -728,6 +733,7 @@
     font-size: 15px;
     line-height: 1.35;
     letter-spacing: 0;
+    overflow-wrap: anywhere;
   }
 
   .event-meta,
@@ -745,6 +751,7 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    min-width: 0;
   }
 
   .event-tags span {
@@ -1040,7 +1047,7 @@
 
     .regionbar-inner,
     .weekbar-inner {
-      padding: 8px 10px;
+      padding: 6px 8px;
     }
 
     .regionbar-inner {
@@ -1049,9 +1056,10 @@
     }
 
     .region-tab {
-      height: 38px;
-      border-radius: 13px;
-      padding: 0 11px;
+      height: 34px;
+      border-radius: 12px;
+      padding: 0 10px;
+      gap: 6px;
       background: rgba(255, 255, 255, 0.52);
     }
 
@@ -1064,8 +1072,10 @@
     }
 
     .weekbar-inner {
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      gap: 6px;
+      overflow: visible;
     }
 
     .view-title,
@@ -1074,34 +1084,51 @@
     }
 
     .week-nav {
-      width: 100%;
+      width: min(100%, 300px);
       min-width: 0;
-      height: 48px;
-      border-radius: 16px;
+      height: 43px;
+      padding: 4px;
+      border-radius: 15px;
+    }
+
+    .week-display {
+      min-width: 0;
+      padding: 0 4px;
     }
 
     .week-display strong {
       font-size: 13px;
+      overflow: hidden;
+      line-height: 1.1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .week-display span {
-      font-size: 10px;
+      margin-top: 2px;
+      overflow: hidden;
+      font-size: 9px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .nav-arrow {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      font-size: 20px;
+      line-height: 1;
     }
 
     .this-week {
-      width: 52px;
+      display: none;
       padding: 0;
       text-align: center;
       font-size: 11px;
     }
 
     .tournament-page {
-      padding: 8px 10px 72px;
+      padding: 8px 8px 72px;
     }
 
     .tourney-shell {
@@ -1111,16 +1138,16 @@
     }
 
     .tourney-toolbar {
-      min-height: 58px;
+      min-height: 50px;
       border-radius: 21px 21px 0 0;
-      padding: 9px 10px;
+      padding: 7px 8px;
       gap: 8px;
       background: rgba(255, 255, 255, 0.78);
     }
 
     .search-box {
       min-width: 0;
-      height: 40px;
+      height: 38px;
       border-radius: 14px;
       padding: 0 11px;
     }
@@ -1130,8 +1157,8 @@
     }
 
     .icon-filter {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       flex: 0 0 auto;
       border-radius: 13px;
     }
@@ -1161,21 +1188,22 @@
     }
 
     .event-main {
-      grid-template-columns: 50px minmax(0, 1fr);
-      gap: 10px;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 9px;
       padding: 12px;
       border-radius: 17px;
       align-items: start;
+      overflow: hidden;
     }
 
     .event-date {
-      width: 50px;
-      height: 56px;
+      width: 44px;
+      height: 52px;
       border-radius: 15px;
     }
 
     .event-date b {
-      font-size: 22px;
+      font-size: 20px;
     }
 
     .event-date small {
@@ -1199,8 +1227,9 @@
 
     .event-copy h2 {
       white-space: normal;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.38;
+      word-break: break-word;
       display: -webkit-box;
       line-clamp: 2;
       -webkit-line-clamp: 2;
@@ -1231,6 +1260,9 @@
       border-radius: 9px;
       padding: 5px 7px;
       font-size: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .entry-top strong {

@@ -47,7 +47,8 @@
     margin: 10px 42px 14px 0;
     font-size: 27px;
     line-height: 1.2;
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
   }
 
   .close-btn {
@@ -81,8 +82,19 @@
       max-height: 90dvh;
       transform: translate(-50%, 0);
       border-radius: 24px 24px 0 0;
-      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      padding: 22px 18px calc(24px + env(safe-area-inset-bottom));
       animation-name: modalSheetIn;
+    }
+
+    .modal h2 {
+      margin: 6px 42px 14px 0;
+      font-size: 20px;
+      line-height: 1.28;
+    }
+
+    .close-btn {
+      top: 18px;
+      right: 18px;
     }
 
     @keyframes modalSheetIn {

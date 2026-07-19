@@ -73,6 +73,7 @@
   }
 
   .header-inner {
+    width: 100%;
     max-width: 1500px;
     height: 100%;
     margin: 0 auto;
@@ -91,6 +92,12 @@
     font-weight: 790;
     letter-spacing: -0.02em;
     white-space: nowrap;
+  }
+
+  .brand strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .brand-mark {
@@ -289,18 +296,39 @@
 
     .header-inner {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px 10px;
-      padding: 9px 10px 8px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 7px 8px;
+      padding: 7px 8px;
+      align-content: center;
+      overflow: hidden;
+    }
+
+    .brand {
+      gap: 8px;
+      min-width: 0;
     }
 
     .brand strong {
-      font-size: 21px;
+      font-size: 18px;
+      line-height: 1;
     }
 
     .brand-mark {
-      width: 28px;
-      height: 28px;
+      width: 27px;
+      height: 27px;
+      border-radius: 9px;
+    }
+
+    .brand-mark::before {
+      height: 18px;
+      left: 12.5px;
+      top: 4.5px;
+    }
+
+    .brand-mark::after {
+      width: 18px;
+      left: 4.5px;
+      top: 12.5px;
     }
 
     .product-switch {
@@ -308,7 +336,13 @@
       margin-left: 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
+      gap: 5px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
+      padding: 3px;
+      border-radius: 12px;
     }
 
     .header-actions {
@@ -316,12 +350,28 @@
       grid-row: 1;
       margin-left: 0;
       justify-self: end;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+    }
+
+    .header-actions a.icon-btn {
+      display: none;
     }
 
     .product-pill {
       justify-content: center;
-      height: 28px;
-      font-size: 12px;
+      min-width: 0;
+      height: 25px;
+      padding: 0 8px;
+      overflow: hidden;
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .header-note {
