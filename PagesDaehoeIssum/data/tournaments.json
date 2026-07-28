@@ -72205,9 +72205,9 @@
     "host": "성남시테니스협회, (사)한국테니스발전협의회(KATO)",
     "startDate": "2026-08-27",
     "endDate": "2026-08-30",
-    "status": "미상",
-    "registrationStatusRaw": "미상",
-    "registrationStatusCode": "UNKNOWN",
+    "status": "접수중",
+    "registrationStatusRaw": "접수중",
+    "registrationStatusCode": "OPEN",
     "registrationCountCurrent": null,
     "registrationCapacity": null,
     "registrationUnit": "unknown",
@@ -73002,8 +73002,8 @@
     "duplicateKey": "안성시장배|2026-09-03|안성시|안성종합운동장보조",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-27T22:36:18.106Z"
+    "firstSeenAt": "2026-07-27T22:36:18.106Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kata-2f17a41f-f2a7-4469-a13a-5d73b7328cad",
@@ -74141,8 +74141,8 @@
     "duplicateKey": "수원화성배|2026-09-16|화성시|",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-27T22:36:18.106Z"
+    "firstSeenAt": "2026-07-27T22:36:18.106Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kato-kato-0310",
@@ -74250,8 +74250,8 @@
     "duplicateKey": "공주무령왕배|2026-09-17||",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-27T22:36:18.106Z"
+    "firstSeenAt": "2026-07-27T22:36:18.106Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kta-kta-21-27fd9f405cc4",
@@ -74524,8 +74524,8 @@
     "duplicateKey": "원주시장배|2026-10-02||원주치악",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-27T22:36:18.106Z"
+    "firstSeenAt": "2026-07-27T22:36:18.106Z",
+    "syncStatus": "seen"
   },
   {
     "id": "tennistown-tennistown-a92d2deb183e",
@@ -74789,8 +74789,8 @@
     "duplicateKey": "문경에이스배|2026-10-04|문경시|",
     "confidenceScore": 100,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-07-27T22:36:18.106Z"
+    "firstSeenAt": "2026-07-27T22:36:18.106Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kata-a1a393d8-b3f0-417b-a971-93e18312e227",
