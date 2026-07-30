@@ -74212,9 +74212,9 @@
         "feeUnit": "unknown"
       },
       {
-        "divisionName": "마스터스부",
+        "divisionName": "챌린저부",
         "gender": "무관",
-        "level": "마스터스",
+        "level": "챌린저",
         "format": "복식",
         "playDate": "2026-09-19",
         "startTime": "09:00",
@@ -74228,9 +74228,9 @@
         "feeUnit": "unknown"
       },
       {
-        "divisionName": "챌린저부",
+        "divisionName": "마스터스부",
         "gender": "무관",
-        "level": "챌린저",
+        "level": "마스터스",
         "format": "복식",
         "playDate": "2026-09-20",
         "startTime": "09:00",
