@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "PagesCourtIssum/**"
+      - "Pages/**"
+      - "scripts/sync-reservation-policy.js"
       - ".github/workflows/courtissum_pages_deploy.yml"
   workflow_dispatch:
 
@@ -34,6 +36,14 @@ jobs:
       - name: Prepare SvelteKit generated files
         run: cd PagesCourtIssum && npm exec -- svelte-kit sync
 
+      - name: Verify shared reservation behavior
+        run: |
+          node scripts/sync-reservation-policy.js --check
+          node tests/reservation-policy.test.js
+          node tests/reservation-policy-edge.test.js
+          node tests/court-availability-accuracy.test.js
+          node tests/static-reservation-compat.test.js
+
       - name: Validate SvelteKit app
         run: npm run check --prefix PagesCourtIssum
 
@@ -44,3 +54,8 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: npx wrangler pages deploy PagesCourtIssum/build --project-name courtissum --branch main
+
+      - name: Deploy standalone reservation page to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler pages deploy Pages --project-name search-tennis-court --branch main

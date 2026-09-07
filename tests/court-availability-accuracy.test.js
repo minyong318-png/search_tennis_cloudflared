@@ -44,6 +44,8 @@ const { pathToFileURL } = require("url");
     }
   };
 
+  Object.values(data.facilities).forEach(fac => { fac.metadata_checked_at = checkedAt; });
+
   const rows = courts.collectCourtRows(data, { city: "yongin", date });
   assert.strictEqual(rows.length, 2, "closed product is excluded while stale row remains visible for its own status");
   const current = rows.find((row) => row.fac?.reservation_type === "general");
@@ -70,6 +72,7 @@ const { pathToFileURL } = require("url");
       "yongin:unknown-b": { [date.replaceAll("-", "")]: { query_status: "success", availability_status: "available", checked_at: checkedAt } }
     }
   };
+  Object.values(unknownPhysicalData.facilities).forEach(fac => { fac.metadata_checked_at = checkedAt; });
   const unknownRows = courts.collectCourtRows(unknownPhysicalData, { city: "yongin", date });
   assert.strictEqual(unknownRows[0].count, 2, "unverified court mapping keeps reservation products separate");
   assert.strictEqual(unknownRows[0].unitLabel, "예약 항목");

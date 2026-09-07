@@ -87,7 +87,7 @@
     .summary{display:block;margin-top:12px;color:var(--muted);font-size:18px;font-weight:700}
     .summary strong{color:#111827}
     .filter-toggle,.filter-backdrop{display:none}
-    .filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;padding:20px 26px;border-bottom:1px solid var(--line)}
+    .filters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;padding:20px 26px;border-bottom:1px solid var(--line)}
     .filter-actions{display:none}
     .field{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#fff}
     .field-label{color:var(--muted);font-size:13px;font-weight:900;white-space:nowrap}
@@ -277,7 +277,10 @@
       .page{padding:6px}.hero{padding:12px}.mobile-time-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
       .crawl-card{flex-basis:110px}
     }
-  </style>
+    .reservation-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .reservation-badge{display:inline-block;padding:3px 7px;border-radius:6px;background:#eef4e7;color:#3e5428;font-size:11px;font-weight:700}
+  .reservation-note,.reservation-checked{display:block;margin-top:6px;font-size:11px;line-height:1.5;color:#667061}
+</style>
 </head>
 <body>
   <header class="topbar">
@@ -324,6 +327,7 @@
         <label class="field"><span class="field-label">날짜</span><input id="dateFilter" type="date"></label>
         <label class="field"><span class="field-label">지역</span><select id="citySelect"></select></label>
         <label class="field"><span class="field-label">코트</span><select id="courtFilter"></select></label>
+        <label class="field"><span class="field-label">예약 구분</span><select id="reservationTypeFilter"><option value="">예약 구분 전체</option><option value="district_priority">구민우선</option><option value="city_priority">시민우선</option><option value="general">일반예약</option><option value="unknown">예약 구분 미제공</option></select></label>
         <label class="field"><span class="field-label">시간</span><select id="hourFilter"></select></label>
         <label class="field"><span class="field-label">조건</span><select id="timeMode"><option value="contains">해당 시간 포함</option><option value="after">이후 시작</option><option value="before">이전 시작</option></select></label>
         <div class="filter-actions">
@@ -442,6 +446,11 @@
         <section class="notice-section">
           <h3>최근 업데이트</h3>
           <div class="update-log" aria-label="업데이트 이력">
+          <details open><summary>2026.09.07 · 예약 구분과 잔여 정보 정확도 개선</summary><ul>
+            <li>구민우선·시민예약·일반예약 필터와 접수 상태를 두 예약 화면에 함께 적용했습니다.</li>
+            <li>확인된 최신 시간만 예약 가능으로 표시하며, 조회 실패와 확인 전 데이터는 잔여 없음과 구분합니다.</li>
+            <li>각 날짜의 확인 시각을 표시하고, 같은 코트·시간의 예약 구분별 링크를 함께 제공합니다.</li>
+          </ul></details>
             <div class="update-item">
               <span class="update-date">2026-07-14</span>
               <ul>
@@ -488,7 +497,8 @@
     </div>
   </div>
 
-  <script>
+  <script src="./shared/reservation-policy.js"></script>
+<script>
     const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -529,6 +539,7 @@
       filterReset: $("filterReset"),
       filterApply: $("filterApply"),
       courtFilter: $("courtFilter"),
+      reservationTypeFilter: $("reservationTypeFilter"),
       hourFilter: $("hourFilter"),
       timeMode: $("timeMode"),
       cityTabs: $("cityTabs"),
@@ -829,41 +840,32 @@
       let nonEmptyFutureDays = 0;
       let dateMin = "";
       let dateMax = "";
-      const reasons = [];
+      const reasons = new Set();
 
-      cityFacilities.forEach(([cid]) => {
+      cityFacilities.forEach(([cid, fac]) => {
         const byDate = availability[cid] || {};
-        Object.entries(byDate).forEach(([date, slots]) => {
+        const dates = new Set([...Object.keys(byDate), ...Object.keys(DATA.availability_meta?.[cid] || {})]);
+        dates.forEach(date => {
+          const slots = byDate[date] || [];
           const compact = String(date || "").replaceAll("-", "");
           if (compact.length !== 8) return;
           cacheRowCount += 1;
           if (!dateMin || compact < dateMin) dateMin = compact;
           if (!dateMax || compact > dateMax) dateMax = compact;
-          const count = Array.isArray(slots) ? slots.filter(slot => slot?.timeContent).length : 0;
+          const count = Array.isArray(slots) ? slots.filter(slot => ReservationPolicy.slotIsAvailable(DATA, cid, date, fac, slot)).length : 0;
           slotCount += count;
           if (compact >= today) {
             futureDateCount += 1;
             if (count > 0) nonEmptyFutureDays += 1;
+            const state = ReservationPolicy.availabilityState(DATA, cid, date, fac);
+            if (["unverified", "failed", "stale"].includes(state)) reasons.add(ReservationPolicy.availabilityMessage(DATA, cid, date, fac));
           }
         });
       });
 
-      if (!cityFacilities.length) reasons.push("시설 없음");
-      if (!cacheRowCount) reasons.push("수집 데이터 없음");
-      if (!Number.isFinite(updatedMs)) reasons.push("갱신 시간 없음");
-      if (Number.isFinite(ageHours) && ageHours > 36) reasons.push("36시간 이상 미갱신");
-      if (dateMax && dateMax < today) reasons.push("향후 날짜 없음");
-
-      let state = "ok";
-      if (reasons.length) {
-        state = "error";
-      } else if (ageHours > 18 || slotCount === 0 || futureDateCount === 0 || nonEmptyFutureDays === 0) {
-        state = "warning";
-        if (ageHours > 18) reasons.push("18시간 이상 경과");
-        if (slotCount === 0) reasons.push("잔여 슬롯 0개");
-        if (futureDateCount === 0) reasons.push("향후 캐시 없음");
-        if (nonEmptyFutureDays === 0) reasons.push("향후 잔여 슬롯 없음");
-      }
+      if (!cityFacilities.length) reasons.add("시설 정보 갱신 대기");
+      if (!futureDateCount) reasons.add("날짜별 예약 정보 갱신 대기");
+      const state = !cityFacilities.length || !cacheRowCount ? "error" : reasons.size ? "warning" : "ok";
 
       return {
         state,
@@ -872,8 +874,8 @@
         nonEmptyFutureDays,
         dateMin,
         dateMax,
-        label: state === "ok" ? "정상" : state === "warning" ? "확인필요" : "오류",
-        reasonText: reasons.join(", ")
+        label: state === "ok" ? "확인됨" : state === "warning" ? "일부 갱신 대기" : "갱신 대기",
+        reasonText: [...reasons].join(", ")
       };
     }
 
@@ -914,7 +916,8 @@
 
     function labelSlot(slot) {
       const label = slot?._courtLabel ? `${slot._courtLabel} ` : "";
-      return `${label}${slot?.timeContent || ""}`.trim();
+      const type = ReservationPolicy.reservationTypeLabel(slot?._fac);
+      return `${label}${slot?.timeContent || ""}${type ? ` · ${type}` : ""}`.trim();
     }
 
     function expectedCourtLabels(courtGroup) {
@@ -993,7 +996,7 @@
     }
 
     function reserveHref(cid, slot) {
-      const raw = slot?.reserveUrl || slot?.url || "";
+      const raw = slot?.reserveUrl || slot?.url || slot?._fac?.source_url || "";
       if (raw) return raw;
       const slotCid = slot?._cid || cid;
       if (String(slotCid).startsWith("yongin:") || slot?.resveId) {
@@ -1008,7 +1011,7 @@
       els.slotPickerTitle.textContent = `${row.courtGroup} ${hour}:00`;
       els.slotPickerSubtitle.textContent = "예약할 코트를 선택하세요.";
       els.slotPickerChoices.replaceChildren();
-      slots.forEach(slot => {
+      slots.flatMap(slot => slot._alternatives || [slot]).forEach(slot => {
         const href = reserveHref(row.cid, slot);
         const choice = node(href ? "a" : "button", "slot-choice");
         if (href) {
@@ -1018,8 +1021,12 @@
         } else {
           choice.type = "button";
         }
-        choice.appendChild(node("span", "", slot._courtLabel || "전체 코트"));
-        choice.appendChild(node("small", "", slot.timeContent || `${hour}:00`));
+        choice.appendChild(node("span", "", slot._courtLabel || "예약 항목"));
+        choice.appendChild(node("small", "", labelSlot(slot) || `${hour}:00`));
+        const checked = ReservationPolicy.availabilityMeta(DATA, slot._cid || row.cid, ymd())?.checked_at;
+        if (checked && Number.isFinite(new Date(checked).getTime())) {
+          choice.appendChild(node("small", "reservation-checked", `확인 ${new Date(checked).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}`));
+        }
         els.slotPickerChoices.appendChild(choice);
       });
       els.slotPicker.classList.add("is-open");
@@ -1039,24 +1046,25 @@
         .filter(([, fac]) => fac?.title)
         .filter(([cid]) => cityOfFacilityId(cid) === currentCity)
         .filter(([, fac]) => facilityMatchesSelectedMonth(fac.title))
+        .filter(([, fac]) => ReservationPolicy.reservationTypeMatches(fac, els.reservationTypeFilter.value))
         .map(([cid, fac]) => ({ cid, fac, courtGroup: getCourtGroup(fac.title) }))
         .filter(item => !group || item.courtGroup === group)
         .sort((a, b) => a.courtGroup.localeCompare(b.courtGroup, "ko") || String(a.fac.title).localeCompare(String(b.fac.title), "ko") || a.cid.localeCompare(b.cid));
-      const groupSizes = new Map();
-      facilities.forEach(item => groupSizes.set(item.courtGroup, (groupSizes.get(item.courtGroup) || 0) + 1));
-      const groupSeen = new Map();
       const buckets = new Map();
 
       facilities.forEach(({ cid, fac, courtGroup }) => {
-        const index = (groupSeen.get(courtGroup) || 0) + 1;
-        groupSeen.set(courtGroup, index);
-        const courtLabel = explicitCourtLabel(fac.title, courtGroup) || (groupSizes.get(courtGroup) > 1 ? `${index}코트` : "");
+        const courtLabel = explicitCourtLabel(fac.title, courtGroup);
         if (!buckets.has(courtGroup)) {
           buckets.set(courtGroup, {
             cid,
             fac,
             courtGroup,
             locations: new Set(),
+            badges: new Set(),
+            messages: new Set(),
+            checked: new Set(),
+            availableChecked: new Set(),
+            slotKeys: new Map(),
             courtLabels: new Set(),
             slots: [],
             byHour: new Map(),
@@ -1067,10 +1075,25 @@
         }
         const row = buckets.get(courtGroup);
         if (fac.location) row.locations.add(fac.location);
-        if (courtLabel) row.courtLabels.add(courtLabel);
-        const slots = ((DATA.availability?.[cid]?.[date]) || []).filter(slot => slot?.timeContent).filter(slotMatches);
+        row.courtLabels.add(courtLabel || "예약 항목");
+        [ReservationPolicy.reservationTypeLabel(fac), ReservationPolicy.applicationStatusLabel(fac)].filter(Boolean).forEach(label => row.badges.add(label));
+        const message = ReservationPolicy.availabilityMessage(DATA, cid, date, fac);
+        if (message) row.messages.add(message);
+        const checked = ReservationPolicy.availabilityMeta(DATA, cid, date)?.checked_at;
+        if (checked && Number.isFinite(new Date(checked).getTime())) row.checked.add(checked);
+        const slots = ((DATA.availability?.[cid]?.[date]) || []).filter(slot => ReservationPolicy.slotIsAvailable(DATA, cid, date, fac, slot)).filter(slotMatches);
         slots.forEach(slot => {
+          if (checked && Number.isFinite(new Date(checked).getTime())) row.availableChecked.add(checked);
           const enriched = { ...slot, _cid: cid, _fac: fac, _courtLabel: courtLabel };
+          const range = slotRange(slot);
+          const identity = `${courtLabel || cid}|${range ? `${range.start}-${range.end}` : slot.timeContent}`;
+          const existing = row.slotKeys.get(identity);
+          if (existing) {
+            existing._alternatives.push(enriched);
+            return;
+          }
+          enriched._alternatives = [{ ...enriched }];
+          row.slotKeys.set(identity, enriched);
           const hour = slotHour(slot);
           row.slots.push(enriched);
           if (hour !== null) {
@@ -1086,7 +1109,7 @@
         row.count = row.slots.length;
         row.first = row.slots.map(firstTime).filter(Boolean).sort()[0] || "99:99";
         row.locationText = [...row.locations][0] || row.fac.location || row.fac.title;
-        row.courtLabelList = [...new Set([...expectedCourtLabels(row.courtGroup), ...row.courtLabels])]
+        row.courtLabelList = [...new Set(row.courtLabels)]
           .sort((a, b) => a.localeCompare(b, "ko", { numeric: true }));
         row.priority = row.count > 0 && row.favorite ? 0 : row.count > 0 ? 1 : row.favorite ? 2 : 3;
         return row;
@@ -1137,6 +1160,29 @@
       els.citySelect.value = currentCity;
     }
 
+    function appendReservationInfo(parent, row) {
+      const badges = node("div", "reservation-badges");
+      row.badges.forEach(label => badges.appendChild(node("span", "reservation-badge", label)));
+      if (badges.childNodes.length) parent.appendChild(badges);
+      if (!row.count && row.messages.size) parent.appendChild(node("span", "reservation-note", [...row.messages].join(" · ")));
+      if (!row.count) {
+        const href = reserveHref(row.cid, { _cid: row.cid, _fac: row.fac });
+        if (href) {
+          const link = node("a", "reservation-note", "공식 예약처 확인");
+          link.href = href;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          parent.appendChild(link);
+        }
+      }
+      const displayedChecked = row.count ? row.availableChecked : row.checked;
+      if (displayedChecked.size) {
+        const checked = [...displayedChecked].sort((a, b) => new Date(a) - new Date(b))[0];
+        const label = new Date(checked).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        parent.appendChild(node("span", "reservation-checked", `선택 날짜 확인 ${label}`));
+      }
+    }
+
     function renderMatrix(rows, emptyMessage = "선택한 조건에 맞는 코트가 없습니다.") {
       const hours = activeHours();
       els.matrix.style.setProperty("--hour-count", String(hours.length));
@@ -1164,6 +1210,7 @@
         title.appendChild(node("strong", "", row.courtGroup));
         inner.appendChild(title);
         inner.appendChild(node("span", "", row.locationText || row.fac.location || row.fac.title));
+        appendReservationInfo(inner, row);
         venue.appendChild(inner);
         group.appendChild(venue);
 
@@ -1171,7 +1218,7 @@
           group.appendChild(node("div", "court-no", label));
           hours.forEach(hour => {
             const hourSlots = row.byHour.get(hour) || [];
-            const slots = label === "전체" ? hourSlots : hourSlots.filter(slot => slot._courtLabel === label);
+            const slots = label === "전체" ? hourSlots : hourSlots.filter(slot => (slot._courtLabel || "예약 항목") === label);
             const className = slots.length ? "matrix-cell open" : "matrix-cell";
             const el = node(slots.length ? "a" : "div", className, slots.length ? "O" : "-");
             if (slots.length) {
@@ -1182,6 +1229,14 @@
                 el.rel = "noopener noreferrer";
               }
               el.title = `${row.courtGroup} ${slots.map(labelSlot).join(", ")}`;
+              if (slots.reduce((count, slot) => count + (slot._alternatives?.length || 1), 0) > 1) {
+                el.removeAttribute("href");
+                el.removeAttribute("target");
+                el.setAttribute("role", "button");
+                el.tabIndex = 0;
+                el.onclick = event => { event.preventDefault(); openSlotPicker(row, hour, slots); };
+                el.onkeydown = event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openSlotPicker(row, hour, slots); } };
+              }
             }
             group.appendChild(el);
           });
@@ -1203,12 +1258,13 @@
         const title = node("div", "mobile-card-title");
         title.appendChild(node("strong", "", row.courtGroup));
         title.appendChild(node("span", "", row.locationText || row.fac.location || row.fac.title || ""));
+        appendReservationInfo(title, row);
         head.appendChild(title);
         head.appendChild(courtActions(row.courtGroup));
         card.appendChild(head);
 
         const chips = node("div", "mobile-court-chips");
-        const labels = row.courtLabelList?.length ? row.courtLabelList : ["All"];
+        const labels = row.courtLabelList?.length ? row.courtLabelList : ["예약 항목"];
         labels.forEach(label => chips.appendChild(node("span", "mobile-court-chip", label)));
         card.appendChild(chips);
 
@@ -1222,10 +1278,13 @@
             cell.target = "_blank";
             cell.rel = "noopener noreferrer";
           }
-          if (slots.length > 1) {
+          if (slots.reduce((count, slot) => count + (slot._alternatives?.length || 1), 0) > 1) {
             cell.removeAttribute("href");
             cell.removeAttribute("target");
             cell.removeAttribute("rel");
+            cell.setAttribute("role", "button");
+            cell.tabIndex = 0;
+            cell.onkeydown = event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openSlotPicker(row, hour, slots); } };
             cell.onclick = event => {
               event.preventDefault();
               openSlotPicker(row, hour, slots);
@@ -1382,28 +1441,30 @@
       const rows = reservationWindowMessage ? [] : collectRows();
       const openRows = rows.filter(row => row.count > 0);
       const slotCount = openRows.reduce((sum, row) => sum + row.count, 0);
+      const noSlotMessage = [...new Set(rows.flatMap(row => [...row.messages]))].filter(Boolean).join(" · ");
       const firstOpen = openRows.map(row => row.first).filter(time => time && time !== "99:99").sort()[0] || "-";
       els.pageTitle.textContent = `${CITY_LABELS[currentCity]} 코트 현황`;
       if (reservationWindowMessage) {
         els.summary.textContent = reservationWindowMessage;
       } else {
-        els.summary.innerHTML = `<strong>${compactDate()} ${weekday()}요일</strong> 잔여 슬롯 ${slotCount}개 · 잔여 있는 코트 ${openRows.length}곳`;
+        els.summary.textContent = slotCount ? `${compactDate()} ${weekday()}요일 확인된 예약 시간 ${slotCount}개 · 예약 가능한 시설 ${openRows.length}곳` : noSlotMessage || "선택한 조건에 맞는 예약 시간이 없습니다.";
       }
       els.boardTitle.textContent = `${compactDate()} ${weekday()}요일 시간표`;
-      els.boardSubtitle.textContent = reservationWindowMessage || "O는 해당 시간대에 예약 가능한 코트입니다.";
+      els.boardSubtitle.textContent = reservationWindowMessage || "O는 확인된 예약 시간입니다. 예약 구분별 접수 조건은 링크에서 확인하세요.";
       if (els.openCourtCount) els.openCourtCount.textContent = String(openRows.length);
       if (els.openSlotCount) els.openSlotCount.textContent = String(slotCount);
       if (els.firstOpenTime) els.firstOpenTime.textContent = firstOpen;
       renderCrawlStatus();
       renderMatrix(rows, reservationWindowMessage || undefined);
       renderMobileCards(rows, reservationWindowMessage || undefined);
-      renderQuick(rows, reservationWindowMessage || undefined);
+      renderQuick(rows, reservationWindowMessage || noSlotMessage || undefined);
       renderAlarmList();
     }
 
     function setCity(city) {
       currentCity = CITY_LABELS[city] ? city : "yongin";
       els.courtFilter.value = "";
+      els.reservationTypeFilter.value = "";
       render();
     }
 
@@ -1465,13 +1526,14 @@
       refreshHourOptions();
       renderCityControls();
       renderQuickDates();
-      ["dateFilter","courtFilter","hourFilter","timeMode"].forEach(id => $(id).addEventListener("change", render));
+      ["dateFilter","courtFilter","reservationTypeFilter","hourFilter","timeMode"].forEach(id => $(id).addEventListener("change", render));
       els.filterToggle?.addEventListener("click", () => setFilterOpen(!els.filterPanel.classList.contains("is-open")));
       els.filterBackdrop?.addEventListener("click", () => setFilterOpen(false));
       els.filterApply?.addEventListener("click", () => setFilterOpen(false));
       els.filterReset?.addEventListener("click", () => {
         els.dateFilter.value = todayKst();
         els.courtFilter.value = "";
+        els.reservationTypeFilter.value = "";
         els.hourFilter.value = "";
         els.timeMode.value = "contains";
         render();

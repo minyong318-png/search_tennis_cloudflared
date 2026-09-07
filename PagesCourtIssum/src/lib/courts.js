@@ -1,3 +1,5 @@
+import "../../../Pages/shared/reservation-policy.js";
+
 export const SUPABASE_URL = "https://fqrvdwfyemdpalvtvccl.supabase.co";
 export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcnZkd2Z5ZW1kcGFsdnR2Y2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDk5MDYsImV4cCI6MjA4MzgyNTkwNn0.qHPjTARomfJ6fbz7vQy--C6RFclVXLbM8mxQ-ov0wp0";
 
@@ -23,22 +25,10 @@ export const CITY_HOURS = {
   paju: { start: 7, end: 22 }
 };
 
-export const RESERVATION_TYPE_LABELS = {
-  district_priority: "구민우선",
-  city_priority: "시민우선",
-  general: "일반예약",
-  unknown: "유형 확인 필요"
-};
-const RESERVATION_TYPE_ALIASES = {
-  RESIDENTRESVE: "district_priority",
-  CITIZENRESVE: "city_priority",
-  GNRLRESVE: "general",
-  구민우선: "district_priority",
-  시민우선: "city_priority",
-  일반예약: "general"
-};
-export const RESERVATION_TYPE_KEYS = Object.keys(RESERVATION_TYPE_LABELS);
-export const DEFAULT_AVAILABILITY_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+export const { RESERVATION_TYPE_LABELS, RESERVATION_TYPE_KEYS, DEFAULT_AVAILABILITY_MAX_AGE_MS,
+  reservationTypeOfFacility, reservationTypeLabel, reservationTypeMatches,
+  applicationStatusLabel, availabilityMeta, availabilityIsFresh, availabilityState,
+  availabilityMessage, slotIsExplicitlyUnavailable, slotIsAvailable } = globalThis.ReservationPolicy;
 
 export async function fetchCourtData(daysAhead = 45) {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_public_data`, {
@@ -144,107 +134,6 @@ export function explicitCourtLabel(title, courtGroup) {
   const lettered = text.match(/([A-Z])[\s.·_-]*(?:번)?\s*코트/i);
   if (lettered) return `${lettered[1].toUpperCase()}코트`;
   return "";
-}
-
-export function reservationTypeOfFacility(fac = {}) {
-  const value = fac.reservation_type || fac.reservationType || "unknown";
-  const label = fac.reservation_type_label || fac.reservationTypeLabel || "";
-  const raw = String(RESERVATION_TYPE_ALIASES[value] || RESERVATION_TYPE_ALIASES[label] || value).replaceAll(" ", "");
-  const normalized = raw.includes("구민") ? "district_priority" : raw.includes("시민") ? "city_priority" : raw.includes("일반") ? "general" : raw;
-  return RESERVATION_TYPE_LABELS[normalized] ? normalized : "unknown";
-}
-
-export function reservationTypeLabel(fac = {}) {
-  return fac.reservation_type_label || fac.reservationTypeLabel || RESERVATION_TYPE_LABELS[reservationTypeOfFacility(fac)];
-}
-
-export function reservationTypeMatches(fac, filter = "") {
-  return !filter || reservationTypeOfFacility(fac) === filter;
-}
-
-export function applicationStatusLabel(fac = {}) {
-  const explicit = fac.application_status_label || fac.applicationStatusLabel || "";
-  if (explicit) return explicit;
-  return {
-    open: "접수중",
-    not_open: "접수 전",
-    closed: "접수마감",
-    unknown: "상태 확인 필요"
-  }[normalizedApplicationStatus(fac)];
-}
-
-function normalizedApplicationStatus(fac = {}) {
-  const status = String(fac.application_status || fac.applicationStatus || "unknown").trim().toLowerCase();
-  if (["closed", "not_open", "notopen"].includes(status)) return status === "notopen" ? "not_open" : status;
-  const label = String(fac.application_status_label || fac.applicationStatusLabel || "").replaceAll(" ", "").toLowerCase();
-  if (label.includes("마감") || label.includes("closed") || label.includes("full")) return "closed";
-  if (label.includes("예정") || label.includes("접수전") || label.includes("notopen")) return "not_open";
-  if (["open", "success"].includes(status) || label.includes("접수중") || label.includes("예약가능")) return "open";
-  return "unknown";
-}
-
-export function availabilityMeta(data, cid, date) {
-  return data?.availability_meta?.[cid]?.[ymd(date)] || data?.availability_meta?.[cid]?.[date] || null;
-}
-
-export function availabilityIsFresh(data, cid, date, maxAgeMs = DEFAULT_AVAILABILITY_MAX_AGE_MS) {
-  const meta = availabilityMeta(data, cid, date);
-  if (!meta) return false;
-  const checkedAt = Date.parse(meta.checked_at || meta.checkedAt || meta.updated_at || meta.updatedAt || "");
-  if (!Number.isFinite(checkedAt)) return false;
-  const age = Date.now() - checkedAt;
-  return age >= -5 * 60 * 1000 && age <= maxAgeMs;
-}
-
-export function slotIsExplicitlyUnavailable(slot = {}) {
-  if (slot.available === false || slot.available === 0 || ["false", "no", "n", "0"].includes(String(slot.available || "").trim().toLowerCase())) return true;
-  for (const key of ["remaining", "remainingCount", "remain", "remainCount", "availableCount"]) {
-    if (slot[key] === undefined) continue;
-    if (slot[key] === null || slot[key] === "") return true;
-    const value = Number(slot[key]);
-    if (!Number.isFinite(value) || value <= 0) return true;
-  }
-  const status = String(slot.status || slot.statusText || slot.state || "").replaceAll(" ", "").toLowerCase();
-  return ["예약불가", "예약마감", "접수마감", "unavailable", "closed", "full", "reserved"].some((token) => status.includes(token));
-}
-
-function ymdIsWithin(date, start, end) {
-  const value = ymd(date);
-  const lower = ymd(start);
-  const upper = ymd(end);
-  return (!lower || value >= lower) && (!upper || value <= upper);
-}
-
-function applicationPeriodIsCurrent(fac) {
-  const today = ymd(todayKst());
-  const start = ymd(fac.application_start_date || fac.applicationStartDate);
-  const end = ymd(fac.application_end_date || fac.applicationEndDate);
-  return (!start || today >= start) && (!end || today <= end);
-}
-
-function currentKstMinutes() {
-  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
-  return now.getHours() * 60 + now.getMinutes();
-}
-
-export function slotIsAvailable(data, cid, date, fac, slot, options = {}) {
-  if (ymd(date) < ymd(todayKst())) return false;
-  const meta = availabilityMeta(data, cid, date);
-  if (!meta) return false;
-  if (String(meta.query_status || "").toLowerCase() !== "success") return false;
-  if (String(meta.availability_status || "").toLowerCase() !== "available") return false;
-  if (!availabilityIsFresh(data, cid, date, options.freshnessMaxAgeMs || DEFAULT_AVAILABILITY_MAX_AGE_MS)) return false;
-  const applicationStatus = normalizedApplicationStatus(fac);
-  if (["closed", "not_open"].includes(applicationStatus)) return false;
-  if (String(cid).startsWith("yongin:") && applicationStatus !== "open") return false;
-  if (!applicationPeriodIsCurrent(fac)) return false;
-  if (!ymdIsWithin(date, fac.use_start_date || fac.useStartDate, fac.use_end_date || fac.useEndDate)) return false;
-  if (slotIsExplicitlyUnavailable(slot)) return false;
-  if (ymd(date) === ymd(todayKst())) {
-    const range = slotRange(slot);
-    if (range && range.start <= currentKstMinutes()) return false;
-  }
-  return Boolean(slot?.timeContent);
 }
 
 function physicalCourtKey(cid, fac, courtLabel) {
@@ -382,6 +271,7 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
         labels: new Set(),
         reservationTypeLabels: new Set(),
         applicationStatusLabels: new Set(),
+        availabilityMessages: new Set(),
         slots: [],
         byHour: new Map(),
         count: 0,
@@ -394,6 +284,7 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
     if (courtLabel) row.labels.add(courtLabel);
     row.reservationTypeLabels.add(reservationTypeLabel(fac));
     row.applicationStatusLabels.add(applicationStatusLabel(fac));
+    row.availabilityMessages.add(availabilityMessage(data, cid, date, fac, filters));
     const slots = ((data?.availability?.[cid]?.[date]) || [])
       .filter((slot) => slot?.timeContent)
       .filter((slot) => slotMatches(slot, filters.hour, filters.timeMode))
@@ -413,7 +304,8 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
       const identity = `${enriched._physicalCourtKey}|${slotIdentity(slot)}`;
       const duplicate = row.slots.find((existing) => existing._slotIdentity === identity);
       if (duplicate) {
-        duplicate._variants = [...(duplicate._variants || [duplicate]), enriched];
+        const variants = duplicate._variants?.length ? duplicate._variants : [{ ...duplicate, _variants: [] }];
+        duplicate._variants = [...variants, enriched];
         return;
       }
       enriched._slotIdentity = identity;
@@ -436,6 +328,7 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
     row.physicalCourtKeys = [...new Set(row.slots.map((slot) => slot._physicalCourtKey))];
     row.reservationTypeLabels = [...row.reservationTypeLabels].filter(Boolean);
     row.applicationStatusLabels = [...row.applicationStatusLabels].filter(Boolean);
+    row.availabilityMessages = [...row.availabilityMessages].filter(Boolean);
     row.unknownPhysicalCourt = row.slots.some((slot) => !slot._courtLabel && !slot._fac?.physical_court_id && !slot._fac?.physicalCourtId);
     row.unitLabel = row.unknownPhysicalCourt ? "예약 항목" : "면";
     row.priority = row.count > 0 && row.favorite ? 0 : row.count > 0 ? 1 : row.favorite ? 2 : 3;

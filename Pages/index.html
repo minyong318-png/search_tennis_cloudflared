@@ -69,7 +69,7 @@
   .tabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 0 14px; }
   .tab{ margin:0; padding:11px 8px; border:1px solid var(--border); border-radius:16px; background:#fffdf8; color:var(--text); font-weight:900; font-size:14px; cursor:pointer; }
   .tab.active{ border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 8px 20px rgba(31,111,67,.22); }
-  .filter-stack{ display:grid; grid-template-columns:1fr 1fr 1fr 1.35fr; gap:10px; }
+  .filter-stack{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1.35fr; gap:10px; }
   .quick-dates{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
   .quick-date{ margin:0; padding:9px 12px; min-height:0; border-radius:999px; background:#fff; color:var(--primary-strong); border:1px solid rgba(31,111,67,.2); font-size:13px; }
   .quick-date.is-active{ background:var(--primary); color:#fff; border-color:var(--primary); }
@@ -153,7 +153,10 @@
   .toast.show{ opacity:1; transform:translate(-50%,0); }
   @media (max-width:720px){ .container{ padding:14px 12px 110px; } .hero{ padding:18px; border-radius:26px; } .brand-row{ flex-direction:column; } .header h1{ font-size:27px; } .header-actions{ width:100%; justify-content:space-between; } .tabs{ grid-template-columns:repeat(2,1fr); } .filter-stack,.alarm-stack{ grid-template-columns:1fr; } .alarm-actions{ flex-direction:column; } .alarm-actions button{ width:100%; } .time-control{ width:100%; gap:6px; padding:8px; } .time-control .time-icon{ display:none; } .time-control select{ flex:0 0 118px; max-width:118px; min-width:0; } .time-modes{ flex:0 0 162px; min-width:0; } .time-mode{ flex:1 1 0; min-width:0; padding:6px 0; font-size:11px; } .favorites-head{ align-items:flex-start; flex-direction:column; } .favorites-actions{ width:100%; } .favorite-add,.favorite-only-toggle{ flex:1; } .guide-summary{ grid-template-columns:1fr; } }
   @media (prefers-reduced-motion:reduce){ *,*:before,*:after{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
-  </style>
+    .reservation-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .reservation-badge{display:inline-block;padding:3px 7px;border-radius:6px;background:#eef4e7;color:#3e5428;font-size:11px;font-weight:700}
+  .reservation-note,.reservation-checked{display:block;margin-top:6px;font-size:11px;line-height:1.5;color:#667061}
+</style>
 </head>
 
 <body>
@@ -225,6 +228,9 @@
         </select>
       </div>
 
+      <div class="select">
+        <select id="filterReservationType" aria-label="예약 구분"><option value="">예약 구분 전체</option><option value="district_priority">구민우선</option><option value="city_priority">시민우선</option><option value="general">일반예약</option><option value="unknown">예약 구분 미제공</option></select>
+      </div>
       <label class="date-box" onclick="filterDate.click()">
         📅 <span id="filterDateLabel">날짜 선택</span>
         <input type="date" id="filterDate">
@@ -370,6 +376,11 @@
     <section class="notice-section">
       <h4>업데이트 이력</h4>
       <div class="update-log" aria-label="업데이트 이력">
+          <details open><summary>2026.09.07 · 예약 구분과 잔여 정보 정확도 개선</summary><ul>
+            <li>구민우선·시민예약·일반예약 필터와 접수 상태를 두 예약 화면에 함께 적용했습니다.</li>
+            <li>확인된 최신 시간만 예약 가능으로 표시하며, 조회 실패와 확인 전 데이터는 잔여 없음과 구분합니다.</li>
+            <li>각 날짜의 확인 시각을 표시하고, 같은 코트·시간의 예약 구분별 링크를 함께 제공합니다.</li>
+          </ul></details>
         <div class="update-item">
           <span class="update-date">2026-07-13</span>
           <ul>
@@ -458,6 +469,7 @@
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+<script src="./shared/reservation-policy.js"></script>
 <script>
 /** =========================================================
  *  Supabase 설정
@@ -952,7 +964,7 @@ function buildCourtGroups(){
     if (!f || !f.title) return;
     if (cityOfFacilityId(cid) !== CURRENT_CITY) return;
     const days = DATA.availability && DATA.availability[cid];
-    const hasSlot = days && Object.values(days).some(slots => Array.isArray(slots) && slots.length > 0);
+    const hasSlot = days && Object.entries(days).some(([date, slots]) => Array.isArray(slots) && slots.some(slot => ReservationPolicy.slotIsAvailable(DATA, cid, date, f, slot)));
     if (CURRENT_CITY !== "yongin" && !hasSlot) return;
     const g = getCourtGroup(f.title);
     if (!g) return;
@@ -968,10 +980,26 @@ function buildCourtGroups(){
   renderFavoriteCourts();
 }
 
+function reservationCheckedAt(cid, date) {
+  const stamp = ReservationPolicy.availabilityMeta(DATA, cid, date)?.checked_at;
+  if (!stamp || !Number.isFinite(new Date(stamp).getTime())) return "";
+  return `확인 ${new Date(stamp).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}`;
+}
+
+function reservationBadges(fac) {
+  const badges = makeNode("div", "reservation-badges");
+  [ReservationPolicy.reservationTypeLabel(fac), ReservationPolicy.applicationStatusLabel(fac)]
+    .filter(Boolean).forEach(label => badges.appendChild(makeNode("span", "reservation-badge", label)));
+  return badges;
+}
+
 function renderSummary() {
   const statusText = document.getElementById("cityStatusText");
   if (statusText) {
-    statusText.textContent = DATA?.updated_at ? "업데이트 정상" : "업데이트 확인 필요";
+    const selected = filterDate.value.replaceAll("-", "") || yyyymmddTodayKst();
+    const cityFacilities = Object.entries(DATA?.facilities || {}).filter(([cid]) => cityOfFacilityId(cid) === CURRENT_CITY);
+    const confirmed = cityFacilities.some(([cid, fac]) => (DATA.availability?.[cid]?.[selected] || []).some(slot => ReservationPolicy.slotIsAvailable(DATA, cid, selected, fac, slot)));
+    statusText.textContent = confirmed ? "선택 날짜의 예약 가능 정보 확인됨" : "선택 날짜의 확인 결과를 확인하세요";
     statusText.classList.toggle("is-error", !DATA?.updated_at);
   }
 }
@@ -1006,31 +1034,37 @@ function renderCourts() {
   const availableGroups = new Set();
   const courtCards = [];
   let renderOrder = 0;
+  const noSlotMessages = new Set();
 
   for (const cid in DATA.facilities) {
     const fac = DATA.facilities[cid];
     if (!fac || !fac.title) continue;
     if (cityOfFacilityId(cid) !== CURRENT_CITY) continue;
+    if (!ReservationPolicy.reservationTypeMatches(fac, filterReservationType.value)) continue;
 
     const courtGroup = getCourtGroup(fac.title);
     if (gu && !(fac.location || "").includes(gu)) continue;
     if (group && courtGroup !== group) continue;
     if (!group && FAVORITES_ONLY && !favoriteGroups.has(courtGroup)) continue;
 
-    const days = DATA.availability[cid];
-    if ((!days || typeof days !== "object") && CURRENT_CITY !== "yongin") continue;
+    const days = DATA.availability[cid] || {};
+    const statusDates = date ? [date] : [...new Set([...Object.keys(days), ...Object.keys(DATA.availability_meta?.[cid] || {})])].filter(d => d >= yyyymmddTodayKst());
+    if (!statusDates.length) statusDates.push(yyyymmddTodayKst());
+    const facilityMessages = new Set(statusDates.map(d => ReservationPolicy.availabilityMessage(DATA, cid, d, fac)).filter(Boolean));
+    facilityMessages.forEach(message => noSlotMessages.add(message));
 
     const card = makeNode("article", "court-card");
     const head = makeNode("div", "court-head");
     head.appendChild(makeNode("div", "court-title", fac.title));
     head.appendChild(makeNode("div", "court-loc", fac.location || CITY_LABELS[CURRENT_CITY] || ""));
+    head.appendChild(reservationBadges(fac));
     card.appendChild(head);
 
     let hasAnySlot = false;
-    const showEmptyYongin = false;
+    const showPending = statusDates.some(d => ["unverified", "failed", "stale"].includes(ReservationPolicy.availabilityState(DATA, cid, d, fac)));
     Object.keys(days || {}).sort().forEach(d => {
       if (date && d !== date) return;
-      const slots = (Array.isArray(days[d]) ? days[d] : []).filter(s => slotMatchesTimeCondition(s, timeCondition));
+      const slots = (Array.isArray(days[d]) ? days[d] : []).filter(s => ReservationPolicy.slotIsAvailable(DATA, cid, d, fac, s)).filter(s => slotMatchesTimeCondition(s, timeCondition));
       if (slots.length === 0) return;
       hasAnySlot = true;
       availableSlotCount += slots.length;
@@ -1041,6 +1075,8 @@ function renderCourts() {
       title.appendChild(makeNode("span", "", `${d.slice(4, 6)}.${d.slice(6, 8)} (${getWeekday(d)})`));
       title.appendChild(makeNode("span", "", `${slots.length}개`));
       dayBox.appendChild(title);
+      const checked = reservationCheckedAt(cid, d);
+      if (checked) dayBox.appendChild(makeNode("span", "reservation-checked", checked));
 
       const slotWrap = makeNode("div", "slots");
       slots.forEach(s => {
@@ -1048,8 +1084,8 @@ function renderCourts() {
         const first = firstTimeLabel(s.timeContent);
         if (first && (!earliestTime || first < earliestTime)) earliestTime = first;
         let href = "";
-        if (s.reserveUrl) {
-          href = s.reserveUrl;
+        if (s.reserveUrl || fac.source_url) {
+          href = s.reserveUrl || fac.source_url;
         } else {
           const reserveId = s.resveId || (String(cid).startsWith("yongin:") ? String(cid).split(":")[1] : cid);
           href = makeReserveLink(reserveId);
@@ -1065,12 +1101,22 @@ function renderCourts() {
       card.appendChild(dayBox);
     });
 
-    if (!hasAnySlot && showEmptyYongin) {
-      const label = date ? `${date.slice(4, 6)}.${date.slice(6, 8)} (${getWeekday(date)})` : "현재 조회 조건";
-      card.appendChild(makeNode("div", "no-slot-note", `${label}에 맞는 잔여 슬롯은 없습니다. 그래도 이 코트에는 알람을 등록할 수 있습니다.`));
+    if (!hasAnySlot && showPending) {
+      const note = makeNode("div", "no-slot-note", [...facilityMessages].join(" · "));
+      const checked = reservationCheckedAt(cid, date || statusDates[0]);
+      if (checked) note.appendChild(makeNode("span", "reservation-checked", checked));
+      const rawHref = fac.source_url || (days[date] || []).find(slot => slot?.reserveUrl)?.reserveUrl || (CURRENT_CITY === "yongin" ? makeReserveLink(String(cid).split(":").pop()) : "");
+      if (rawHref) {
+        const link = makeNode("a", "reservation-note", "공식 예약처 확인");
+        link.href = safeReserveUrl(rawHref);
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        note.appendChild(link);
+      }
+      card.appendChild(note);
     }
 
-    if (hasAnySlot || showEmptyYongin) {
+    if (hasAnySlot || showPending) {
       courtCards.push({ card, hasAnySlot, order: renderOrder++ });
       renderedCount++;
     }
@@ -1083,14 +1129,14 @@ function renderCourts() {
   if (renderedCount === 0) {
     const message = FAVORITES_ONLY && !favoriteGroups.size
       ? "현재 도시에는 저장된 즐겨찾기 코트가 없습니다."
-      : "조건에 맞는 예약 가능 시간이 없습니다.";
+      : [...noSlotMessages].filter(Boolean).join(" · ") || "선택한 시간 조건에 맞는 예약 가능 시간이 없습니다.";
     courtsEl.appendChild(makeNode("div", "empty-state", message));
   }
   renderResultSummary({
     slotCount: availableSlotCount,
     groupCount: availableGroups.size,
     earliest: earliestTime,
-    emptyReason: renderedCount === 0 ? "조건에 맞는 예약 가능 시간이 없습니다" : ""
+    emptyReason: renderedCount === 0 ? ([...noSlotMessages].filter(Boolean).join(" · ") || "선택한 시간 조건에 맞는 예약 가능 시간이 없습니다") : ""
   });
   renderSummary();
 }
@@ -1339,6 +1385,7 @@ makeHourOptions(alarmTimeHour);
  *  events
  * ========================================================= */
 filterGu.onchange = renderCourts;
+filterReservationType.onchange = renderCourts;
 filterCourt.onchange = () => {
   renderCourts();
   renderFavoriteCourts();
@@ -1458,6 +1505,7 @@ function setCity(city){
 
   // 필터 초기화(탭 변경 시 혼선 방지)
   filterCourt.value = "";
+  filterReservationType.value = "";
   filterDate.value = "";
   filterTimeHour.value = "";
   document.querySelector('input[name="filterTimeMode"][value="contains"]').checked = true;

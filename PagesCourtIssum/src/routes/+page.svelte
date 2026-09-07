@@ -238,13 +238,15 @@
           {/if}
 
           {#each rows as row, rowIndex}
+            {@const sourceHref = reserveHref(row.cid, { _fac: row.fac })}
             <div class="cell court-cell row-enter" style={`animation-delay:${rowIndex * 34}ms`}>
               <button class="favorite" type="button" aria-label="즐겨찾기 전환" on:click={() => toggleFavorite(row)}>{favorites.has(favoriteId(row)) ? "★" : "☆"}</button>
               <div>
                 <div class="court-name">{row.courtGroup}</div>
                 <div class="court-location">{row.district} · {row.locationText}</div>
                 {#if row.reservationTypeLabels?.length}<div class="court-type">{row.reservationTypeLabels.join(" · ")}</div>{/if}
-                {#if row.applicationStatusLabels?.length && (row.count === 0 || row.applicationStatusLabels.length > 1)}<div class="court-status">{row.applicationStatusLabels.join(" · ")}</div>{/if}
+                {#if row.count === 0 && row.availabilityMessages?.length}<div class="court-status">{row.availabilityMessages.join(" · ")}</div>{:else if row.applicationStatusLabels?.length > 1}<div class="court-status">{row.applicationStatusLabels.join(" · ")}</div>{/if}
+                {#if row.count === 0 && sourceHref}<a class="court-source" href={sourceHref} target="_blank" rel="noopener noreferrer">공식 예약처 확인</a>{/if}
               </div>
             </div>
             {#each hours as hour, hourIndex}
@@ -296,8 +298,8 @@
       </div>
       <div class="metric-grid">
         <article><strong>{CITY_LABELS[city]}</strong><span>선택 지역</span></article>
-        <article><strong>{openRows.length ? `${openRows.length}곳` : loading ? "확인 중" : "0곳"}</strong><span>잔여 시간이 있는 코트 묶음</span></article>
-        <article><strong>{slotCount ? `${slotCount}개` : loading ? "확인 중" : "0개"}</strong><span>표시된 잔여 시간</span></article>
+        <article><strong>{openRows.length ? `${openRows.length}곳` : loading ? "확인 중" : "0곳"}</strong><span>예약 가능을 확인한 코트 묶음</span></article>
+        <article><strong>{slotCount ? `${slotCount}개` : loading ? "확인 중" : "0개"}</strong><span>예약 가능을 확인한 시간</span></article>
         <article><strong>{firstOpen}</strong><span>가장 빠른 잔여 시간</span></article>
       </div>
       <p class="content-note">마지막 정상 갱신: {data.updated_at ? new Date(data.updated_at).toLocaleString("ko-KR") : "수집 상태 확인 중"} · 예약과 결제는 각 공식 예약처에서 진행됩니다.</p>
@@ -338,7 +340,8 @@
       <div class="accordion-list">
         <details><summary>관내·관외 예약 차이</summary><p>일부 시설은 관내 주민에게 먼저 예약을 열거나, 관외 이용자에게 다른 오픈 시간을 적용합니다. 실제 적용 여부는 공식 예약처의 안내를 기준으로 합니다.</p></details>
         <details><summary>취소·환불 기준</summary><p>취소 가능 시점과 환불 비율은 시설별로 다릅니다. 우천 취소, 당일 취소, 노쇼 처리 기준도 공식 공지에서 최종 확인해야 합니다.</p></details>
-        <details><summary>데이터 갱신과 지연</summary><p>공식 사이트 점검, 접속 지연, 예약 화면 변경이 있으면 수집이 늦어질 수 있습니다. 표시된 갱신 시각을 보고 오래된 데이터인지 확인하세요.</p></details>
+        <details><summary>데이터 갱신과 지연</summary><p>공식 사이트 점검, 접속 지연, 예약 화면 변경이 있으면 수집이 늦어질 수 있습니다. ‘예약 정보 갱신 대기’와 ‘갱신 지연’은 잔여 없음과 다릅니다. 공식 예약처에서 상태를 확인할 수 있습니다.</p></details>
+        <details><summary>2026.09.07 예약 유형·조회 정확도 개선</summary><p>두 HTML 페이지와 현재 화면에 같은 예약 상태 판정을 적용했습니다. 확인된 구민우선·시민우선·일반예약만 표시하고, 접수 대기·마감·갱신 지연을 예약 가능 수량에서 제외합니다.</p></details>
       </div>
     </section>
 
@@ -596,6 +599,8 @@
     font-size: 0.7rem;
     margin-top: 0.12rem;
   }
+
+  .court-source { color: var(--accent, #1f6f55); font-size: 0.72rem; }
 
   .table-caption strong,
   .table-caption span {
