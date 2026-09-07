@@ -9,6 +9,10 @@
     const iso = new Date(nowMs(options) + 9 * 60 * 60 * 1000).toISOString();
     return { date: compact(iso.slice(0, 10)), minutes: Number(iso.slice(11, 13)) * 60 + Number(iso.slice(14, 16)) };
   }
+  function supportsReservationTypes(cityOrCid) {
+    const value = String(cityOrCid || '');
+    return value === 'yongin' || value.startsWith('yongin:') || /^\d+$/.test(value);
+  }
   function reservationTypeOfFacility(fac = {}) {
     for (const raw of [fac.reservation_type, fac.reservationType, fac.reservation_type_label, fac.reservationTypeLabel]) {
       const text = String(raw || '').replace(/\s/g, '');
@@ -20,11 +24,14 @@
     }
     return 'unknown';
   }
-  function reservationTypeLabel(fac = {}) {
+  function reservationTypeLabel(fac = {}, cityOrCid) {
+    if (cityOrCid !== undefined && !supportsReservationTypes(cityOrCid)) return '';
     const type = reservationTypeOfFacility(fac);
     return type === 'unknown' ? '' : RESERVATION_TYPE_LABELS[type];
   }
-  function reservationTypeMatches(fac, filter = '') { return !filter || reservationTypeOfFacility(fac) === filter; }
+  function reservationTypeMatches(fac, filter = '', cityOrCid) {
+    return (cityOrCid !== undefined && !supportsReservationTypes(cityOrCid)) || !filter || reservationTypeOfFacility(fac) === filter;
+  }
   function normalizedApplicationStatus(fac = {}) {
     const value = String(fac.application_status || fac.applicationStatus || '').trim().toLowerCase();
     const label = String(fac.application_status_label || fac.applicationStatusLabel || '').replace(/\s/g, '').toLowerCase();
@@ -33,7 +40,10 @@
     if (value === 'open' || /접수중|예약가능|예약중/.test(label)) return 'open';
     return 'unknown';
   }
-  function applicationStatusLabel(fac = {}) { return { open: '접수중', closed: '접수마감', not_open: '접수 시작 전', unknown: '' }[normalizedApplicationStatus(fac)]; }
+  function applicationStatusLabel(fac = {}, cityOrCid) {
+    if (cityOrCid !== undefined && !supportsReservationTypes(cityOrCid)) return '';
+    return { open: '접수중', closed: '접수마감', not_open: '접수 시작 전', unknown: '' }[normalizedApplicationStatus(fac)];
+  }
   function availabilityMeta(data, cid, date) {
     const key = compact(date);
     return data?.availability_meta?.[cid]?.[key] || data?.availability_meta?.[cid]?.[`${key.slice(0, 4)}-${key.slice(4, 6)}-${key.slice(6, 8)}`] || null;
@@ -67,21 +77,23 @@
     const day = compact(date);
     if (!/^\d{8}$/.test(day)) return 'unverified';
     if (day < today) return 'past';
-    const status = normalizedApplicationStatus(fac);
-    if (status === 'closed' || status === 'not_open') return status;
-    if (String(cid).startsWith('yongin:') || /^\d+$/.test(String(cid))) {
+    // Product type and application periods are supplied by Yongin only.
+    // Other cities are judged by their verified date/slot data below.
+    if (supportsReservationTypes(cid)) {
+      const status = normalizedApplicationStatus(fac);
+      if (status === 'closed' || status === 'not_open') return status;
       if (status !== 'open' || reservationTypeOfFacility(fac) === 'unknown') return 'unverified';
       const checked = fac.metadata_checked_at || fac.metadataCheckedAt;
       if (!checked) return 'unverified';
       if (!isFresh(checked, options)) return 'stale';
+      const start = compact(fac.application_start_date || fac.applicationStartDate);
+      const end = compact(fac.application_end_date || fac.applicationEndDate);
+      if (start && today < start) return 'not_open';
+      if (end && today > end) return 'closed';
+      const useStart = compact(fac.use_start_date || fac.useStartDate);
+      const useEnd = compact(fac.use_end_date || fac.useEndDate);
+      if ((useStart && day < useStart) || (useEnd && day > useEnd)) return 'outside_period';
     }
-    const start = compact(fac.application_start_date || fac.applicationStartDate);
-    const end = compact(fac.application_end_date || fac.applicationEndDate);
-    if (start && today < start) return 'not_open';
-    if (end && today > end) return 'closed';
-    const useStart = compact(fac.use_start_date || fac.useStartDate);
-    const useEnd = compact(fac.use_end_date || fac.useEndDate);
-    if ((useStart && day < useStart) || (useEnd && day > useEnd)) return 'outside_period';
     const meta = availabilityMeta(data, cid, day);
     if (!meta) return 'unverified';
     if (meta.query_status === 'failed') return 'failed';
@@ -99,5 +111,5 @@
     const clock = kstClock(options);
     return compact(date) !== clock.date || range.start > clock.minutes;
   }
-  root.ReservationPolicy = Object.freeze({ RESERVATION_TYPE_LABELS, RESERVATION_TYPE_KEYS: Object.keys(RESERVATION_TYPE_LABELS), DEFAULT_AVAILABILITY_MAX_AGE_MS, reservationTypeOfFacility, reservationTypeLabel, reservationTypeMatches, normalizedApplicationStatus, applicationStatusLabel, availabilityMeta, availabilityIsFresh, availabilityState, availabilityMessage, slotIsExplicitlyUnavailable, slotIsAvailable });
+  root.ReservationPolicy = Object.freeze({ RESERVATION_TYPE_LABELS, RESERVATION_TYPE_KEYS: Object.keys(RESERVATION_TYPE_LABELS), DEFAULT_AVAILABILITY_MAX_AGE_MS, supportsReservationTypes, reservationTypeOfFacility, reservationTypeLabel, reservationTypeMatches, normalizedApplicationStatus, applicationStatusLabel, availabilityMeta, availabilityIsFresh, availabilityState, availabilityMessage, slotIsExplicitlyUnavailable, slotIsAvailable });
 })(globalThis);

@@ -15,6 +15,7 @@
     compactDate,
     fetchCourtData,
     reserveHref,
+    supportsReservationTypes,
     todayKst,
     toInputDate,
     weekday
@@ -28,23 +29,27 @@
   let city = "yongin";
   let date = todayKst();
   let direction = 1;
-  let filters = { district: "", courtGroups: [], hour: "", timeMode: "contains", reservationType: "" };
+  let filters = { district: "", courtGroups: [], hour: "", timeMode: "contains", reservationType: "", favoritesOnly: false };
   let favorites = new Set();
+  let favoriteOpen = false;
+  let favoriteMessage = "";
   let filterOpen = false;
   let alarmOpen = false;
   let detailOpen = false;
   let selectedDetail = null;
   let lastLoadedAt = 0;
+  let initialized = false;
 
   $: hours = activeHours(city);
   $: options = buildCourtOptions(data, city);
+  $: currentFavorites = [...favorites].filter((id) => id.startsWith(`${city}|`)).map((id) => id.slice(city.length + 1)).sort((a, b) => a.localeCompare(b, "ko"));
   $: districts = [...new Set(options.map((option) => option.district))];
   $: filteredOptions = options.filter((option) => !filters.district || option.district === filters.district);
   $: rows = collectCourtRows(data, { city, date, ...filters }, favorites);
   $: openRows = rows.filter((row) => row.count > 0);
   $: slotCount = openRows.reduce((sum, row) => sum + row.count, 0);
   $: firstOpen = openRows.map((row) => row.first).filter((time) => time && time !== "99:99").sort()[0] || "-";
-  $: activeFilterCount = Number(Boolean(filters.district)) + Number(filters.courtGroups.length > 0) + Number(Boolean(filters.hour)) + Number(Boolean(filters.reservationType));
+  $: activeFilterCount = Number(Boolean(filters.district)) + Number(filters.courtGroups.length > 0) + Number(Boolean(filters.hour)) + Number(supportsReservationTypes(city) && Boolean(filters.reservationType)) + Number(filters.favoritesOnly);
 
   async function loadData() {
     try {
@@ -70,8 +75,9 @@
         if (params.get("date")) date = params.get("date");
         filters.district = params.get("district") || "";
         filters.courtGroups = String(params.get("courts") || "").split(",").filter(Boolean);
-        filters.reservationType = params.get("type") || "";
+        filters.reservationType = supportsReservationTypes(city) ? params.get("type") || "" : "";
         favorites = loadFavorites();
+        initialized = true;
         await loadData();
       } catch (err) {
         error = err instanceof Error ? err.message : "데이터를 불러오지 못했습니다.";
@@ -93,13 +99,13 @@
     };
   });
 
-  $: if (typeof window !== "undefined") {
+  $: if (initialized && typeof window !== "undefined") {
     const params = new URLSearchParams();
     params.set("city", city);
     params.set("date", date);
     if (filters.district) params.set("district", filters.district);
     if (filters.courtGroups.length) params.set("courts", filters.courtGroups.join(","));
-    if (filters.reservationType) params.set("type", filters.reservationType);
+    if (supportsReservationTypes(city) && filters.reservationType) params.set("type", filters.reservationType);
     history.replaceState(null, "", `/?${params.toString()}`);
   }
 
@@ -109,7 +115,8 @@
     const nextIndex = CITY_KEYS.indexOf(next);
     direction = nextIndex > oldIndex ? 1 : -1;
     city = next;
-    filters = { ...filters, district: "", courtGroups: [] };
+    filters = { ...filters, district: "", courtGroups: [], reservationType: "" };
+    favoriteMessage = "";
   }
 
   function moveDate(delta) {
@@ -127,12 +134,13 @@
   }
 
   function resetFilters() {
-    filters = { district: "", courtGroups: [], hour: "", timeMode: "contains", reservationType: "" };
+    filters = { district: "", courtGroups: [], hour: "", timeMode: "contains", reservationType: "", favoritesOnly: false };
   }
 
   function loadFavorites() {
     try {
-      return new Set(JSON.parse(localStorage.getItem(FAVORITE_KEY) || "[]"));
+      const saved = JSON.parse(localStorage.getItem(FAVORITE_KEY) || "[]");
+      return new Set(Array.isArray(saved) ? saved.filter((id) => typeof id === "string" && id.includes("|")) : []);
     } catch {
       return new Set();
     }
@@ -148,7 +156,12 @@
     if (next.has(id)) next.delete(id);
     else next.add(id);
     favorites = next;
-    localStorage.setItem(FAVORITE_KEY, JSON.stringify([...favorites].sort()));
+    favoriteMessage = `${row.courtGroup} 즐겨찾기 ${next.has(id) ? "추가됨" : "해제됨"}`;
+    try {
+      localStorage.setItem(FAVORITE_KEY, JSON.stringify([...favorites].sort()));
+    } catch {
+      favoriteMessage = "이 브라우저에서 저장할 수 없어 현재 화면에서만 유지됩니다.";
+    }
   }
 
   function openSlot(row, hour, slots) {
@@ -207,6 +220,24 @@
 </section>
 
 <main class="app-page">
+  <section class="favorites-panel glass-panel" aria-label="즐겨찾는 코트">
+    <div class="favorites-heading">
+      <strong>즐겨찾기 <span>{currentFavorites.length}</span></strong>
+      <button class="small-action" type="button" on:click={() => (favoriteOpen = true)}>즐겨찾기 추가</button>
+      <button class="small-action" class:active={filters.favoritesOnly} type="button" aria-pressed={filters.favoritesOnly} on:click={() => (filters = { ...filters, favoritesOnly: !filters.favoritesOnly })}>즐겨찾기만 보기</button>
+    </div>
+    <div class="favorite-list">
+      {#each currentFavorites as courtGroup}
+        <div class="favorite-chip">
+          <button type="button" on:click={() => (filters = { ...filters, district: "", courtGroups: [courtGroup] })}>{courtGroup}</button>
+          <button type="button" aria-label={`${courtGroup} 즐겨찾기 해제`} title="즐겨찾기 해제" on:click={() => toggleFavorite({ courtGroup })}>×</button>
+        </div>
+      {:else}
+        <p>{CITY_LABELS[city]}의 자주 찾는 코트를 추가하세요. 이 브라우저에 저장됩니다.</p>
+      {/each}
+    </div>
+    <p class="favorite-feedback" role="status">{favoriteMessage}</p>
+  </section>
   <section class="court-shell glass-panel">
     <div class="table-toolbar">
       <div class="table-caption">
@@ -232,7 +263,7 @@
 
           {#if !rows.length}
             <div class="matrix-empty">
-              <strong>선택한 조건에 예약 가능한 코트가 없습니다.</strong>
+              <strong>{filters.favoritesOnly && !currentFavorites.length ? "이 지역에 저장한 즐겨찾기가 없습니다." : "선택한 조건에 해당하는 코트가 없습니다."}</strong>
               <button class="secondary-button" type="button" on:click={resetFilters}>필터 초기화</button>
             </div>
           {/if}
@@ -240,7 +271,7 @@
           {#each rows as row, rowIndex}
             {@const sourceHref = reserveHref(row.cid, { _fac: row.fac })}
             <div class="cell court-cell row-enter" style={`animation-delay:${rowIndex * 34}ms`}>
-              <button class="favorite" type="button" aria-label="즐겨찾기 전환" on:click={() => toggleFavorite(row)}>{favorites.has(favoriteId(row)) ? "★" : "☆"}</button>
+              <button class="favorite" type="button" aria-label={`${row.courtGroup} 즐겨찾기 ${favorites.has(favoriteId(row)) ? "해제" : "추가"}`} aria-pressed={favorites.has(favoriteId(row))} title={`즐겨찾기 ${favorites.has(favoriteId(row)) ? "해제" : "추가"}`} on:click={() => toggleFavorite(row)}>{favorites.has(favoriteId(row)) ? "★" : "☆"}</button>
               <div>
                 <div class="court-name">{row.courtGroup}</div>
                 <div class="court-location">{row.district} · {row.locationText}</div>
@@ -341,7 +372,7 @@
         <details><summary>관내·관외 예약 차이</summary><p>일부 시설은 관내 주민에게 먼저 예약을 열거나, 관외 이용자에게 다른 오픈 시간을 적용합니다. 실제 적용 여부는 공식 예약처의 안내를 기준으로 합니다.</p></details>
         <details><summary>취소·환불 기준</summary><p>취소 가능 시점과 환불 비율은 시설별로 다릅니다. 우천 취소, 당일 취소, 노쇼 처리 기준도 공식 공지에서 최종 확인해야 합니다.</p></details>
         <details><summary>데이터 갱신과 지연</summary><p>공식 사이트 점검, 접속 지연, 예약 화면 변경이 있으면 수집이 늦어질 수 있습니다. ‘예약 정보 갱신 대기’와 ‘갱신 지연’은 잔여 없음과 다릅니다. 공식 예약처에서 상태를 확인할 수 있습니다.</p></details>
-        <details><summary>2026.09.07 예약 유형·조회 정확도 개선</summary><p>두 HTML 페이지와 현재 화면에 같은 예약 상태 판정을 적용했습니다. 확인된 구민우선·시민우선·일반예약만 표시하고, 접수 대기·마감·갱신 지연을 예약 가능 수량에서 제외합니다.</p></details>
+        <details><summary>2026.09.07 용인 예약 유형·즐겨찾기 개선</summary><p>구민우선·시민우선·일반예약 구분과 상품 접수기간은 용인에만 적용합니다. 모든 지역의 즐겨찾기 추가·해제와 즐겨찾기만 보기를 지원하며, 잔여 시간이 없는 코트도 저장할 수 있습니다. 조회 실패·갱신 지연·잔여 0건은 계속 예약 가능 수량에서 제외합니다.</p></details>
       </div>
     </section>
 
@@ -360,6 +391,22 @@
   </section>
 </main>
 
+<Drawer open={favoriteOpen} title={`${CITY_LABELS[city]} 즐겨찾기 추가`} side="bottom" onClose={() => (favoriteOpen = false)}>
+  <p class="favorite-help">잔여 시간과 관계없이 코트를 저장할 수 있습니다. 즐겨찾기는 이 브라우저에 저장됩니다.</p>
+  <div class="option-list favorite-options">
+    {#each options as option}
+      <div class="favorite-option">
+        <div><strong>{option.label}</strong><small>{option.district}</small></div>
+        <button class="secondary-button" class:active={favorites.has(`${city}|${option.value}`)} type="button" aria-pressed={favorites.has(`${city}|${option.value}`)} aria-label={`${option.label} 즐겨찾기 ${favorites.has(`${city}|${option.value}`) ? "해제" : "추가"}`} on:click={() => toggleFavorite({ courtGroup: option.value })}>{favorites.has(`${city}|${option.value}`) ? "★ 해제" : "☆ 추가"}</button>
+      </div>
+    {:else}
+      <p>{loading ? "코트 목록을 불러오는 중입니다." : "등록된 코트가 없습니다. 잠시 후 다시 확인해주세요."}</p>
+    {/each}
+  </div>
+  <p class="favorite-feedback" role="status">{favoriteMessage}</p>
+  <div class="drawer-actions"><button class="primary-button" type="button" on:click={() => (favoriteOpen = false)}>완료</button></div>
+</Drawer>
+
 <Drawer open={filterOpen} title="코트 필터" side="bottom" onClose={() => (filterOpen = false)}>
   <div class="drawer-section">
     <span>구</span>
@@ -370,6 +417,7 @@
       {/each}
     </div>
   </div>
+  {#if supportsReservationTypes(city)}
   <div class="drawer-section">
     <span>예약 유형</span>
     <div class="choice-grid">
@@ -380,6 +428,7 @@
       <button class:active={filters.reservationType === "unknown"} class="choice" type="button" on:click={() => (filters = { ...filters, reservationType: "unknown" })}>{RESERVATION_TYPE_LABELS.unknown}</button>
     </div>
   </div>
+  {/if}
   <div class="drawer-section">
     <span>코트</span>
     <div class="option-list">
@@ -562,6 +611,38 @@
     font-size: 12px;
     font-weight: 650;
   }
+
+  .favorites-panel {
+    margin-bottom: 12px;
+    padding: 14px 16px;
+  }
+
+  .favorites-heading, .favorite-list, .favorite-chip, .favorite-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .favorites-heading, .favorite-list { flex-wrap: wrap; }
+  .favorites-heading strong { margin-right: auto; font-size: 14px; }
+  .favorites-heading strong span { color: var(--accent, #1f6f55); }
+  .favorites-heading .small-action { min-height: 40px; font-size: 12px; background: var(--accent-pale); color: #28543d; }
+  .favorites-heading .active, .favorite-option .active { background: #28543d; color: white; }
+  .favorite-list { margin-top: 8px; }
+  .favorite-list p, .favorite-help, .favorite-feedback { color: #687168; font-size: 12px; line-height: 1.6; }
+  .favorite-list p { margin: 0; }
+  .favorite-feedback { margin: 6px 0 0; }
+  .favorite-feedback:empty { display: none; }
+  .favorite-chip { max-width: 100%; gap: 0; border-radius: 12px; background: var(--accent-pale); }
+  .favorite-chip button { min-height: 40px; border: 0; padding: 8px 12px; background: transparent; color: #28543d; font-size: 12px; }
+  .favorite-chip button:first-child { overflow-wrap: anywhere; text-align: left; }
+  .favorite-chip button:last-child { flex: 0 0 40px; font-size: 19px; }
+  .favorite-options { max-height: 50dvh; overflow-y: auto; }
+  .favorite-option { justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .favorite-option > div { min-width: 0; overflow-wrap: anywhere; }
+  .favorite-option strong { font-size: 14px; }
+  .favorite-option small { display: block; margin-top: 4px; color: #687168; }
+  .favorite-option button { flex: 0 0 auto; min-height: 44px; }
 
   .court-shell {
     height: calc(100dvh - var(--header-height) - var(--subbar-height) - var(--datebar-height) - 18px);

@@ -129,6 +129,11 @@
   .favorite-add:disabled,.favorite-only-toggle:disabled{ background:#f8faf0; color:var(--sub); opacity:.78; }
   .favorite-list{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .favorite-empty{ color:var(--sub); font-size:13px; font-weight:800; }
+  .favorite-picker{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .favorite-picker label{flex:1;min-width:180px;font-size:12px;font-weight:800}
+  .favorite-picker select{display:block;width:100%;margin-top:5px;min-height:42px}
+  .favorite-picker .favorite-add{min-height:42px;padding:10px 16px;background:var(--primary);color:#fff}
+  .reservation-type-field[hidden]{display:none}
   .favorite-chip{ display:inline-flex; align-items:center; overflow:hidden; border:1px solid rgba(31,111,67,.18); border-radius:999px; background:#fff; box-shadow:0 6px 14px rgba(23,33,27,.05); }
   .favorite-chip.is-active{ border-color:var(--primary); background:var(--lime-soft); }
   .favorite-pick,.favorite-remove{ margin:0; min-height:0; border:none; border-radius:0; background:transparent; color:var(--text); }
@@ -228,7 +233,7 @@
         </select>
       </div>
 
-      <div class="select">
+      <div class="select reservation-type-field" id="reservationTypeWrap">
         <select id="filterReservationType" aria-label="예약 구분"><option value="">예약 구분 전체</option><option value="district_priority">구민우선</option><option value="city_priority">시민우선</option><option value="general">일반예약</option><option value="unknown">예약 구분 미제공</option></select>
       </div>
       <label class="date-box" onclick="filterDate.click()">
@@ -257,9 +262,12 @@
       <div class="favorites-head">
         <div class="favorites-title">즐겨찾는 코트</div>
         <div class="favorites-actions">
-          <button id="favoriteOnlyBtn" class="favorite-only-toggle" type="button">즐겨찾기만 보기</button>
-          <button id="favoriteAddBtn" class="favorite-add" type="button">현재 코트 저장</button>
+          <button id="favoriteOnlyBtn" class="favorite-only-toggle" type="button" aria-pressed="false">즐겨찾기만 보기</button>
         </div>
+      </div>
+      <div class="favorite-picker">
+        <label>즐겨찾기에 추가할 코트<select id="favoriteCourtSelect" aria-label="즐겨찾기에 추가할 코트"><option value="">코트를 선택하세요</option></select></label>
+        <button id="favoriteAddBtn" class="favorite-add" type="button">★ 즐겨찾기 추가</button>
       </div>
       <div id="favoriteList" class="favorite-list">
         <span class="favorite-empty">저장된 즐겨찾기가 없습니다.</span>
@@ -376,6 +384,10 @@
     <section class="notice-section">
       <h4>업데이트 이력</h4>
       <div class="update-log" aria-label="업데이트 이력">
+          <details open><summary>2026.09.07 · 용인 예약 구분과 즐겨찾기 사용 개선</summary><ul>
+            <li>구민우선·시민우선·일반예약 구분과 접수기간 조건은 용인시에만 적용합니다.</li>
+            <li>즐겨찾기 코트 선택과 추가 버튼을 함께 표시하고, 잔여 시간이 없어도 저장할 수 있도록 개선했습니다.</li>
+          </ul></details>
           <details open><summary>2026.09.07 · 예약 구분과 잔여 정보 정확도 개선</summary><ul>
             <li>구민우선·시민예약·일반예약 필터와 접수 상태를 두 예약 화면에 함께 적용했습니다.</li>
             <li>확인된 최신 시간만 예약 가능으로 표시하며, 조회 실패와 확인 전 데이터는 잔여 없음과 구분합니다.</li>
@@ -595,14 +607,22 @@ function renderFavoriteCourts() {
   const onlyBtn = document.getElementById("favoriteOnlyBtn");
   if (!list || !addBtn || !onlyBtn) return;
 
-  const currentGroup = filterCourt.value || "";
+  const picker = document.getElementById("favoriteCourtSelect");
+  const selected = picker.value || filterCourt.value || "";
+  const groups = [...new Set(Object.entries(DATA?.facilities || {})
+    .filter(([cid, fac]) => fac?.title && cityOfFacilityId(cid) === CURRENT_CITY)
+    .map(([, fac]) => getCourtGroup(fac.title)))].filter(Boolean).sort((a, b) => a.localeCompare(b, "ko"));
+  setSelectOptions(picker, "코트를 선택하세요", groups);
+  picker.value = groups.includes(selected) ? selected : "";
+  const currentGroup = picker.value || "";
   const currentSaved = currentGroup && isFavoriteCourt(CURRENT_CITY, currentGroup);
   const cityFavorites = currentCityFavorites();
   if (!cityFavorites.length) FAVORITES_ONLY = false;
   addBtn.disabled = !currentGroup || currentSaved;
-  addBtn.textContent = !currentGroup ? "코트 선택 후 저장" : (currentSaved ? "저장됨" : "현재 코트 저장");
+  addBtn.textContent = currentSaved ? "★ 즐겨찾기에 저장됨" : "★ 즐겨찾기 추가";
   onlyBtn.disabled = cityFavorites.length === 0;
   onlyBtn.classList.toggle("is-active", FAVORITES_ONLY);
+  onlyBtn.setAttribute("aria-pressed", String(FAVORITES_ONLY));
   onlyBtn.textContent = FAVORITES_ONLY ? "즐겨찾기만 보는 중" : "즐겨찾기만 보기";
 
   const favorites = loadFavoriteCourts();
@@ -614,7 +634,7 @@ function renderFavoriteCourts() {
 
   favorites.forEach(fav => {
     const chip = makeNode("span", "favorite-chip");
-    chip.classList.toggle("is-active", fav.city === CURRENT_CITY && fav.group === currentGroup);
+    chip.classList.toggle("is-active", fav.city === CURRENT_CITY && fav.group === filterCourt.value);
 
     const pick = makeNode("button", "favorite-pick", `${CITY_LABELS[fav.city] || fav.city} · ${fav.group}`);
     pick.type = "button";
@@ -623,6 +643,7 @@ function renderFavoriteCourts() {
     const remove = makeNode("button", "favorite-remove", "×");
     remove.type = "button";
     remove.title = "즐겨찾기 삭제";
+    remove.setAttribute("aria-label", `${fav.group} 즐겨찾기 삭제`);
     remove.onclick = () => removeFavoriteCourt(fav.city, fav.group);
 
     chip.appendChild(pick);
@@ -632,7 +653,7 @@ function renderFavoriteCourts() {
 }
 
 function addCurrentFavoriteCourt() {
-  const group = filterCourt.value || "";
+  const group = document.getElementById("favoriteCourtSelect").value || filterCourt.value || "";
   if (!group) {
     showToast("즐겨찾기에 저장할 코트를 먼저 선택하세요.");
     return;
@@ -650,8 +671,8 @@ function addCurrentFavoriteCourt() {
 function removeFavoriteCourt(city, group) {
   const key = favoriteKey(city, group);
   saveFavoriteCourts(loadFavoriteCourts().filter(f => favoriteKey(f.city, f.group) !== key));
-  renderCourts();
   renderFavoriteCourts();
+  renderCourts();
   showToast("즐겨찾기를 삭제했습니다.");
 }
 
@@ -986,9 +1007,9 @@ function reservationCheckedAt(cid, date) {
   return `확인 ${new Date(stamp).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}`;
 }
 
-function reservationBadges(fac) {
+function reservationBadges(fac, cid) {
   const badges = makeNode("div", "reservation-badges");
-  [ReservationPolicy.reservationTypeLabel(fac), ReservationPolicy.applicationStatusLabel(fac)]
+  [ReservationPolicy.reservationTypeLabel(fac, cid), ReservationPolicy.applicationStatusLabel(fac, cid)]
     .filter(Boolean).forEach(label => badges.appendChild(makeNode("span", "reservation-badge", label)));
   return badges;
 }
@@ -1006,6 +1027,9 @@ function renderSummary() {
 
 function renderCourts() {
   const courtsEl = document.getElementById("courts");
+  const supportsTypes = ReservationPolicy.supportsReservationTypes(CURRENT_CITY);
+  document.getElementById("reservationTypeWrap").hidden = !supportsTypes;
+  if (!supportsTypes) filterReservationType.value = "";
 
   if (!DATA || typeof DATA !== "object" || !DATA.facilities || !DATA.availability) {
     courtsEl.textContent = "데이터를 불러오는 중입니다.";
@@ -1040,7 +1064,7 @@ function renderCourts() {
     const fac = DATA.facilities[cid];
     if (!fac || !fac.title) continue;
     if (cityOfFacilityId(cid) !== CURRENT_CITY) continue;
-    if (!ReservationPolicy.reservationTypeMatches(fac, filterReservationType.value)) continue;
+    if (!ReservationPolicy.reservationTypeMatches(fac, filterReservationType.value, cid)) continue;
 
     const courtGroup = getCourtGroup(fac.title);
     if (gu && !(fac.location || "").includes(gu)) continue;
@@ -1057,7 +1081,7 @@ function renderCourts() {
     const head = makeNode("div", "court-head");
     head.appendChild(makeNode("div", "court-title", fac.title));
     head.appendChild(makeNode("div", "court-loc", fac.location || CITY_LABELS[CURRENT_CITY] || ""));
-    head.appendChild(reservationBadges(fac));
+    head.appendChild(reservationBadges(fac, cid));
     card.appendChild(head);
 
     let hasAnySlot = false;
@@ -1387,10 +1411,12 @@ makeHourOptions(alarmTimeHour);
 filterGu.onchange = renderCourts;
 filterReservationType.onchange = renderCourts;
 filterCourt.onchange = () => {
+  document.getElementById("favoriteCourtSelect").value = filterCourt.value;
   renderCourts();
   renderFavoriteCourts();
 };
 favoriteAddBtn.onclick = addCurrentFavoriteCourt;
+favoriteCourtSelect.onchange = renderFavoriteCourts;
 favoriteOnlyBtn.onclick = () => {
   FAVORITES_ONLY = !FAVORITES_ONLY;
   renderCourts();
@@ -1505,6 +1531,7 @@ function setCity(city){
 
   // 필터 초기화(탭 변경 시 혼선 방지)
   filterCourt.value = "";
+  document.getElementById("favoriteCourtSelect").value = "";
   filterReservationType.value = "";
   filterDate.value = "";
   filterTimeHour.value = "";

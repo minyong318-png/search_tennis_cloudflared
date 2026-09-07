@@ -43,6 +43,7 @@ jobs:
           node tests/reservation-policy-edge.test.js
           node tests/court-availability-accuracy.test.js
           node tests/static-reservation-compat.test.js
+          node tests/static-favorites-city-scope.test.js
 
       - name: Validate SvelteKit app
         run: npm run check --prefix PagesCourtIssum

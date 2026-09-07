@@ -26,7 +26,7 @@ export const CITY_HOURS = {
 };
 
 export const { RESERVATION_TYPE_LABELS, RESERVATION_TYPE_KEYS, DEFAULT_AVAILABILITY_MAX_AGE_MS,
-  reservationTypeOfFacility, reservationTypeLabel, reservationTypeMatches,
+  supportsReservationTypes, reservationTypeOfFacility, reservationTypeLabel, reservationTypeMatches,
   applicationStatusLabel, availabilityMeta, availabilityIsFresh, availabilityState,
   availabilityMessage, slotIsExplicitlyUnavailable, slotIsAvailable } = globalThis.ReservationPolicy;
 
@@ -217,7 +217,7 @@ export function buildCourtOptions(data, city) {
     }
     const group = groups.get(courtGroup);
     group.courtIds.push(String(cid));
-    group.reservationTypes.add(reservationTypeOfFacility(fac));
+    if (supportsReservationTypes(city)) group.reservationTypes.add(reservationTypeOfFacility(fac));
     const physicalCourtId = fac.physical_court_id || fac.physicalCourtId || explicitCourtLabel(fac.title, courtGroup);
     if (physicalCourtId) group.physicalCourtKeys.add(String(physicalCourtId));
     else group.unknownPhysicalCourt = true;
@@ -249,9 +249,10 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
     .filter(([, fac]) => fac?.title)
     .filter(([cid]) => cityOfFacilityId(cid) === city)
     .filter(([, fac]) => !filters.district || districtFromFacility(fac) === filters.district)
-    .filter(([, fac]) => reservationTypeMatches(fac, reservationTypeFilter))
+    .filter(([, fac]) => reservationTypeMatches(fac, reservationTypeFilter, city))
     .map(([cid, fac]) => ({ cid, fac, courtGroup: getCourtGroup(fac.title, city) }))
     .filter((item) => !selectedCourtGroups.size || selectedCourtGroups.has(item.courtGroup))
+    .filter((item) => !filters.favoritesOnly || favorites.has(`${city}|${item.courtGroup}`))
     .sort((a, b) => a.courtGroup.localeCompare(b.courtGroup, "ko") || String(a.fac.title).localeCompare(String(b.fac.title), "ko") || a.cid.localeCompare(b.cid));
 
   const buckets = new Map();
@@ -282,8 +283,8 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
     const row = buckets.get(courtGroup);
     if (fac.location) row.locations.add(fac.location);
     if (courtLabel) row.labels.add(courtLabel);
-    row.reservationTypeLabels.add(reservationTypeLabel(fac));
-    row.applicationStatusLabels.add(applicationStatusLabel(fac));
+    row.reservationTypeLabels.add(reservationTypeLabel(fac, city));
+    row.applicationStatusLabels.add(applicationStatusLabel(fac, city));
     row.availabilityMessages.add(availabilityMessage(data, cid, date, fac, filters));
     const slots = ((data?.availability?.[cid]?.[date]) || [])
       .filter((slot) => slot?.timeContent)
@@ -296,8 +297,8 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
         _fac: fac,
         _courtLabel: courtLabel,
         _physicalCourtKey: physicalCourtKey(cid, fac, courtLabel),
-        reservationType: reservationTypeOfFacility(fac),
-        reservationTypeLabel: reservationTypeLabel(fac),
+        reservationType: supportsReservationTypes(city) ? reservationTypeOfFacility(fac) : '',
+        reservationTypeLabel: reservationTypeLabel(fac, city),
         _checkedAt: availabilityMeta(data, cid, date)?.checked_at || availabilityMeta(data, cid, date)?.updated_at || "",
         _variants: []
       };
