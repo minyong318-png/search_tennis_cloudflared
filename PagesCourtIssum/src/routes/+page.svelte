@@ -5,7 +5,10 @@
   import {
     CITY_KEYS,
     CITY_LABELS,
+    RESERVATION_TYPE_KEYS,
+    RESERVATION_TYPE_LABELS,
     activeHours,
+    availabilityMeta,
     buildCourtOptions,
     cityHealth,
     collectCourtRows,
@@ -25,12 +28,13 @@
   let city = "yongin";
   let date = todayKst();
   let direction = 1;
-  let filters = { district: "", courtGroups: [], hour: "", timeMode: "contains" };
+  let filters = { district: "", courtGroups: [], hour: "", timeMode: "contains", reservationType: "" };
   let favorites = new Set();
   let filterOpen = false;
   let alarmOpen = false;
   let detailOpen = false;
   let selectedDetail = null;
+  let lastLoadedAt = 0;
 
   $: hours = activeHours(city);
   $: options = buildCourtOptions(data, city);
@@ -40,7 +44,17 @@
   $: openRows = rows.filter((row) => row.count > 0);
   $: slotCount = openRows.reduce((sum, row) => sum + row.count, 0);
   $: firstOpen = openRows.map((row) => row.first).filter((time) => time && time !== "99:99").sort()[0] || "-";
-  $: activeFilterCount = Number(Boolean(filters.district)) + Number(filters.courtGroups.length > 0) + Number(Boolean(filters.hour));
+  $: activeFilterCount = Number(Boolean(filters.district)) + Number(filters.courtGroups.length > 0) + Number(Boolean(filters.hour)) + Number(Boolean(filters.reservationType));
+
+  async function loadData() {
+    try {
+      data = await fetchCourtData();
+      lastLoadedAt = Date.now();
+      error = "";
+    } catch (err) {
+      error = err instanceof Error ? err.message : "데이터를 불러오지 못했습니다.";
+    }
+  }
 
   onMount(() => {
     const openFilter = () => (filterOpen = true);
@@ -56,8 +70,9 @@
         if (params.get("date")) date = params.get("date");
         filters.district = params.get("district") || "";
         filters.courtGroups = String(params.get("courts") || "").split(",").filter(Boolean);
+        filters.reservationType = params.get("type") || "";
         favorites = loadFavorites();
-        data = await fetchCourtData();
+        await loadData();
       } catch (err) {
         error = err instanceof Error ? err.message : "데이터를 불러오지 못했습니다.";
       } finally {
@@ -65,9 +80,16 @@
       }
     })();
 
+    const refreshOnReturn = () => {
+      if (document.visibilityState === "visible" && Date.now() - lastLoadedAt > 5 * 60 * 1000) loadData();
+    };
+    const refreshTimer = window.setInterval(refreshOnReturn, 10 * 60 * 1000);
+    document.addEventListener("visibilitychange", refreshOnReturn);
     return () => {
       window.removeEventListener("courtissum:open-filter", openFilter);
       window.removeEventListener("courtissum:open-alarm", openAlarm);
+      document.removeEventListener("visibilitychange", refreshOnReturn);
+      window.clearInterval(refreshTimer);
     };
   });
 
@@ -77,6 +99,7 @@
     params.set("date", date);
     if (filters.district) params.set("district", filters.district);
     if (filters.courtGroups.length) params.set("courts", filters.courtGroups.join(","));
+    if (filters.reservationType) params.set("type", filters.reservationType);
     history.replaceState(null, "", `/?${params.toString()}`);
   }
 
@@ -104,7 +127,7 @@
   }
 
   function resetFilters() {
-    filters = { district: "", courtGroups: [], hour: "", timeMode: "contains" };
+    filters = { district: "", courtGroups: [], hour: "", timeMode: "contains", reservationType: "" };
   }
 
   function loadFavorites() {
@@ -134,7 +157,17 @@
   }
 
   function slotLabel(slot) {
-    return [slot?._courtLabel, slot?.timeContent].filter(Boolean).join(" ");
+    return [slot?.reservationTypeLabel, slot?._courtLabel, slot?.timeContent].filter(Boolean).join(" · ");
+  }
+
+  function checkedAtLabel(slot) {
+    const meta = availabilityMeta(data, slot?._cid, date);
+    const value = meta?.checked_at || meta?.updated_at || "";
+    return value ? new Date(value).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "확인 시각 없음";
+  }
+
+  function countLabel(count, row) {
+    return row?.unitLabel === "면" ? `${count}면` : `${count}개 예약 항목`;
   }
 </script>
 
@@ -210,6 +243,8 @@
               <div>
                 <div class="court-name">{row.courtGroup}</div>
                 <div class="court-location">{row.district} · {row.locationText}</div>
+                {#if row.reservationTypeLabels?.length}<div class="court-type">{row.reservationTypeLabels.join(" · ")}</div>{/if}
+                {#if row.applicationStatusLabels?.length && (row.count === 0 || row.applicationStatusLabels.length > 1)}<div class="court-status">{row.applicationStatusLabels.join(" · ")}</div>{/if}
               </div>
             </div>
             {#each hours as hour, hourIndex}
@@ -218,7 +253,7 @@
                 {#if hourSlots.length}
                   <button class:last={hourSlots.length === 1} class="slot-button available" type="button" on:click={() => openSlot(row, hour, hourSlots)}>
                     <span class="state-dot"></span>
-                    <span>{hourSlots.length === 1 ? "1면" : "가능"}</span>
+                    <span>{hourSlots.length === 1 ? countLabel(1, row) : `${countLabel(hourSlots.length, row)} 가능`}</span>
                   </button>
                 {:else}
                   <span class="slot-button off">—</span>
@@ -333,13 +368,23 @@
     </div>
   </div>
   <div class="drawer-section">
+    <span>예약 유형</span>
+    <div class="choice-grid">
+      <button class:active={!filters.reservationType} class="choice" type="button" on:click={() => (filters = { ...filters, reservationType: "" })}>전체</button>
+      {#each RESERVATION_TYPE_KEYS.filter((type) => type !== "unknown") as type}
+        <button class:active={filters.reservationType === type} class="choice" type="button" on:click={() => (filters = { ...filters, reservationType: type })}>{RESERVATION_TYPE_LABELS[type]}</button>
+      {/each}
+      <button class:active={filters.reservationType === "unknown"} class="choice" type="button" on:click={() => (filters = { ...filters, reservationType: "unknown" })}>{RESERVATION_TYPE_LABELS.unknown}</button>
+    </div>
+  </div>
+  <div class="drawer-section">
     <span>코트</span>
     <div class="option-list">
       {#each filteredOptions as option}
         <label class="check-option">
           <input type="checkbox" checked={filters.courtGroups.includes(option.value)} on:change={() => toggleCourtGroup(option.value)} />
           <strong>{option.label}</strong>
-          <small>{option.district} · {option.courtCount}개 코트</small>
+          <small>{option.district} · {option.unknownPhysicalCourt ? "코트 정보 확인 필요" : `${option.courtCount}개 코트`}</small>
         </label>
       {/each}
     </div>
@@ -373,13 +418,15 @@
   {#if selectedDetail}
     <div class="detail-grid">
       <div><span>날짜</span><strong>{compactDate(date)} {weekday(date)}요일</strong></div>
-      <div><span>잔여</span><strong>{selectedDetail.slots.length}면</strong></div>
+      <div><span>잔여</span><strong>{countLabel(selectedDetail.slots.length, selectedDetail.row)}</strong></div>
       <div><span>시설</span><strong>{selectedDetail.row.locationText}</strong></div>
-      <div><span>갱신</span><strong>{data.updated_at ? new Date(data.updated_at).toLocaleString("ko-KR") : "확인 중"}</strong></div>
+      <div><span>갱신</span><strong>{selectedDetail.slots[0] ? checkedAtLabel(selectedDetail.slots[0]) : "확인 중"}</strong></div>
     </div>
     <div class="slot-links">
       {#each selectedDetail.slots as slot}
-        <a class="primary-button" href={reserveHref(selectedDetail.row.cid, slot)} target="_blank" rel="noopener noreferrer">{slotLabel(slot)} 예약처 열기</a>
+        {#each (slot._variants?.length ? slot._variants : [slot]) as variant}
+          <a class="primary-button" href={reserveHref(selectedDetail.row.cid, variant)} target="_blank" rel="noopener noreferrer">{slotLabel(variant)} 예약처 열기</a>
+        {/each}
       {/each}
     </div>
     <p class="notice">예약과 결제는 공식 예약처에서 진행됩니다.</p>
@@ -536,6 +583,18 @@
     min-width: 0;
     color: #757a75;
     font-size: 12px;
+  }
+
+  .court-type {
+    color: var(--accent, #1f6f55);
+    font-size: 0.72rem;
+    margin-top: 0.15rem;
+  }
+
+  .court-status {
+    color: #9a5a18;
+    font-size: 0.7rem;
+    margin-top: 0.12rem;
   }
 
   .table-caption strong,

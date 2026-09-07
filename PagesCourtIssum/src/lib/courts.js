@@ -23,6 +23,23 @@ export const CITY_HOURS = {
   paju: { start: 7, end: 22 }
 };
 
+export const RESERVATION_TYPE_LABELS = {
+  district_priority: "구민우선",
+  city_priority: "시민우선",
+  general: "일반예약",
+  unknown: "유형 확인 필요"
+};
+const RESERVATION_TYPE_ALIASES = {
+  RESIDENTRESVE: "district_priority",
+  CITIZENRESVE: "city_priority",
+  GNRLRESVE: "general",
+  구민우선: "district_priority",
+  시민우선: "city_priority",
+  일반예약: "general"
+};
+export const RESERVATION_TYPE_KEYS = Object.keys(RESERVATION_TYPE_LABELS);
+export const DEFAULT_AVAILABILITY_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 export async function fetchCourtData(daysAhead = 45) {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_public_data`, {
     method: "POST",
@@ -129,6 +146,116 @@ export function explicitCourtLabel(title, courtGroup) {
   return "";
 }
 
+export function reservationTypeOfFacility(fac = {}) {
+  const value = fac.reservation_type || fac.reservationType || "unknown";
+  const label = fac.reservation_type_label || fac.reservationTypeLabel || "";
+  const raw = String(RESERVATION_TYPE_ALIASES[value] || RESERVATION_TYPE_ALIASES[label] || value).replaceAll(" ", "");
+  const normalized = raw.includes("구민") ? "district_priority" : raw.includes("시민") ? "city_priority" : raw.includes("일반") ? "general" : raw;
+  return RESERVATION_TYPE_LABELS[normalized] ? normalized : "unknown";
+}
+
+export function reservationTypeLabel(fac = {}) {
+  return fac.reservation_type_label || fac.reservationTypeLabel || RESERVATION_TYPE_LABELS[reservationTypeOfFacility(fac)];
+}
+
+export function reservationTypeMatches(fac, filter = "") {
+  return !filter || reservationTypeOfFacility(fac) === filter;
+}
+
+export function applicationStatusLabel(fac = {}) {
+  const explicit = fac.application_status_label || fac.applicationStatusLabel || "";
+  if (explicit) return explicit;
+  return {
+    open: "접수중",
+    not_open: "접수 전",
+    closed: "접수마감",
+    unknown: "상태 확인 필요"
+  }[normalizedApplicationStatus(fac)];
+}
+
+function normalizedApplicationStatus(fac = {}) {
+  const status = String(fac.application_status || fac.applicationStatus || "unknown").trim().toLowerCase();
+  if (["closed", "not_open", "notopen"].includes(status)) return status === "notopen" ? "not_open" : status;
+  const label = String(fac.application_status_label || fac.applicationStatusLabel || "").replaceAll(" ", "").toLowerCase();
+  if (label.includes("마감") || label.includes("closed") || label.includes("full")) return "closed";
+  if (label.includes("예정") || label.includes("접수전") || label.includes("notopen")) return "not_open";
+  if (["open", "success"].includes(status) || label.includes("접수중") || label.includes("예약가능")) return "open";
+  return "unknown";
+}
+
+export function availabilityMeta(data, cid, date) {
+  return data?.availability_meta?.[cid]?.[ymd(date)] || data?.availability_meta?.[cid]?.[date] || null;
+}
+
+export function availabilityIsFresh(data, cid, date, maxAgeMs = DEFAULT_AVAILABILITY_MAX_AGE_MS) {
+  const meta = availabilityMeta(data, cid, date);
+  if (!meta) return false;
+  const checkedAt = Date.parse(meta.checked_at || meta.checkedAt || meta.updated_at || meta.updatedAt || "");
+  if (!Number.isFinite(checkedAt)) return false;
+  const age = Date.now() - checkedAt;
+  return age >= -5 * 60 * 1000 && age <= maxAgeMs;
+}
+
+export function slotIsExplicitlyUnavailable(slot = {}) {
+  if (slot.available === false || slot.available === 0 || ["false", "no", "n", "0"].includes(String(slot.available || "").trim().toLowerCase())) return true;
+  for (const key of ["remaining", "remainingCount", "remain", "remainCount", "availableCount"]) {
+    if (slot[key] === undefined) continue;
+    if (slot[key] === null || slot[key] === "") return true;
+    const value = Number(slot[key]);
+    if (!Number.isFinite(value) || value <= 0) return true;
+  }
+  const status = String(slot.status || slot.statusText || slot.state || "").replaceAll(" ", "").toLowerCase();
+  return ["예약불가", "예약마감", "접수마감", "unavailable", "closed", "full", "reserved"].some((token) => status.includes(token));
+}
+
+function ymdIsWithin(date, start, end) {
+  const value = ymd(date);
+  const lower = ymd(start);
+  const upper = ymd(end);
+  return (!lower || value >= lower) && (!upper || value <= upper);
+}
+
+function applicationPeriodIsCurrent(fac) {
+  const today = ymd(todayKst());
+  const start = ymd(fac.application_start_date || fac.applicationStartDate);
+  const end = ymd(fac.application_end_date || fac.applicationEndDate);
+  return (!start || today >= start) && (!end || today <= end);
+}
+
+function currentKstMinutes() {
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+  return now.getHours() * 60 + now.getMinutes();
+}
+
+export function slotIsAvailable(data, cid, date, fac, slot, options = {}) {
+  if (ymd(date) < ymd(todayKst())) return false;
+  const meta = availabilityMeta(data, cid, date);
+  if (!meta) return false;
+  if (String(meta.query_status || "").toLowerCase() !== "success") return false;
+  if (String(meta.availability_status || "").toLowerCase() !== "available") return false;
+  if (!availabilityIsFresh(data, cid, date, options.freshnessMaxAgeMs || DEFAULT_AVAILABILITY_MAX_AGE_MS)) return false;
+  const applicationStatus = normalizedApplicationStatus(fac);
+  if (["closed", "not_open"].includes(applicationStatus)) return false;
+  if (String(cid).startsWith("yongin:") && applicationStatus !== "open") return false;
+  if (!applicationPeriodIsCurrent(fac)) return false;
+  if (!ymdIsWithin(date, fac.use_start_date || fac.useStartDate, fac.use_end_date || fac.useEndDate)) return false;
+  if (slotIsExplicitlyUnavailable(slot)) return false;
+  if (ymd(date) === ymd(todayKst())) {
+    const range = slotRange(slot);
+    if (range && range.start <= currentKstMinutes()) return false;
+  }
+  return Boolean(slot?.timeContent);
+}
+
+function physicalCourtKey(cid, fac, courtLabel) {
+  return String(fac.physical_court_id || fac.physicalCourtId || courtLabel || cid || "unknown");
+}
+
+function slotIdentity(slot) {
+  const range = slotRange(slot);
+  return range ? `${range.start}-${range.end}` : String(slot?.timeContent || "").replace(/\s+/g, " ").trim();
+}
+
 export function districtFromFacility(fac) {
   const direct = fac?.district || fac?.gu || fac?.sigungu || fac?.area || fac?.region;
   if (direct) return String(direct).trim();
@@ -166,7 +293,7 @@ export function slotMatches(slot, hourFilter = "", timeMode = "contains") {
 }
 
 export function reserveHref(cid, slot) {
-  const raw = slot?.reserveUrl || slot?.url || "";
+  const raw = slot?.reserveUrl || slot?.url || slot?._fac?.source_url || slot?._fac?.sourceUrl || "";
   if (raw) return raw;
   const slotCid = slot?._cid || cid;
   if (String(slotCid).startsWith("yongin:") || slot?.resveId) {
@@ -193,11 +320,18 @@ export function buildCourtOptions(data, city) {
         district,
         courtIds: [],
         locations: new Set(),
-        searchParts: new Set([courtGroup, district])
+        searchParts: new Set([courtGroup, district]),
+        reservationTypes: new Set(),
+        physicalCourtKeys: new Set(),
+        unknownPhysicalCourt: false
       });
     }
     const group = groups.get(courtGroup);
     group.courtIds.push(String(cid));
+    group.reservationTypes.add(reservationTypeOfFacility(fac));
+    const physicalCourtId = fac.physical_court_id || fac.physicalCourtId || explicitCourtLabel(fac.title, courtGroup);
+    if (physicalCourtId) group.physicalCourtKeys.add(String(physicalCourtId));
+    else group.unknownPhysicalCourt = true;
     if (fac.location || fac.address || fac.title) group.locations.add(fac.location || fac.address || fac.title);
     [fac.location, fac.address, fac.title].filter(Boolean).forEach((text) => group.searchParts.add(text));
   });
@@ -208,7 +342,9 @@ export function buildCourtOptions(data, city) {
       district: group.district,
       facilityName: group.facilityName,
       courtIds: group.courtIds,
-      courtCount: group.courtIds.length,
+      courtCount: group.unknownPhysicalCourt ? null : group.physicalCourtKeys.size,
+      unknownPhysicalCourt: group.unknownPhysicalCourt,
+      reservationTypes: [...group.reservationTypes],
       locationText: [...group.locations][0] || "",
       searchText: normalizeFilterText([...group.searchParts].join(" "))
     }))
@@ -219,23 +355,23 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
   const city = filters.city;
   const date = ymd(filters.date);
   const selectedCourtGroups = new Set(filters.courtGroups || []);
+  const reservationTypeFilter = filters.reservationType || "";
   const facilities = Object.entries(data?.facilities || {})
     .filter(([, fac]) => fac?.title)
     .filter(([cid]) => cityOfFacilityId(cid) === city)
     .filter(([, fac]) => !filters.district || districtFromFacility(fac) === filters.district)
+    .filter(([, fac]) => reservationTypeMatches(fac, reservationTypeFilter))
     .map(([cid, fac]) => ({ cid, fac, courtGroup: getCourtGroup(fac.title, city) }))
     .filter((item) => !selectedCourtGroups.size || selectedCourtGroups.has(item.courtGroup))
     .sort((a, b) => a.courtGroup.localeCompare(b.courtGroup, "ko") || String(a.fac.title).localeCompare(String(b.fac.title), "ko") || a.cid.localeCompare(b.cid));
 
-  const groupSizes = new Map();
-  facilities.forEach((item) => groupSizes.set(item.courtGroup, (groupSizes.get(item.courtGroup) || 0) + 1));
-  const groupSeen = new Map();
   const buckets = new Map();
 
   facilities.forEach(({ cid, fac, courtGroup }) => {
-    const index = (groupSeen.get(courtGroup) || 0) + 1;
-    groupSeen.set(courtGroup, index);
-    const courtLabel = explicitCourtLabel(fac.title, courtGroup) || (groupSizes.get(courtGroup) > 1 ? `${index}코트` : "");
+    // A reservation-product sequence is not evidence of a physical court
+    // number. Keep an unknown court unnumbered until the source provides a
+    // verified label or physical_court_id.
+    const courtLabel = explicitCourtLabel(fac.title, courtGroup);
     if (!buckets.has(courtGroup)) {
       buckets.set(courtGroup, {
         cid,
@@ -244,6 +380,8 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
         district: districtFromFacility(fac),
         locations: new Set(),
         labels: new Set(),
+        reservationTypeLabels: new Set(),
+        applicationStatusLabels: new Set(),
         slots: [],
         byHour: new Map(),
         count: 0,
@@ -254,11 +392,31 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
     const row = buckets.get(courtGroup);
     if (fac.location) row.locations.add(fac.location);
     if (courtLabel) row.labels.add(courtLabel);
+    row.reservationTypeLabels.add(reservationTypeLabel(fac));
+    row.applicationStatusLabels.add(applicationStatusLabel(fac));
     const slots = ((data?.availability?.[cid]?.[date]) || [])
       .filter((slot) => slot?.timeContent)
-      .filter((slot) => slotMatches(slot, filters.hour, filters.timeMode));
+      .filter((slot) => slotMatches(slot, filters.hour, filters.timeMode))
+      .filter((slot) => slotIsAvailable(data, cid, date, fac, slot, filters));
     slots.forEach((slot) => {
-      const enriched = { ...slot, _cid: cid, _fac: fac, _courtLabel: courtLabel };
+      const enriched = {
+        ...slot,
+        _cid: cid,
+        _fac: fac,
+        _courtLabel: courtLabel,
+        _physicalCourtKey: physicalCourtKey(cid, fac, courtLabel),
+        reservationType: reservationTypeOfFacility(fac),
+        reservationTypeLabel: reservationTypeLabel(fac),
+        _checkedAt: availabilityMeta(data, cid, date)?.checked_at || availabilityMeta(data, cid, date)?.updated_at || "",
+        _variants: []
+      };
+      const identity = `${enriched._physicalCourtKey}|${slotIdentity(slot)}`;
+      const duplicate = row.slots.find((existing) => existing._slotIdentity === identity);
+      if (duplicate) {
+        duplicate._variants = [...(duplicate._variants || [duplicate]), enriched];
+        return;
+      }
+      enriched._slotIdentity = identity;
       const hour = slotHour(slot);
       row.slots.push(enriched);
       if (hour !== null) {
@@ -275,6 +433,11 @@ export function collectCourtRows(data, filters, favorites = new Set()) {
     row.first = row.slots.map(firstTime).filter(Boolean).sort()[0] || "99:99";
     row.locationText = [...row.locations][0] || row.fac.location || row.fac.title;
     row.courtLabelList = [...row.labels].sort((a, b) => a.localeCompare(b, "ko", { numeric: true }));
+    row.physicalCourtKeys = [...new Set(row.slots.map((slot) => slot._physicalCourtKey))];
+    row.reservationTypeLabels = [...row.reservationTypeLabels].filter(Boolean);
+    row.applicationStatusLabels = [...row.applicationStatusLabels].filter(Boolean);
+    row.unknownPhysicalCourt = row.slots.some((slot) => !slot._courtLabel && !slot._fac?.physical_court_id && !slot._fac?.physicalCourtId);
+    row.unitLabel = row.unknownPhysicalCourt ? "예약 항목" : "면";
     row.priority = row.count > 0 && row.favorite ? 0 : row.count > 0 ? 1 : row.favorite ? 2 : 3;
     return row;
   }).sort((a, b) => a.priority - b.priority || b.count - a.count || a.first.localeCompare(b.first) || a.courtGroup.localeCompare(b.courtGroup, "ko"));
@@ -293,7 +456,10 @@ export function cityHealth(data, city) {
       if (compact.length !== 8) return;
       cacheRowCount += 1;
       if (compact > dateMax) dateMax = compact;
-      const count = Array.isArray(slots) ? slots.filter((slot) => slot?.timeContent).length : 0;
+      const fac = data?.facilities?.[cid] || {};
+      const count = Array.isArray(slots)
+        ? slots.filter((slot) => slotIsAvailable(data, cid, compact, fac, slot)).length
+        : 0;
       slotCount += count;
       if (compact >= today && count > 0) nonEmptyFutureDays += 1;
     });
