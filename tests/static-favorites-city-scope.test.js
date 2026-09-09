@@ -33,14 +33,15 @@ function load(directory, existingStorage) {
   const elements = Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(([, id]) => [id, new Element()]));
   const storage = new Map(Object.entries(existingStorage));
   const context = {
-    ...elements, console, URL, Date, setTimeout() {}, clearTimeout() {}, setInterval() {}, navigator: {},
+    ...elements, console, URL, URLSearchParams, Date, setTimeout() {}, clearTimeout() {}, setInterval() {}, navigator: {},
     localStorage: { getItem(key) { return storage.get(key) ?? null; }, setItem(key, value) { storage.set(key, value); } },
     innerWidth: 390, matchMedia() { return { matches: false }; }, addEventListener() {},
     location: { href: 'https://example.com/?type=district_priority', search: '?type=district_priority' },
+    history: { replaceState() {} },
     document: {
       getElementById(id) { return elements[id] ||= new Element(); }, createElement(tag) { return new Element(tag); },
       createDocumentFragment() { return new Element(); }, createTextNode(text) { return String(text); },
-      querySelector() { return { value: 'contains', checked: true }; }, querySelectorAll() { return []; },
+      querySelector() { const element = new Element(); element.value = 'contains'; element.checked = true; return element; }, querySelectorAll() { return []; },
       addEventListener() {}, body: new Element(), documentElement: new Element()
     }, supabase: { createClient() { return {}; } }
   };
@@ -69,27 +70,37 @@ for (const directory of ['Pages', 'PagesCourtIssum']) {
   const page = load(directory, { [key]: JSON.stringify(previous) });
   if (!legacy) page.run('loadData = async () => {}; init()');
   page.context.fixture = JSON.parse(JSON.stringify(data));
-  page.run(legacy ? 'DATA = fixture; CURRENT_CITY = "goyang"' : 'DATA = fixture; currentCity = "goyang"');
+  page.run(legacy ? 'DATA = fixture; CURRENT_CITY = "goyang"' : 'DATA = fixture; currentCity = "goyang"; searchScope = "all"');
   page.elements[legacy ? 'filterDate' : 'dateFilter'].value = tomorrow;
-  const typeFilter = page.elements[legacy ? 'filterReservationType' : 'reservationTypeFilter'];
+  const typeFilter = legacy ? (page.elements.filterReservationType || { value: '' }) : page.elements.reservationTypeFilter;
   typeFilter.value = 'city_priority';
   page.run(legacy ? 'renderCourts(); renderFavoriteCourts()' : 'render()');
-  assert.equal(page.elements.reservationTypeWrap.hidden, true, `${directory}: other cities hide the type filter`);
-  assert.equal(typeFilter.value, '', `${directory}: stale type selection must be cleared`);
+  if (!legacy) {
+    assert.equal(page.elements.reservationTypeWrap.hidden, true, `${directory}: other cities hide the type filter`);
+    assert.equal(typeFilter.value, '', `${directory}: stale type selection must be cleared`);
+  }
   const output = legacy ? page.elements.courts : page.elements.mobileCards;
   assert(!/구민우선|시민우선|일반예약|접수마감/.test(output.textContent), `${directory}: Yongin product badges must not appear for other cities`);
   const count = legacy ? descendants(output).filter(element => element.className === 'slot').length : page.run('collectRows().reduce((sum,row) => sum + row.count, 0)');
   assert.equal(count, 1, `${directory}: Yongin product state/period must not block verified Goyang time`);
 
   const emptyGroup = page.run('getCourtGroup(DATA.facilities["goyang:empty"].title)');
-  const picker = page.elements.favoriteCourtSelect;
-  assert(picker.options.some(option => option.value === emptyGroup), `${directory}: empty court must be selectable for favorites`);
-  picker.value = emptyGroup;
-  page.run(legacy ? 'renderFavoriteCourts()' : 'renderFavoritesPanel()');
-  const add = page.elements[legacy ? 'favoriteAddBtn' : 'favoriteAddButton'];
-  assert.equal(add.disabled, false, `${directory}: favorite add button enabled without availability`);
-  if (legacy) add.onclick(); else add.listeners.click[0]();
-  if (legacy) page.run('addCurrentFavoriteCourt()'); else page.run('addSelectedFavoriteCourt()');
+  if (legacy) {
+    page.context.emptyGroup = emptyGroup;
+    page.run('toggleFavoriteCourt("goyang", emptyGroup)');
+    page.run('toggleFavoriteCourt("goyang", emptyGroup)');
+    assert.deepEqual(JSON.parse(page.storage.get(key)), previous, 'Toggling the star off preserves other saved courts');
+    page.run('toggleFavoriteCourt("goyang", emptyGroup)');
+  } else {
+    const picker = page.elements.favoriteCourtSelect;
+    assert(picker.options.some(option => option.value === emptyGroup), `${directory}: empty court must be selectable for favorites`);
+    picker.value = emptyGroup;
+    page.run('renderFavoritesPanel()');
+    const add = page.elements.favoriteAddButton;
+    assert.equal(add.disabled, false, `${directory}: favorite add button enabled without availability`);
+    add.listeners.click[0]();
+    page.run('addSelectedFavoriteCourt()');
+  }
   const saved = JSON.parse(page.storage.get(key));
   assert.equal(saved.length, 2, `${directory}: repeated add must preserve previous favorites without duplicate`);
   assert.deepEqual(saved.find(item => legacy ? item.city === 'yongin' : item.startsWith('yongin|')), previous[0]);
@@ -101,15 +112,18 @@ for (const directory of ['Pages', 'PagesCourtIssum']) {
     assert.equal(rows.length, 1);
     assert.equal(rows[0].courtGroup, emptyGroup);
   } else assert.equal(descendants(page.elements.courts).filter(element => element.className === 'slot').length, 0);
-  const list = page.elements[legacy ? 'favoriteList' : 'savedFavorites'];
-  const remove = descendants(list).find(element => element.attributes['aria-label']?.includes(`${emptyGroup} 즐겨찾기 삭제`));
-  assert(remove, `${directory}: saved list must provide a named remove button`);
-  remove.onclick();
+  if (legacy) page.run('removeFavoriteCourt("goyang", emptyGroup)');
+  else {
+    const list = page.elements.savedFavorites;
+    const remove = descendants(list).find(element => element.attributes['aria-label']?.includes(`${emptyGroup} 즐겨찾기 삭제`));
+    assert(remove, `${directory}: saved list must provide a named remove button`);
+    remove.onclick();
+  }
   assert.deepEqual(JSON.parse(page.storage.get(key)), previous, `${directory}: delete only selected favorite and preserve old format`);
   const restoredCount = legacy ? descendants(page.elements.courts).filter(element => element.className === 'slot').length : page.run('collectRows().reduce((sum,row) => sum + row.count, 0)');
   assert.equal(restoredCount, 1, `${directory}: removing last favorite restores normal results immediately`);
 
   page.run(legacy ? 'CURRENT_CITY = "yongin"; renderCourts()' : 'currentCity = "yongin"; render()');
-  assert.equal(page.elements.reservationTypeWrap.hidden, false, `${directory}: Yongin restores type filter`);
+  if (!legacy) assert.equal(page.elements.reservationTypeWrap.hidden, false, `${directory}: Yongin restores type filter`);
 }
 console.log('Both static clients passed city-scoped reservation rules and favorites add/list/delete/filter/storage regressions.');

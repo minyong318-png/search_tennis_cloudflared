@@ -39,7 +39,7 @@ function loadPage(directory) {
   new Function(script);
   const elements = Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(([, id]) => [id, new Element()]));
   const context = {
-    ...elements, console, URL, Date, setTimeout() {}, clearTimeout() {}, setInterval() {},
+    ...elements, console, URL, Date, setTimeout() {}, clearTimeout() {}, setInterval() {}, requestAnimationFrame() { return 1; },
     navigator: {}, localStorage: { getItem() { return null; }, setItem() {} },
     innerWidth: 390, matchMedia() { return { matches: false }; }, addEventListener() {},
     location: { href: 'https://example.com/', search: '' },
@@ -75,25 +75,35 @@ function fixture() {
 for (const directory of ['Pages', 'PagesCourtIssum']) {
   const page = loadPage(directory);
   const legacy = directory === 'Pages';
-  const filter = page.elements[legacy ? 'filterReservationType' : 'reservationTypeFilter'];
+  const filter = legacy ? (page.elements.filterReservationType || { value: '' }) : page.elements.reservationTypeFilter;
   page.elements[legacy ? 'filterDate' : 'dateFilter'].value = tomorrow;
   page.context.fixture = fixture();
   page.evaluate('DATA = fixture');
+  // Reservation-policy assertions exercise an explicitly requested city-wide query.
+  // First-visit scope=none is covered separately by the browser UX scenarios.
+  if (!legacy) page.evaluate('searchScope = "all"');
   const render = () => legacy ? page.evaluate('renderCourts()') : page.evaluate('collectRows()');
   const availableCount = () => legacy
     ? descendants(page.elements.courts).filter(element => element.className === 'slot').length
     : render().reduce((sum, row) => sum + row.count, 0);
 
-  filter.value = 'district_priority';
-  render();
-  assert.equal(availableCount(), 1, `${directory}: district priority filter`);
-  filter.value = 'city_priority';
-  render();
-  assert.equal(availableCount(), 1, `${directory}: citizen filter`);
-  if (legacy) assert(page.elements.courts.textContent.includes('시민우선'));
-  filter.value = 'general';
-  render();
-  assert.equal(availableCount(), 0, `${directory}: unknown/type mismatch cannot become general`);
+  if (legacy) {
+    filter.value = 'district_priority';
+    render();
+    assert.equal(availableCount(), 2, 'Standalone shows both reservation products without a category filter');
+    assert(page.elements.courts.textContent.includes('구민우선'));
+    assert(page.elements.courts.textContent.includes('시민우선'));
+  } else {
+    filter.value = 'district_priority';
+    render();
+    assert.equal(availableCount(), 1, `${directory}: district priority filter`);
+    filter.value = 'city_priority';
+    render();
+    assert.equal(availableCount(), 1, `${directory}: citizen filter`);
+    filter.value = 'general';
+    render();
+    assert.equal(availableCount(), 0, `${directory}: unknown/type mismatch cannot become general`);
+  }
 
   filter.value = '';
   if (!legacy) {

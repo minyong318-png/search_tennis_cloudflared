@@ -1,0 +1,111 @@
+.calendar-source {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.calendar-source-label { display: none !important; }
+.calendar-trigger {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ios-text, var(--text, #17211b));
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+  white-space: nowrap;
+}
+.calendar-trigger:focus-visible { outline: 3px solid color-mix(in srgb, var(--ios-blue, #007aff) 65%, transparent); outline-offset: 2px; }
+.calendar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10090;
+  border: 0;
+  border-radius: 0;
+  background: rgba(0, 0, 0, .42);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.calendar-backdrop.is-open { opacity: 1; }
+#courtCalendar {
+  position: fixed;
+  z-index: 10100;
+  width: min(360px, calc(100vw - 16px));
+  max-height: min(640px, calc(100vh - 16px));
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 14px;
+  border: 1px solid var(--ios-border, rgba(60,60,67,.18));
+  border-radius: 22px;
+  background: var(--ios-surface, #fff);
+  color: var(--ios-text, #1c1c1e);
+  box-shadow: 0 18px 60px rgba(0,0,0,.24);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+#courtCalendar[hidden] { display: none; }
+#courtCalendar.is-open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+#courtCalendar.calendar-mobile { left: 8px !important; right: 8px; bottom: 0 !important; top: auto !important; width: auto; max-height: min(78svh, 640px); border-radius: 22px 22px 0 0; padding-bottom: calc(14px + var(--ios-safe-bottom, env(safe-area-inset-bottom, 0px))); }
+@supports not (height: 1svh) {
+  #courtCalendar.calendar-mobile { max-height: min(78vh, 640px); }
+}
+.calendar-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 6px; }
+.calendar-month { margin: 0; text-align: center; font-size: 18px; font-weight: 900; letter-spacing: -.03em; }
+.calendar-nav, .calendar-close, .calendar-today {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--ios-border, rgba(60,60,67,.18));
+  border-radius: 12px;
+  background: var(--ios-surface-muted, #f8f8fb);
+  color: var(--ios-text, #1c1c1e);
+  font: inherit;
+  font-weight: 800;
+}
+.calendar-close { justify-self: end; }
+.calendar-today { display: block; width: 100%; margin: 10px 0; color: var(--ios-blue, #007aff); }
+.calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.calendar-row { display: contents; }
+.calendar-weekdays { margin: 4px 0 4px; color: var(--ios-secondary, #6e6e73); font-size: 12px; font-weight: 800; text-align: center; }
+.calendar-day {
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 5px 2px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ios-text, #1c1c1e);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+}
+.calendar-day.other-month { color: var(--ios-secondary, #6e6e73); opacity: .62; }
+.calendar-day.today { border-color: var(--ios-blue, #007aff); color: var(--ios-blue, #007aff); }
+.calendar-day.selected { background: var(--ios-blue, #007aff); border-color: var(--ios-blue, #007aff); color: #fff; }
+.calendar-day:focus-visible, .calendar-nav:focus-visible, .calendar-close:focus-visible, .calendar-today:focus-visible { outline: 3px solid color-mix(in srgb, var(--ios-blue, #007aff) 65%, transparent); outline-offset: 2px; }
+.calendar-day[aria-current="date"] { font-weight: 950; }
+@media (min-width: 721px) {
+  .calendar-backdrop { display: none; }
+}
+@media (max-width: 360px) {
+  .date-box:has(.calendar-trigger) { grid-column: 1 / -1; }
+  #courtCalendar { padding: 10px; }
+  .calendar-grid, .calendar-weekdays { gap: 2px; }
+  .calendar-day { min-height: 42px; font-size: 13px; }
+}
+@media (prefers-color-scheme: dark) {
+  .calendar-backdrop { background: rgba(0,0,0,.64); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .calendar-backdrop, #courtCalendar { transition: none; }
+}
