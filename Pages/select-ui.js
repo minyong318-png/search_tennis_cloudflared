@@ -17,6 +17,9 @@
   const registry = new Map();
   let openController = null;
   let backdrop = null;
+  let closeTimer = null;
+  let layerGeneration = 0;
+  let bodyLock = null;
 
   function sourceLabel(select) {
     return select.getAttribute("aria-label") || LABELS[select.id] || "선택";
@@ -41,6 +44,29 @@
 
   function focusWithoutScroll(element) {
     try { element?.focus?.({ preventScroll: true }); } catch (_) { element?.focus?.(); }
+  }
+
+  function lockBody() {
+    if (bodyLock) return;
+    bodyLock = { scroll: window.scrollY, paddingRight: document.body.style.paddingRight };
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${bodyLock.scroll}px`;
+    document.body.style.width = "100%";
+    document.body.style.overflow = "hidden";
+    const gutter = window.innerWidth - document.documentElement.clientWidth;
+    if (gutter > 0) document.body.style.paddingRight = `${gutter}px`;
+  }
+
+  function unlockBody() {
+    if (!bodyLock) return;
+    const previous = bodyLock;
+    bodyLock = null;
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.width = "";
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = previous.paddingRight;
+    try { window.scrollTo?.({ top: previous.scroll, left: 0, behavior: "instant" }); } catch (_) { window.scrollTo?.(0, previous.scroll); }
   }
 
   function createController(select) {
@@ -76,6 +102,7 @@
       select,
       trigger,
       listbox,
+      centered: select.id === "filterGu" || select.id === "alarmCourt",
       options: [],
       activeIndex: 0,
       opened: false,
@@ -116,6 +143,13 @@
 
       position() {
         if (!this.opened || listbox.hidden) return;
+        if (this.centered) {
+          listbox.classList.add("is-modal");
+          listbox.classList.remove("is-sheet");
+          listbox.style.removeProperty("top");
+          listbox.style.removeProperty("left");
+          return;
+        }
         const mobile = window.matchMedia?.("(max-width: 720px)")?.matches;
         listbox.classList.toggle("is-sheet", Boolean(mobile));
         if (mobile) {
@@ -142,26 +176,53 @@
         if (!this.options.length) return;
         if (openController && openController !== this) openController.close(false);
         openController = this;
+        clearTimeout(closeTimer);
+        layerGeneration += 1;
         this.opened = true;
         trigger.setAttribute("aria-expanded", "true");
         const layer = ensureBackdrop();
         layer.hidden = false;
+        layer.classList.add("is-open");
         listbox.hidden = false;
+        if (this.centered) lockBody();
         this.position();
-        requestAnimationFrame(() => { this.position(); this.focusActive(); });
+        requestAnimationFrame(() => { if (!this.opened) return; if (this.centered) listbox.classList.add("is-open"); this.position(); this.focusActive(); });
       },
 
       close(restoreFocus) {
         if (!this.opened) return;
         this.opened = false;
         trigger.setAttribute("aria-expanded", "false");
-        listbox.hidden = true;
-        listbox.classList.remove("is-sheet");
+        const generation = ++layerGeneration;
+        listbox.classList.remove("is-open");
+        if (backdrop) backdrop.classList.remove("is-open");
         listbox.style.removeProperty("top");
         listbox.style.removeProperty("left");
         if (openController === this) openController = null;
-        if (backdrop) backdrop.hidden = true;
-        if (restoreFocus) focusWithoutScroll(trigger);
+        if (!restoreFocus) {
+          listbox.hidden = true;
+          listbox.classList.remove("is-modal", "is-sheet");
+          if (backdrop) backdrop.hidden = true;
+          if (this.centered) unlockBody();
+          return;
+        }
+        if (!this.centered) {
+          listbox.hidden = true;
+          listbox.classList.remove("is-modal", "is-sheet");
+          if (backdrop) backdrop.hidden = true;
+          focusWithoutScroll(trigger);
+          return;
+        }
+        clearTimeout(closeTimer);
+        const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+        closeTimer = setTimeout(() => {
+          if (generation !== layerGeneration || this.opened) return;
+          listbox.hidden = true;
+          listbox.classList.remove("is-modal");
+          if (backdrop) backdrop.hidden = true;
+          unlockBody();
+          if (restoreFocus) focusWithoutScroll(trigger);
+        }, reduce ? 0 : 180);
       },
 
       choose(index) {
@@ -262,6 +323,7 @@
       controller.select.tabIndex = 0;
     });
     registry.clear();
+    unlockBody();
     backdrop?.remove();
     backdrop = null;
   }

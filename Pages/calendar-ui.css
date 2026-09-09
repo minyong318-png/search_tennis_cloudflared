@@ -36,8 +36,10 @@
 #courtCalendar {
   position: fixed;
   z-index: 10100;
+  top: 50%;
+  left: 50%;
   width: min(360px, calc(100vw - 16px));
-  max-height: min(640px, calc(100vh - 16px));
+  max-height: min(82svh, 640px);
   overflow: auto;
   overscroll-behavior: contain;
   padding: 14px;
@@ -47,15 +49,15 @@
   color: var(--ios-text, #1c1c1e);
   box-shadow: 0 18px 60px rgba(0,0,0,.24);
   opacity: 0;
-  transform: translateY(8px);
+  transform: translate(-50%, -48%) scale(.985);
   pointer-events: none;
   transition: opacity .2s ease, transform .2s ease;
 }
 #courtCalendar[hidden] { display: none; }
-#courtCalendar.is-open { opacity: 1; transform: translateY(0); pointer-events: auto; }
-#courtCalendar.calendar-mobile { left: 8px !important; right: 8px; bottom: 0 !important; top: auto !important; width: auto; max-height: min(78svh, 640px); border-radius: 22px 22px 0 0; padding-bottom: calc(14px + var(--ios-safe-bottom, env(safe-area-inset-bottom, 0px))); }
+#courtCalendar.is-open { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+#courtCalendar.calendar-mobile { width: min(360px, calc(100vw - 16px)); max-height: min(82svh, 640px); border-radius: 22px; padding-bottom: calc(14px + var(--ios-safe-bottom, env(safe-area-inset-bottom, 0px))); }
 @supports not (height: 1svh) {
-  #courtCalendar.calendar-mobile { max-height: min(78vh, 640px); }
+  #courtCalendar, #courtCalendar.calendar-mobile { max-height: min(82vh, 640px); }
 }
 .calendar-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 6px; }
 .calendar-month { margin: 0; text-align: center; font-size: 18px; font-weight: 900; letter-spacing: -.03em; }
@@ -95,7 +97,7 @@
 .calendar-day:focus-visible, .calendar-nav:focus-visible, .calendar-close:focus-visible, .calendar-today:focus-visible { outline: 3px solid color-mix(in srgb, var(--ios-blue, #007aff) 65%, transparent); outline-offset: 2px; }
 .calendar-day[aria-current="date"] { font-weight: 950; }
 @media (min-width: 721px) {
-  .calendar-backdrop { display: none; }
+  .calendar-backdrop { display: block; }
 }
 @media (max-width: 360px) {
   .date-box:has(.calendar-trigger) { grid-column: 1 / -1; }

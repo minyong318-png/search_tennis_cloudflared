@@ -71,15 +71,9 @@
   }
 
   function position() {
-    if (!state.open || calendar.classList.contains("calendar-mobile")) return;
-    const rect = state.active.trigger.getBoundingClientRect();
-    const width = Math.min(360, window.innerWidth - 16);
-    const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
-    const below = rect.bottom + 8;
-    const height = calendar.offsetHeight;
-    const top = below + height <= window.innerHeight - 8 ? below : Math.max(8, rect.top - height - 8);
-    calendar.style.left = `${Math.round(left)}px`;
-    calendar.style.top = `${Math.round(top)}px`;
+    if (!state.open) return;
+    calendar.style.removeProperty("left");
+    calendar.style.removeProperty("top");
   }
 
   function focusDate(dateValue) {
@@ -115,7 +109,7 @@
   }
 
   function lockBody() {
-    if (!mobile() || state.bodyLocked) return;
+    if (state.bodyLocked) return;
     state.bodyLocked = true;
     state.scroll = window.scrollY; state.bodyPaddingRight = document.body.style.paddingRight;
     document.body.style.position = "fixed"; document.body.style.top = `-${state.scroll}px`; document.body.style.width = "100%"; document.body.style.overflow = "hidden";
@@ -132,9 +126,9 @@
     if (state.open) close(false);
     state.active = config; state.open = true; state.focus = config.trigger; state.generation += 1;
     const selected = parseIso(config.source.value) || today(); state.date = selected; state.month = monthStart(selected);
-    calendar.setAttribute("aria-label", `${config.name} 달력`); calendar.classList.toggle("calendar-mobile", mobile()); calendar.hidden = false; calendar.classList.add("is-open"); backdrop.hidden = !mobile();
+    calendar.setAttribute("aria-label", `${config.name} 달력`); calendar.classList.toggle("calendar-mobile", mobile()); calendar.hidden = false; calendar.classList.add("is-open"); backdrop.hidden = false;
     lockBody(); render();
-    if (mobile()) requestAnimationFrame(() => backdrop.classList.add("is-open"));
+    requestAnimationFrame(() => { if (!state.open) return; backdrop.classList.add("is-open"); });
     requestAnimationFrame(() => { if (!state.open) return; position(); });
   }
   function close(restoreFocus = true) {
@@ -175,14 +169,14 @@
     else if (event.key === "Tab") { const list = focusables(); if (!list.length) return; const first = list[0], last = list[list.length - 1]; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } }
   });
   backdrop.addEventListener("click", () => close(true));
-  document.addEventListener("pointerdown", event => { if (!state.open || mobile() || calendar.contains(event.target) || state.active?.trigger.contains(event.target)) return; close(true); });
+  document.addEventListener("pointerdown", event => { if (!state.open || calendar.contains(event.target) || state.active?.trigger.contains(event.target)) return; close(true); });
   window.addEventListener("resize", () => {
     if (!state.open) return;
     const isMobile = mobile();
-    if (isMobile) lockBody(); else unlockBody();
+    if (!state.bodyLocked) lockBody();
     calendar.classList.toggle("calendar-mobile", isMobile);
-    backdrop.hidden = !isMobile;
-    backdrop.classList.toggle("is-open", isMobile);
+    backdrop.hidden = false;
+    backdrop.classList.add("is-open");
     position();
   });
 
