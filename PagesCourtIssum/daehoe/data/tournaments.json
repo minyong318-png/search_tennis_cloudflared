@@ -73399,9 +73399,9 @@
     "organizer": "대한테니스협회",
     "startDate": "2026-09-18",
     "endDate": "2026-09-27",
-    "status": "접수예정",
-    "registrationStatusRaw": "접수예정",
-    "registrationStatusCode": "UPCOMING",
+    "status": "대회진행중",
+    "registrationStatusRaw": "대회진행중",
+    "registrationStatusCode": "UNKNOWN",
     "registrationCountCurrent": null,
     "registrationCapacity": null,
     "registrationUnit": "unknown",
@@ -73511,8 +73511,8 @@
     "duplicateKey": "서울특별시협회장기|2026-09-19||목동",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-09-17T23:40:47.079Z"
+    "firstSeenAt": "2026-09-17T23:40:47.079Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kata-4e69787c-2b1c-442d-806d-c01c29ee68af",
@@ -74893,8 +74893,8 @@
     "duplicateKey": "용인시체육회장배종합대회|2026-10-09|용인시|용인시관련",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-09-17T23:40:47.079Z"
+    "firstSeenAt": "2026-09-17T23:40:47.079Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kata-aae26355-a3cd-419e-a536-e1d354cd914f",
