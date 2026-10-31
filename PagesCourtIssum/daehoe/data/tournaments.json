@@ -74779,9 +74779,9 @@
     "organizer": "KATA",
     "startDate": "2026-11-06",
     "endDate": "2026-11-06",
-    "status": "접수중",
-    "registrationStatusRaw": "접수중",
-    "registrationStatusCode": "OPEN",
+    "status": "접수예정",
+    "registrationStatusRaw": "접수예정",
+    "registrationStatusCode": "UPCOMING",
     "registrationCountCurrent": null,
     "registrationCapacity": null,
     "registrationUnit": "unknown",
@@ -74800,7 +74800,7 @@
         "format": "복식",
         "playDate": "2026-11-06",
         "applicationUrl": "https://baceline.onelink.me/Q7gp/2wkejwgx",
-        "status": "접수중",
+        "status": "접수예정",
         "registrationCountCurrent": null,
         "registrationCapacity": null,
         "registrationUnit": "unknown",
@@ -75978,8 +75978,8 @@
     "duplicateKey": "용인특례시직장대항|2026-11-21|용인시|용인시관련",
     "confidenceScore": 90,
     "alternateSources": [],
-    "syncStatus": "new",
-    "firstSeenAt": "2026-10-30T01:13:50.274Z"
+    "firstSeenAt": "2026-10-30T01:13:50.274Z",
+    "syncStatus": "seen"
   },
   {
     "id": "kata-80c98be8-25dd-4df0-a6ad-249eac443829",
